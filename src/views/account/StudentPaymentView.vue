@@ -1,5 +1,6 @@
 <template>
   <RouterView />
+
   <!-- Sidebar -->
   <AccountMenuView />
 
@@ -32,10 +33,12 @@
           >
             <i class="fa-solid fa-gauge-high"></i>
           </div>
+
           <div>
             <h3 class="fw-bold mb-1" style="font-size: 22px; color: #ffffff">
               Welcome Back, Administrator 👋
             </h3>
+
             <p class="mb-0" style="font-size: 13px; color: rgba(255, 255, 255, 0.85)">
               Manage your students, payments and coaching activities from one place.
             </p>
@@ -54,9 +57,11 @@
           "
         >
           <i class="fa-regular fa-calendar-days" style="font-size: 20px"></i>
+
           <div style="line-height: 1.2">
-            <small style="font-size: 10px; display: block; opacity: 0.8">Today</small>
-            <span style="font-size: 13px; font-weight: 700">Dashboard</span>
+            <small style="font-size: 10px; display: block; opacity: 0.8"> Today </small>
+
+            <span style="font-size: 13px; font-weight: 700"> Dashboard </span>
           </div>
         </div>
 
@@ -89,6 +94,7 @@
             <div class="filter-item">
               <select v-model="selectedClass" class="form-select custom-select">
                 <option value="">All Classes</option>
+
                 <option v-for="cls in uniqueClasses" :key="cls" :value="cls">
                   {{ cls }}
                 </option>
@@ -144,7 +150,10 @@
                   <td>
                     <div class="student-info-inline">
                       <img :src="getImageUrl(s)" alt="Student Avatar" class="student-table-img" />
-                      <span class="student-name">{{ s.full_name }}</span>
+
+                      <span class="student-name">
+                        {{ s.full_name }}
+                      </span>
                     </div>
                   </td>
 
@@ -185,7 +194,7 @@
                     </span>
                   </td>
 
-                  <!-- ACTION BUTTON WITH ICON -->
+                  <!-- ACTION BUTTON -->
                   <td class="text-center">
                     <div class="action-buttons-group">
                       <!-- Payment Button -->
@@ -208,8 +217,10 @@
                           class="me-1"
                         >
                           <rect width="20" height="14" x="2" y="5" rx="2" />
+
                           <line x1="2" x2="22" y1="10" y2="10" />
                         </svg>
+
                         Payment
                       </button>
                     </div>
@@ -225,7 +236,9 @@
           <div class="empty-icon">
             <i class="fa-solid fa-user-slash"></i>
           </div>
+
           <h5>No Student Found</h5>
+
           <p>Try searching with another student ID or name</p>
         </div>
 
@@ -234,11 +247,19 @@
           <!-- LEFT INFO -->
           <div class="pagination-info">
             Showing
+
             <strong>
               {{ (currentPage - 1) * perPage + 1 }} -
               {{ Math.min(currentPage * perPage, filteredStudents.length) }}
             </strong>
-            of <strong>{{ filteredStudents.length }}</strong> Students
+
+            of
+
+            <strong>
+              {{ filteredStudents.length }}
+            </strong>
+
+            Students
           </div>
 
           <!-- RIGHT BUTTONS -->
@@ -259,7 +280,7 @@
   </div>
 
   <!-- PAYMENT MODAL -->
-  <div class="modal fade" id="paymentModal" tabindex="-1">
+  <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content payment-modal">
         <!-- HEADER -->
@@ -268,11 +289,14 @@
             <div class="modal-icon">
               <i class="fa-solid fa-money-bill-transfer"></i>
             </div>
+
             <div>
               <h5 class="modal-title text-white">Student Payment</h5>
+
               <p class="mb-0 text-white-50">Record monthly payment</p>
             </div>
           </div>
+
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
 
@@ -285,10 +309,12 @@
               alt="Student Avatar"
               class="student-avatar-large-img"
             />
+
             <div>
               <h6 class="mb-1 text-dark fw-bold">
                 {{ selectedStudent.full_name }}
               </h6>
+
               <span class="badge bg-primary-subtle text-primary fw-medium">
                 {{ selectedStudent.student_id }}
               </span>
@@ -297,7 +323,8 @@
 
           <!-- MONTHLY FEE -->
           <div class="form-group mb-3">
-            <label class="form-label fw-semibold text-secondary">Monthly Fee</label>
+            <label class="form-label fw-semibold text-secondary"> Monthly Fee </label>
+
             <div v-if="!selectedStudent.monthly_fee">
               <input
                 v-model="form.amount"
@@ -306,6 +333,7 @@
                 placeholder="Enter monthly fee"
               />
             </div>
+
             <div v-else>
               <input
                 :value="selectedStudent.monthly_fee"
@@ -317,7 +345,8 @@
 
           <!-- PAID AMOUNT -->
           <div class="form-group mb-3">
-            <label class="form-label fw-semibold text-secondary">Paid Amount</label>
+            <label class="form-label fw-semibold text-secondary"> Paid Amount </label>
+
             <input
               v-model="form.paid_amount"
               class="form-control custom-input"
@@ -327,9 +356,11 @@
 
           <!-- MONTH -->
           <div class="form-group mb-3">
-            <label class="form-label fw-semibold text-secondary">Payment Month</label>
+            <label class="form-label fw-semibold text-secondary"> Payment Month </label>
+
             <select v-model="form.month" class="form-select custom-select">
               <option disabled value="">Select Month</option>
+
               <option v-for="month in availableMonths" :key="month" :value="month">
                 {{ month }}
               </option>
@@ -339,7 +370,8 @@
           <!-- EXTRA FEES -->
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label fw-semibold text-secondary">Admission Fee</label>
+              <label class="form-label fw-semibold text-secondary"> Admission Fee </label>
+
               <input
                 type="number"
                 class="form-control custom-input"
@@ -349,7 +381,8 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label fw-semibold text-secondary">Exam Fee</label>
+              <label class="form-label fw-semibold text-secondary"> Exam Fee </label>
+
               <input
                 type="number"
                 class="form-control custom-input"
@@ -361,9 +394,11 @@
 
           <!-- PAYMENT METHOD -->
           <div class="form-group mb-2">
-            <label class="form-label fw-semibold text-secondary">Payment Method</label>
+            <label class="form-label fw-semibold text-secondary"> Payment Method </label>
+
             <select v-model="form.payment_method" class="form-select custom-select">
               <option disabled value="">Select Method</option>
+
               <option>Bkash</option>
               <option>Nogod</option>
               <option>Cash</option>
@@ -374,6 +409,7 @@
         <!-- FOOTER -->
         <div class="modal-footer payment-footer">
           <button class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Close</button>
+
           <button class="btn save-btn" @click="savePayment">
             <i class="fa-solid fa-check me-1"></i>
             Save Payment
@@ -385,18 +421,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, computed, watch } from 'vue'
+
 import AccountMenuView from './AccountMenuView.vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
+import { getImageUrl } from '@/utils/img'
+import * as bootstrap from 'bootstrap'
 
 const router = useRouter()
+
 const availableMonths = ref([])
 const students = ref([])
 const search = ref('')
 const selectedClass = ref('')
-
-import { getImageUrl } from '@/utils/img'
 
 /* Pagination */
 const currentPage = ref(1)
@@ -446,16 +484,21 @@ const totalPages = computed(() => {
 /* Paginated Data */
 const paginatedStudents = computed(() => {
   const start = (currentPage.value - 1) * perPage
+
   return filteredStudents.value.slice(start, start + perPage)
 })
 
 /* Page */
 const nextPage = () => {
-  if (currentPage.value < totalPages.value) currentPage.value++
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+  }
 }
 
 const prevPage = () => {
-  if (currentPage.value > 1) currentPage.value--
+  if (currentPage.value > 1) {
+    currentPage.value--
+  }
 }
 
 /* Reset page on search */
@@ -463,31 +506,47 @@ watch(search, () => {
   currentPage.value = 1
 })
 
+watch(selectedClass, () => {
+  currentPage.value = 1
+})
+
 /* Payment Modal */
 const openPaymentModal = (student) => {
   selectedStudent.student_id = student.student_id
+
   selectedStudent.full_name = student.full_name
+
   selectedStudent.monthly_fee = student.monthly_fee
+
   selectedStudent.image = student.image
+
   availableMonths.value = student.available_months || []
 
   form.student_id = student.id
+
   form.amount = student.monthly_fee ?? ''
+
   form.paid_amount = ''
+
   form.payment_method = ''
+
   form.payment_date = new Date().toISOString().slice(0, 10)
+
   form.month = ''
+
   form.admission_fee = null
+
   form.exam_fee = null
 }
 
 /* API Calls */
 
-// Get Students List
+/* Get Students List */
 const getStudents = async () => {
   try {
     const res = await api.get('/students')
-    // backend data response handle (array or nested array)
+
+    /* backend data response handle */
     if (Array.isArray(res.data)) {
       students.value = res.data
     } else if (res.data && Array.isArray(res.data.students)) {
@@ -500,24 +559,68 @@ const getStudents = async () => {
   }
 }
 
-// Save Payment API
+/* Modal Cleanup */
+const cleanupModals = () => {
+  document.querySelectorAll('.modal').forEach((modalEl) => {
+    try {
+      const instance = bootstrap.Modal.getInstance(modalEl)
+
+      if (instance) {
+        instance.dispose()
+      }
+    } catch (error) {
+      console.warn('Modal cleanup warning:', error)
+    }
+
+    modalEl.classList.remove('show')
+
+    modalEl.style.removeProperty('display')
+    modalEl.style.removeProperty('padding-right')
+
+    modalEl.removeAttribute('aria-modal')
+
+    modalEl.setAttribute('aria-hidden', 'true')
+
+    modalEl.removeAttribute('role')
+  })
+
+  document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+    backdrop.remove()
+  })
+
+  document.body.classList.remove('modal-open')
+
+  document.body.style.removeProperty('overflow')
+
+  document.body.style.removeProperty('padding-right')
+
+  document.documentElement.style.removeProperty('overflow')
+
+  document.documentElement.style.removeProperty('padding-right')
+}
+
+/* Browser Back */
+const handleBrowserBack = () => {
+  cleanupModals()
+}
+
+/* Save Payment API */
 const savePayment = async () => {
   try {
     const res = await api.post('/payments', form)
+
     const paymentId = res.data?.payment?.id || res.data?.id
 
     const modalEl = document.getElementById('paymentModal')
+
     if (modalEl) {
       const modalInstance =
         bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl)
+
       modalInstance.hide()
     }
 
-    setTimeout(() => {
-      document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove())
-      document.body.classList.remove('modal-open')
-      document.body.style.overflow = ''
-    }, 200)
+    cleanupModals()
 
     if (paymentId) {
       router.push(`/singlePayment/${paymentId}`)
@@ -535,13 +638,29 @@ const savePayment = async () => {
   }
 }
 
+/* Unique Classes */
 const uniqueClasses = computed(() => {
   const classes = students.value.map((s) => s.batch_name).filter(Boolean)
+
   return [...new Set(classes)]
 })
 
+/* Mounted */
 onMounted(() => {
   getStudents()
+
+  window.addEventListener('popstate', handleBrowserBack)
+
+  window.addEventListener('pageshow', handleBrowserBack)
+})
+
+/* Before Unmount */
+onBeforeUnmount(() => {
+  window.removeEventListener('popstate', handleBrowserBack)
+
+  window.removeEventListener('pageshow', handleBrowserBack)
+
+  cleanupModals()
 })
 </script>
 
@@ -549,9 +668,11 @@ onMounted(() => {
 /* =========================
    MAIN LAYOUT & FONTS
 ========================= */
+
 .bgc {
   background: #f8fafc;
   min-height: 100vh;
+
   font-family:
     'Inter',
     -apple-system,
@@ -575,6 +696,7 @@ onMounted(() => {
 /* =========================
    CARD & TOPBAR
 ========================= */
+
 .card-box {
   background: #ffffff;
   border-radius: 16px;
@@ -627,8 +749,9 @@ onMounted(() => {
 }
 
 /* =========================
-   TABLE DESIGN & HOVER EFFECTS
+   TABLE DESIGN
 ========================= */
+
 .student-table-wrapper {
   border-radius: 12px;
   overflow: hidden;
@@ -654,7 +777,6 @@ onMounted(() => {
   transition: all 0.2s ease-in-out;
 }
 
-/* TABLE ROW HOVER EFFECT */
 .student-table tbody tr:hover {
   background-color: #f1f5f9;
   transform: translateY(-1px);
@@ -667,7 +789,8 @@ onMounted(() => {
   font-size: 14px;
 }
 
-/* TABLE ELEMENTS HOVER */
+/* TABLE ELEMENTS */
+
 .row-index {
   color: #64748b;
   font-weight: 500;
@@ -694,7 +817,8 @@ onMounted(() => {
   gap: 10px;
 }
 
-/* Student Profile Image in Table */
+/* Student Profile Image */
+
 .student-table-img {
   width: 36px;
   height: 36px;
@@ -717,7 +841,10 @@ onMounted(() => {
   color: #64748b;
 }
 
-/* BADGES */
+/* =========================
+   BADGES
+========================= */
+
 .paid-badge {
   background: #16a34a;
   color: white;
@@ -753,7 +880,10 @@ onMounted(() => {
   color: white;
 }
 
-/* ACTION BUTTONS & HOVER EFFECTS */
+/* =========================
+   ACTION BUTTONS
+========================= */
+
 .action-buttons-group {
   display: flex;
   align-items: center;
@@ -794,8 +924,9 @@ onMounted(() => {
 }
 
 /* =========================
-   PAGINATION HOVER
+   PAGINATION
 ========================= */
+
 .pagination-container {
   margin-top: 20px;
   display: flex;
@@ -849,6 +980,7 @@ onMounted(() => {
 /* =========================
    EMPTY STATE
 ========================= */
+
 .empty-state {
   text-align: center;
   padding: 40px 20px;
@@ -880,6 +1012,7 @@ onMounted(() => {
 /* =========================
    PAYMENT MODAL
 ========================= */
+
 .payment-modal {
   border-radius: 16px;
   border: none;
@@ -890,6 +1023,7 @@ onMounted(() => {
 .payment-header {
   padding: 20px 24px;
   border: none;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #4f46e5 100%);
 }
 
 .modal-icon {
@@ -947,6 +1081,7 @@ onMounted(() => {
 /* =========================
    RESPONSIVE DESIGN
 ========================= */
+
 @media (max-width: 768px) {
   .content {
     margin-left: 0;
