@@ -382,10 +382,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import api from '@/services/api'
 import dashPageView from './dashPageView.vue'
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+
 // --- State Variables ---
 const teachers = ref([])
 const allShifts = ref([]) // 👈 সমস্ত শিফটের তালিকা রাখার জন্য
@@ -486,6 +486,9 @@ const cleanupModals = () => {
 onMounted(() => {
   fetchTeachers()
   fetchShifts()
+
+  // Mobile/browser back button handle
+  window.addEventListener('popstate', cleanupModals)
 })
 
 // --- Methods / Functions ---
@@ -673,7 +676,12 @@ const nextPage = () => {
 const prevPage = () => {
   if (currentPage.value > 1) currentPage.value--
 }
+onBeforeUnmount(() => {
+  cleanupModals()
+  window.removeEventListener('popstate', cleanupModals)
+})
 </script>
+
 <style scoped>
 /* Image Preview Style */
 .image-preview {
