@@ -5,6 +5,7 @@
 
   <div class="content">
     <!-- ================= HEADER ================= -->
+
     <div class="staff-header">
       <div>
         <h2>Student Management</h2>
@@ -36,8 +37,10 @@
     </div>
 
     <!-- ================= MAIN CARD ================= -->
+
     <div class="staff-table-card">
       <!-- TOOLBAR -->
+
       <div class="staff-toolbar">
         <div class="search-box">
           <i class="bi bi-search"></i>
@@ -46,6 +49,7 @@
         </div>
 
         <!-- CLASS FILTER -->
+
         <select v-model="selectedClass" class="class-filter">
           <option value="">All Classes</option>
 
@@ -56,6 +60,7 @@
       </div>
 
       <!-- TABLE -->
+
       <div class="table-responsive">
         <table class="table staff-table align-middle">
           <thead>
@@ -66,7 +71,9 @@
               <th>Class</th>
               <th>Group</th>
               <th>Email</th>
+
               <!-- <th>Course</th> -->
+
               <th width="180">Action</th>
             </tr>
           </thead>
@@ -74,16 +81,19 @@
           <tbody>
             <tr v-for="(item, index) in paginatedStudents" :key="item.id">
               <!-- SERIAL -->
+
               <td>
                 {{ (currentPage - 1) * perPage + index + 1 }}
               </td>
 
               <!-- PHOTO -->
+
               <td>
                 <img :src="getImageUrl(item)" class="staff-avatar" alt="Student Photo" />
               </td>
 
               <!-- NAME -->
+
               <td>
                 <div class="staff-name">
                   <strong>
@@ -97,6 +107,7 @@
               </td>
 
               <!-- CLASS -->
+
               <td>
                 <span class="skill-badge">
                   {{ item.class_info ? item.class_info.class_name : 'N/A' }}
@@ -104,6 +115,7 @@
               </td>
 
               <!-- GROUP -->
+
               <td>
                 <span v-if="item.class_group" class="group-badge">
                   {{ item.class_group.group_name }}
@@ -113,19 +125,25 @@
               </td>
 
               <!-- EMAIL -->
+
               <td>
                 {{ item.email || 'N/A' }}
               </td>
 
               <!-- COURSE -->
-              <!-- <td>
+
+              <!--
+              <td>
                 {{ item.course_name || 'N/A' }}
-              </td> -->
+              </td>
+              -->
 
               <!-- ACTION -->
+
               <td>
                 <div class="action-buttons">
                   <!-- VIEW -->
+
                   <button
                     class="action-btn view"
                     @click="openView(item)"
@@ -137,6 +155,7 @@
                   </button>
 
                   <!-- EDIT -->
+
                   <button
                     class="action-btn edit"
                     @click="openEdit(item)"
@@ -148,6 +167,7 @@
                   </button>
 
                   <!-- DELETE -->
+
                   <button class="action-btn delete" @click="deleteStudent(item.id)" title="Delete">
                     <i class="bi bi-trash"></i>
                   </button>
@@ -159,6 +179,7 @@
       </div>
 
       <!-- EMPTY STATE -->
+
       <div v-if="filteredStudents.length === 0" class="empty-state">
         <i class="bi bi-person-x"></i>
 
@@ -168,6 +189,7 @@
       </div>
 
       <!-- PAGINATION -->
+
       <div v-if="filteredStudents.length > 0" class="pagination-box">
         <div>
           Showing
@@ -211,6 +233,7 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content student-modal">
           <!-- HEADER -->
+
           <div class="modal-header">
             <h5>
               <i class="bi bi-person-plus-fill me-2"></i>
@@ -221,8 +244,10 @@
           </div>
 
           <!-- BODY -->
+
           <div class="modal-body">
             <!-- IMAGE -->
+
             <div class="text-center mb-4">
               <img
                 :src="addPreview || defaultAvatar"
@@ -240,6 +265,7 @@
             </div>
 
             <!-- FULL NAME -->
+
             <div class="mb-3">
               <label class="form-label">
                 Full Name
@@ -255,6 +281,7 @@
             </div>
 
             <!-- FATHER -->
+
             <div class="mb-3">
               <label class="form-label">
                 Father's Name
@@ -270,6 +297,7 @@
             </div>
 
             <!-- MOTHER -->
+
             <div class="mb-3">
               <label class="form-label">
                 Mother's Name
@@ -285,6 +313,7 @@
             </div>
 
             <!-- PHONE -->
+
             <div class="mb-3">
               <label class="form-label">
                 Phone
@@ -300,6 +329,7 @@
             </div>
 
             <!-- EMAIL -->
+
             <div class="mb-3">
               <label class="form-label"> Email </label>
 
@@ -312,8 +342,13 @@
             </div>
 
             <!-- COURSE -->
-            <!-- <div class="mb-3">
-              <label class="form-label"> Course </label>
+
+            <!--
+            <div class="mb-3">
+
+              <label class="form-label">
+                Course
+              </label>
 
               <input
                 v-model="form.course_name"
@@ -321,9 +356,12 @@
                 class="form-control"
                 placeholder="Enter course name"
               />
-            </div> -->
+
+            </div>
+            -->
 
             <!-- ================= CLASS GROUP ================= -->
+
             <div class="mb-3">
               <label class="form-label">
                 Class Group
@@ -340,6 +378,7 @@
             </div>
 
             <!-- CLASS -->
+
             <div class="mb-3">
               <label class="form-label">
                 Class
@@ -356,6 +395,7 @@
             </div>
 
             <!-- SECTION -->
+
             <div class="mb-3">
               <label class="form-label"> Section </label>
 
@@ -369,6 +409,7 @@
             </div>
 
             <!-- SHIFT -->
+
             <div class="mb-3">
               <label class="form-label"> Assign Shift </label>
 
@@ -383,13 +424,19 @@
             </div>
 
             <!-- ADMISSION DATE -->
+
             <div class="mb-3">
-              <!-- <label class="form-label"> Admission Date </label> -->
+              <!--
+              <label class="form-label">
+                Admission Date
+              </label>
+              -->
 
               <input hidden v-model="form.admission_date" type="date" class="form-control" />
             </div>
 
             <!-- MONTHLY FEE -->
+
             <div class="mb-3">
               <label class="form-label"> Monthly Fee </label>
 
@@ -404,6 +451,7 @@
           </div>
 
           <!-- FOOTER -->
+
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
@@ -480,6 +528,7 @@
               </p>
 
               <!-- GROUP -->
+
               <p>
                 <strong>Group:</strong>
                 {{ selectedStudent.class_group ? selectedStudent.class_group.group_name : 'N/A' }}
@@ -533,6 +582,7 @@
 
           <div class="modal-body">
             <!-- IMAGE -->
+
             <div class="text-center mb-4">
               <img
                 :src="editPreview || getImageUrl(selectedStudent)"
@@ -550,6 +600,7 @@
             </div>
 
             <!-- NAME -->
+
             <div class="mb-3">
               <label class="form-label"> Full Name </label>
 
@@ -557,6 +608,7 @@
             </div>
 
             <!-- PHONE -->
+
             <div class="mb-3">
               <label class="form-label"> Phone </label>
 
@@ -564,6 +616,7 @@
             </div>
 
             <!-- EMAIL -->
+
             <div class="mb-3">
               <label class="form-label"> Email </label>
 
@@ -571,6 +624,7 @@
             </div>
 
             <!-- COURSE -->
+
             <div class="mb-3">
               <label class="form-label"> Course </label>
 
@@ -582,6 +636,7 @@
             </div>
 
             <!-- ================= CLASS GROUP ================= -->
+
             <div class="mb-3">
               <label class="form-label"> Class Group </label>
 
@@ -595,6 +650,7 @@
             </div>
 
             <!-- CLASS -->
+
             <div class="mb-3">
               <label class="form-label"> Class </label>
 
@@ -608,6 +664,7 @@
             </div>
 
             <!-- SECTION -->
+
             <div class="mb-3">
               <label class="form-label"> Section </label>
 
@@ -621,6 +678,7 @@
             </div>
 
             <!-- SHIFT -->
+
             <div class="mb-3">
               <label class="form-label"> Shift </label>
 
@@ -635,6 +693,7 @@
             </div>
 
             <!-- ADMISSION DATE -->
+
             <div class="mb-3">
               <label class="form-label"> Admission Date </label>
 
@@ -642,6 +701,7 @@
             </div>
 
             <!-- MONTHLY FEE -->
+
             <div class="mb-3">
               <label class="form-label"> Monthly Fee </label>
 
@@ -671,7 +731,7 @@
 <script setup>
 import dashPageView from './dashPageView.vue'
 
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 
 import api from '@/services/api'
 
@@ -697,9 +757,6 @@ const sections = ref([])
 
 const classes = ref([])
 
-/*
- * Class Group list
- */
 const classGroups = ref([])
 
 const shifts = ref([])
@@ -753,9 +810,6 @@ const form = reactive({
 
   course_name: '',
 
-  /*
-   * Class Group
-   */
   class_group_id: '',
 
   class_id: '',
@@ -790,9 +844,6 @@ const selectedStudent = ref({
 
   course_name: '',
 
-  /*
-   * Class Group
-   */
   class_group_id: '',
 
   class_id: '',
@@ -842,17 +893,6 @@ const getClasses = async () => {
 
 const getClassGroups = async () => {
   try {
-    /*
-     * তোমার route:
-     *
-     * Route::apiResource(
-     *     'class_group',
-     *     ClassGroupController::class
-     * );
-     *
-     * তাই endpoint হবে /class_group
-     */
-
     const res = await api.get('/class_group')
 
     classGroups.value = res.data.classGroups || res.data.groups || res.data.data || res.data || []
@@ -920,9 +960,6 @@ const resetForm = () => {
 
   form.course_name = ''
 
-  /*
-   * Class Group reset
-   */
   form.class_group_id = ''
 
   form.class_id = ''
@@ -988,9 +1025,6 @@ const student_create = async () => {
 
     formData.append('course_name', form.course_name)
 
-    /*
-     * Class Group
-     */
     formData.append('class_group_id', form.class_group_id)
 
     formData.append('class_id', form.class_id)
@@ -1046,11 +1080,6 @@ const openView = (student) => {
 const openEdit = (student) => {
   selectedStudent.value = JSON.parse(JSON.stringify(student))
 
-  /*
-   * যদি API relation থেকে class_group আসে
-   * কিন্তু class_group_id না আসে,
-   * তাহলে relation-এর id ব্যবহার করবে।
-   */
   if (!selectedStudent.value.class_group_id && selectedStudent.value.class_group) {
     selectedStudent.value.class_group_id = selectedStudent.value.class_group.id
   }
@@ -1086,9 +1115,6 @@ const updateStudent = async () => {
 
     formData.append('course_name', selectedStudent.value.course_name || '')
 
-    /*
-     * Class Group update
-     */
     formData.append('class_group_id', selectedStudent.value.class_group_id || '')
 
     formData.append('class_id', selectedStudent.value.class_id || '')
@@ -1228,6 +1254,40 @@ watch([search, selectedClass], () => {
 })
 
 /* =====================================================
+   MODAL CLEANUP
+   MOBILE / BROWSER BACK FIX
+===================================================== */
+
+const cleanupModals = () => {
+  // Remove stuck Bootstrap backdrop
+  document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove())
+
+  // Close any opened modal
+  document.querySelectorAll('.modal.show').forEach((modalEl) => {
+    const modalInstance = bootstrap.Modal.getInstance(modalEl)
+
+    if (modalInstance) {
+      modalInstance.hide()
+    }
+
+    modalEl.classList.remove('show')
+
+    modalEl.style.display = 'none'
+
+    modalEl.removeAttribute('aria-modal')
+
+    modalEl.setAttribute('aria-hidden', 'true')
+  })
+
+  // Restore body state
+  document.body.classList.remove('modal-open')
+
+  document.body.style.removeProperty('overflow')
+
+  document.body.style.removeProperty('padding-right')
+}
+
+/* =====================================================
    ON MOUNTED
 ===================================================== */
 
@@ -1238,12 +1298,22 @@ onMounted(() => {
 
   getClasses()
 
-  /*
-   * Class Group list
-   */
   getClassGroups()
 
   getShifts()
+
+  // Browser / Mobile Back button
+  window.addEventListener('popstate', cleanupModals)
+})
+
+/* =====================================================
+   ON BEFORE UNMOUNT
+===================================================== */
+
+onBeforeUnmount(() => {
+  cleanupModals()
+
+  window.removeEventListener('popstate', cleanupModals)
 })
 </script>
 
