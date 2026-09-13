@@ -1,6 +1,8 @@
 <template>
   <RouterView />
+
   <AccountMenuView />
+
   <div class="box">
     <!-- =========================
         Page Header
@@ -38,6 +40,7 @@
                 ৳ {{ totalOtherPayment.toLocaleString() }}
               </h3>
             </div>
+
             <div class="card-icon-box bg-green-light text-success">
               <i class="bi bi-receipt fs-4"></i>
             </div>
@@ -54,6 +57,7 @@
                 ৳ {{ thisMonthOtherCollection.toLocaleString() }}
               </h3>
             </div>
+
             <div class="card-icon-box bg-red-light text-danger">
               <i class="bi bi-calendar-month fs-4"></i>
             </div>
@@ -68,6 +72,7 @@
               <span class="card-title-text text-muted">Total Items Sold</span>
               <h3 class="fw-bold mb-0 text-warning mt-2">{{ totalItems }}</h3>
             </div>
+
             <div class="card-icon-box bg-yellow-light text-warning">
               <i class="bi bi-bag-check-fill fs-4"></i>
             </div>
@@ -82,6 +87,7 @@
               <span class="card-title-text text-muted">Last Purchase Date</span>
               <h5 class="fw-bold mb-0 text-primary mt-2">{{ lastPurchase }}</h5>
             </div>
+
             <div class="card-icon-box bg-blue-light text-primary">
               <i class="bi bi-calendar-check-fill fs-4"></i>
             </div>
@@ -102,6 +108,7 @@
               <span class="input-group-text bg-light border-end-0 text-muted">
                 <i class="bi bi-search"></i>
               </span>
+
               <input
                 type="text"
                 class="form-control bg-light border-start-0 ps-0"
@@ -144,7 +151,10 @@
                 <td class="ps-4 fw-semibold text-muted">
                   {{ (currentPage - 1) * itemsPerPage + index + 1 }}
                 </td>
-                <td class="fw-bold text-dark">{{ payment.student?.student_id || 'N/A' }}</td>
+
+                <td class="fw-bold text-dark">
+                  {{ payment.student?.student_id || 'N/A' }}
+                </td>
 
                 <!-- Student Name with Avatar -->
                 <td class="fw-medium">
@@ -154,7 +164,10 @@
                       alt="Student Avatar"
                       class="student-table-img"
                     />
-                    <span>{{ payment.student?.full_name || 'N/A' }}</span>
+
+                    <span>
+                      {{ payment.student?.full_name || 'N/A' }}
+                    </span>
                   </div>
                 </td>
 
@@ -163,11 +176,15 @@
                     {{ payment.item_name }}
                   </span>
                 </td>
+
                 <td>{{ payment.quantity }}</td>
+
                 <td>৳ {{ Number(payment.price).toLocaleString() }}</td>
+
                 <td class="fw-bold text-success">
                   ৳ {{ Number(payment.total_amount).toLocaleString() }}
                 </td>
+
                 <td>
                   <span
                     class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1"
@@ -175,9 +192,11 @@
                     {{ payment.payment_method }}
                   </span>
                 </td>
+
                 <td class="text-muted small">
                   {{ new Date(payment.payment_date).toLocaleDateString() }}
                 </td>
+
                 <td class="text-end pe-4">
                   <button
                     class="btn btn-sm btn-light text-primary me-2 action-btn"
@@ -185,6 +204,7 @@
                   >
                     <i class="bi bi-pencil"></i>
                   </button>
+
                   <button
                     class="btn btn-sm btn-light text-danger action-btn"
                     @click="deletePayment(payment.id)"
@@ -210,15 +230,23 @@
       >
         <div class="text-muted small">
           Showing
-          <b>{{ paginatedPayments.length ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</b> to
-          <b>{{ Math.min(currentPage * itemsPerPage, filteredOtherPayments.length) }}</b> of
-          <b>{{ filteredOtherPayments.length }}</b> entries
+          <b>
+            {{ paginatedPayments.length ? (currentPage - 1) * itemsPerPage + 1 : 0 }}
+          </b>
+          to
+          <b>
+            {{ Math.min(currentPage * itemsPerPage, filteredOtherPayments.length) }}
+          </b>
+          of
+          <b>{{ filteredOtherPayments.length }}</b>
+          entries
         </div>
 
         <!-- Pagination Controls -->
         <div class="d-flex align-items-center gap-1">
           <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage--">
-            <i class="bi bi-chevron-left"></i> Previous
+            <i class="bi bi-chevron-left"></i>
+            Previous
           </button>
 
           <button
@@ -236,7 +264,8 @@
             :disabled="currentPage === totalPages || totalPages === 0"
             @click="currentPage++"
           >
-            Next <i class="bi bi-chevron-right"></i>
+            Next
+            <i class="bi bi-chevron-right"></i>
           </button>
         </div>
       </div>
@@ -260,8 +289,10 @@
               id="otherPaymentModalLabel"
             >
               <i class="bi" :class="isEdit ? 'bi-pencil-square' : 'bi-plus-circle-fill'"></i>
+
               {{ isEdit ? 'Edit Other Payment' : 'Add Other Payment' }}
             </h5>
+
             <button
               type="button"
               class="btn-close btn-close-white"
@@ -275,12 +306,14 @@
             <div class="row g-3">
               <div class="col-md-6 position-relative">
                 <label class="form-label fw-semibold"> Student ID </label>
+
                 <input
                   type="text"
                   class="form-control"
                   placeholder="Search Student ID..."
                   v-model="searchStudent"
                 />
+
                 <div
                   v-if="filteredStudents.length"
                   class="list-group position-absolute w-100 shadow rounded-3 mt-1"
@@ -293,7 +326,10 @@
                     :key="student.id"
                     @click="selectStudent(student)"
                   >
-                    <span class="fw-bold text-primary">{{ student.student_id }}</span> -
+                    <span class="fw-bold text-primary">
+                      {{ student.student_id }}
+                    </span>
+                    -
                     {{ student.full_name }}
                   </button>
                 </div>
@@ -301,6 +337,7 @@
 
               <div class="col-md-6">
                 <label class="form-label fw-semibold"> Item Name </label>
+
                 <input
                   type="text"
                   class="form-control"
@@ -311,16 +348,19 @@
 
               <div class="col-md-4">
                 <label class="form-label fw-semibold"> Quantity </label>
+
                 <input type="number" min="1" class="form-control" v-model.number="form.quantity" />
               </div>
 
               <div class="col-md-4">
                 <label class="form-label fw-semibold"> Price </label>
+
                 <input type="number" min="0" class="form-control" v-model.number="form.price" />
               </div>
 
               <div class="col-md-4">
                 <label class="form-label fw-semibold"> Total Amount </label>
+
                 <input
                   type="text"
                   class="form-control bg-light fw-bold text-success"
@@ -331,6 +371,7 @@
 
               <div class="col-md-6">
                 <label class="form-label fw-semibold"> Payment Method </label>
+
                 <select class="form-select" v-model="form.payment_method">
                   <option value="Cash">Cash</option>
                   <option value="Bkash">Bkash</option>
@@ -341,11 +382,13 @@
 
               <div class="col-md-6">
                 <label class="form-label fw-semibold"> Payment Date </label>
+
                 <input type="date" class="form-control" v-model="form.payment_date" />
               </div>
 
               <div class="col-12">
                 <label class="form-label fw-semibold"> Remarks </label>
+
                 <textarea
                   rows="2"
                   class="form-control"
@@ -365,13 +408,17 @@
             >
               Cancel
             </button>
+
             <button
               type="button"
               class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
               @click="isEdit ? updatePayment() : savePayment()"
             >
               <i class="bi" :class="isEdit ? 'bi-check-circle-fill' : 'bi-save-fill'"></i>
-              <span>{{ isEdit ? 'Update Payment' : 'Save Payment' }}</span>
+
+              <span>
+                {{ isEdit ? 'Update Payment' : 'Save Payment' }}
+              </span>
             </button>
           </div>
         </div>
@@ -382,11 +429,15 @@
 
 <script setup>
 import AccountMenuView from './AccountMenuView.vue'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import api from '@/services/api'
+import * as bootstrap from 'bootstrap'
+import { getImageUrl } from '@/utils/img'
+
 /* =========================
    State
 ========================= */
+
 const otherPayments = ref([])
 const students = ref([])
 const tableSearch = ref('')
@@ -397,13 +448,13 @@ const itemsPerPage = ref(10)
 
 const searchStudent = ref('')
 const selectedStudent = ref(null)
-
 const isEdit = ref(false)
 const editId = ref(null)
 
 /* =========================
    Form
 ========================= */
+
 const form = ref({
   student_id: '',
   item_name: '',
@@ -416,20 +467,19 @@ const form = ref({
 })
 
 /* =========================
-   Storage URL & Helper
-========================= */
-import { getImageUrl } from '@/utils/img'
-
-/* =========================
    Computed Properties
 ========================= */
+
 const filteredOtherPayments = computed(() => {
   if (!tableSearch.value) return otherPayments.value
 
   const query = tableSearch.value.toLowerCase()
+
   return otherPayments.value.filter((payment) => {
     const studentId = payment.student?.student_id?.toLowerCase() || ''
+
     const studentName = payment.student?.full_name?.toLowerCase() || ''
+
     const itemName = payment.item_name?.toLowerCase() || ''
 
     return studentId.includes(query) || studentName.includes(query) || itemName.includes(query)
@@ -437,13 +487,16 @@ const filteredOtherPayments = computed(() => {
 })
 
 /* Pagination Computations */
+
 const totalPages = computed(() => {
   return Math.ceil(filteredOtherPayments.value.length / itemsPerPage.value) || 1
 })
 
 const paginatedPayments = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
+
   const end = start + itemsPerPage.value
+
   return filteredOtherPayments.value.slice(start, end)
 })
 
@@ -461,11 +514,15 @@ const totalItems = computed(() => {
 
 const lastPurchase = computed(() => {
   if (otherPayments.value.length === 0) return '-'
+
   return otherPayments.value[0].payment_date
 })
 
 const filteredStudents = computed(() => {
-  if (!searchStudent.value || selectedStudent.value?.student_id === searchStudent.value) return []
+  if (!searchStudent.value || selectedStudent.value?.student_id === searchStudent.value) {
+    return []
+  }
+
   return students.value.filter(
     (student) =>
       student.student_id.toLowerCase().includes(searchStudent.value.toLowerCase()) ||
@@ -480,6 +537,7 @@ const thisMonthOtherCollection = computed(() => {
   return otherPayments.value
     .filter((payment) => {
       const date = new Date(payment.payment_date)
+
       return date.getMonth() === currentMonth && date.getFullYear() === currentYear
     })
     .reduce((total, payment) => total + Number(payment.total_amount), 0)
@@ -488,9 +546,11 @@ const thisMonthOtherCollection = computed(() => {
 /* =========================
    API Requests
 ========================= */
+
 const getOtherPayments = async () => {
   try {
     const response = await api.get('/other-payments')
+
     otherPayments.value = response.data.data || response.data
   } catch (error) {
     console.error('Error fetching payments:', error)
@@ -500,6 +560,7 @@ const getOtherPayments = async () => {
 const getStudents = async () => {
   try {
     const response = await api.get('/students')
+
     students.value = response.data.students || response.data
   } catch (error) {
     console.error('Error fetching students:', error)
@@ -507,37 +568,92 @@ const getStudents = async () => {
 }
 
 /* =========================
+   Modal Cleanup
+========================= */
+
+const cleanupModals = () => {
+  document.querySelectorAll('.modal').forEach((modalElement) => {
+    try {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement)
+
+      if (modalInstance) {
+        modalInstance.dispose()
+      }
+    } catch (error) {
+      console.warn('Modal cleanup warning:', error)
+    }
+
+    modalElement.classList.remove('show')
+
+    modalElement.style.removeProperty('display')
+    modalElement.style.removeProperty('padding-right')
+
+    modalElement.removeAttribute('aria-modal')
+    modalElement.setAttribute('aria-hidden', 'true')
+
+    modalElement.removeAttribute('role')
+  })
+
+  document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+    backdrop.remove()
+  })
+
+  document.body.classList.remove('modal-open')
+
+  document.body.style.removeProperty('overflow')
+
+  document.body.style.removeProperty('padding-right')
+
+  document.documentElement.style.removeProperty('overflow')
+
+  document.documentElement.style.removeProperty('padding-right')
+}
+
+/* =========================
+   Browser Back Fix
+========================= */
+
+const handleBrowserBack = () => {
+  cleanupModals()
+}
+
+/* =========================
    Actions & Methods
 ========================= */
+
 const selectStudent = (student) => {
   selectedStudent.value = student
+
   form.value.student_id = student.id
+
   searchStudent.value = student.student_id
 }
 
 const closeModal = () => {
   const modalElement = document.getElementById('otherPaymentModal')
-  const modalInstance = bootstrap.Modal.getInstance(modalElement)
 
-  if (modalInstance) {
+  if (modalElement) {
+    const modalInstance =
+      bootstrap.Modal.getInstance(modalElement) || bootstrap.Modal.getOrCreateInstance(modalElement)
+
     modalInstance.hide()
   }
 
-  // ব্যাকড্রপ এবং বডির স্ক্রোল প্রবলেম ফিক্স করার জন্য অতিরিক্ত কোড
   setTimeout(() => {
-    document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove())
-    document.body.classList.remove('modal-open')
-    document.body.style.removeProperty('overflow')
-    document.body.style.removeProperty('padding-right')
+    cleanupModals()
   }, 300)
 }
 
 const savePayment = async () => {
   try {
     form.value.total_amount = totalPrice.value
+
     await api.post('/other-payments', form.value)
+
     await getOtherPayments()
+
     resetForm()
+
     closeModal()
   } catch (error) {
     console.error('Save failed:', error.response?.data || error)
@@ -546,12 +662,15 @@ const savePayment = async () => {
 
 const editPayment = (payment) => {
   isEdit.value = true
+
   editId.value = payment.id
 
-  // ১. স্টুডেন্ট ডাটা পপুলেট করার লজিক
+  // Student data populate
   const matchedStudent = students.value.find((s) => s.id === payment.student_id) || payment.student
+
   if (matchedStudent) {
     selectedStudent.value = matchedStudent
+
     searchStudent.value = matchedStudent.student_id
   }
 
@@ -566,26 +685,35 @@ const editPayment = (payment) => {
     remarks: payment.remarks || '',
   }
 
-  const modal = new bootstrap.Modal(document.getElementById('otherPaymentModal'))
+  const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('otherPaymentModal'))
+
   modal.show()
 }
 
 const updatePayment = async () => {
   try {
     form.value.total_amount = totalPrice.value
+
     await api.put(`/other-payments/${editId.value}`, form.value)
+
     await getOtherPayments()
+
     resetForm()
-    closeModal() // ২. অটো মোডাল ক্লোজ করার লজিক
+
+    closeModal()
   } catch (error) {
     console.error('Update failed:', error.response?.data || error)
   }
 }
 
 const deletePayment = async (id) => {
-  if (!confirm('Are you sure you want to delete this payment?')) return
+  if (!confirm('Are you sure you want to delete this payment?')) {
+    return
+  }
+
   try {
     await api.delete(`/other-payments/${id}`)
+
     getOtherPayments()
   } catch (error) {
     console.error('Delete failed:', error)
@@ -595,8 +723,11 @@ const deletePayment = async (id) => {
 const resetForm = () => {
   isEdit.value = false
   editId.value = null
+
   searchStudent.value = ''
+
   selectedStudent.value = null
+
   form.value = {
     student_id: '',
     item_name: '',
@@ -612,9 +743,24 @@ const resetForm = () => {
 /* =========================
    Lifecycle Hooks
 ========================= */
+
 onMounted(() => {
   getOtherPayments()
   getStudents()
+
+  // Mobile / browser Back button
+  // modal backdrop cleanup
+  window.addEventListener('popstate', handleBrowserBack)
+
+  window.addEventListener('pageshow', handleBrowserBack)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('popstate', handleBrowserBack)
+
+  window.removeEventListener('pageshow', handleBrowserBack)
+
+  cleanupModals()
 })
 </script>
 
@@ -626,6 +772,7 @@ onMounted(() => {
 }
 
 /* Top Cards Styling */
+
 .custom-card {
   background-color: #ffffff;
   transition:
@@ -642,12 +789,15 @@ onMounted(() => {
 .border-top-green {
   border-top: 4px solid #10b981 !important;
 }
+
 .border-top-red {
   border-top: 4px solid #ef4444 !important;
 }
+
 .border-top-yellow {
   border-top: 4px solid #f59e0b !important;
 }
+
 .border-top-blue {
   border-top: 4px solid #3b82f6 !important;
 }
@@ -664,12 +814,15 @@ onMounted(() => {
 .bg-green-light {
   background-color: #d1fae5;
 }
+
 .bg-red-light {
   background-color: #fee2e2;
 }
+
 .bg-yellow-light {
   background-color: #fef3c7;
 }
+
 .bg-blue-light {
   background-color: #dbeafe;
 }
@@ -682,6 +835,7 @@ onMounted(() => {
 /* ===================================================
    TABLE & HOVER STYLING
 =================================================== */
+
 .my-custom-table {
   border-collapse: collapse;
 }
@@ -700,6 +854,7 @@ onMounted(() => {
 }
 
 /* Row Styling */
+
 .my-custom-table tbody tr.data-row {
   border-bottom: 1px solid #f1f5f9;
   background-color: #ffffff;
@@ -710,11 +865,12 @@ onMounted(() => {
 }
 
 .my-custom-table tbody tr.data-row:hover {
-  background-color: #f0fdf4 !important; /* Soft Light Green Hover Color */
-  box-shadow: inset 4px 0 0 #10b981; /* Green Bar on Left on Hover */
+  background-color: #f0fdf4 !important;
+  box-shadow: inset 4px 0 0 #10b981;
 }
 
 /* Student Profile Image in Table */
+
 .student-table-img {
   width: 36px;
   height: 36px;
@@ -727,6 +883,7 @@ onMounted(() => {
 /* ===================================================
    PAGINATION BUTTONS STYLING
 =================================================== */
+
 .pg-btn {
   background: #ffffff;
   border: 1px solid #cbd5e1;
