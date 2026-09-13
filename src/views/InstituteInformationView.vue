@@ -696,11 +696,9 @@ onBeforeUnmount(() => {
 })
 </script>
 <style scoped>
-/*
-|--------------------------------------------------------------------------
-| Main Page
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Main Page
+   ========================================================= */
 
 .institute-page {
   margin-left: 260px;
@@ -708,11 +706,9 @@ onBeforeUnmount(() => {
   background: #f8fafc;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Page Header
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Page Header
+   ========================================================= */
 
 .page-header {
   display: flex;
@@ -739,11 +735,9 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Loading
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Loading
+   ========================================================= */
 
 .loading-card {
   min-height: 400px;
@@ -756,11 +750,9 @@ onBeforeUnmount(() => {
   box-shadow: 0 5px 20px rgba(15, 23, 42, 0.06);
 }
 
-/*
-|--------------------------------------------------------------------------
-| Empty State
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Empty State
+   ========================================================= */
 
 .empty-card {
   min-height: 430px;
@@ -788,11 +780,9 @@ onBeforeUnmount(() => {
   margin-bottom: 20px;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Institute Card
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Institute Card
+   ========================================================= */
 
 .institute-card {
   background: #fff;
@@ -802,11 +792,9 @@ onBeforeUnmount(() => {
   border: 1px solid #e5e7eb;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Card Top
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Card Top
+   ========================================================= */
 
 .card-top {
   display: flex;
@@ -827,21 +815,17 @@ onBeforeUnmount(() => {
   font-weight: 600;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Card Body
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Card Body
+   ========================================================= */
 
 .card-body-custom {
   padding: 30px 25px;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Logo
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Logo
+   ========================================================= */
 
 .logo-section {
   display: flex;
@@ -882,11 +866,9 @@ onBeforeUnmount(() => {
   word-break: break-word;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Information Item
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Information Item
+   ========================================================= */
 
 .info-item {
   min-height: 85px;
@@ -929,11 +911,9 @@ onBeforeUnmount(() => {
   word-break: break-word;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Footer
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Footer
+   ========================================================= */
 
 .card-footer-custom {
   display: flex;
@@ -956,11 +936,9 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Modal Backdrop
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Modal Backdrop
+   ========================================================= */
 
 .modal-backdrop-custom {
   position: fixed;
@@ -968,44 +946,70 @@ onBeforeUnmount(() => {
   background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(4px);
   z-index: 2000;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 20px;
+
+  /* Important for modal scrolling */
   overflow-y: auto;
+  overflow-x: hidden;
+
+  -webkit-overflow-scrolling: touch;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Custom Modal
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Custom Modal
+   ========================================================= */
 
 .custom-modal {
   width: 100%;
   max-width: 700px;
+
   background: #fff;
   border-radius: 18px;
-  overflow: hidden;
+
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
-  max-height: 92vh;
+
   display: flex;
   flex-direction: column;
+
+  /*
+   * Important:
+   * Do not allow the modal itself to cut off
+   * the content on smaller screens.
+   */
+  min-height: 0;
+
+  /* Desktop limit */
+  max-height: 92vh;
+
+  /*
+   * Keep header/body/footer inside the modal
+   * without hiding the scrollable content.
+   */
+  overflow: hidden;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Modal Header
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Modal Header
+   ========================================================= */
 
 .modal-header-custom {
+  flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
+
   padding: 20px 24px;
+
   border-bottom: 1px solid #e5e7eb;
+
+  background: #fff;
 }
 
 .modal-title-custom {
@@ -1017,14 +1021,20 @@ onBeforeUnmount(() => {
 .modal-close-btn {
   width: 38px;
   height: 38px;
+
   border: none;
   border-radius: 9px;
+
   background: #f1f5f9;
   color: #475569;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   transition: 0.2s;
+
+  flex-shrink: 0;
 }
 
 .modal-close-btn:hover {
@@ -1032,26 +1042,36 @@ onBeforeUnmount(() => {
   color: #dc2626;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Modal Body
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Modal Body
+   ========================================================= */
 
 .modal-body-custom {
   padding: 24px;
+
+  /*
+   * Desktop modal body scroll.
+   */
   overflow-y: auto;
+  overflow-x: hidden;
+
+  /*
+   * Critical for flexbox scrolling.
+   */
+  min-height: 0;
+  flex: 1 1 auto;
+
+  -webkit-overflow-scrolling: touch;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Form
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Form
+   ========================================================= */
 
 .form-label-custom {
   display: block;
   margin-bottom: 7px;
+
   font-size: 13px;
   font-weight: 600;
   color: #334155;
@@ -1059,12 +1079,16 @@ onBeforeUnmount(() => {
 
 .input-group-custom {
   min-height: 48px;
+
   display: flex;
   align-items: center;
+
   border: 1px solid #dbe2ea;
   border-radius: 10px;
+
   overflow: hidden;
   background: #fff;
+
   transition: 0.2s;
 }
 
@@ -1076,7 +1100,9 @@ onBeforeUnmount(() => {
 .input-group-custom > i {
   width: 45px;
   text-align: center;
+
   color: #64748b;
+
   flex-shrink: 0;
 }
 
@@ -1091,43 +1117,52 @@ onBeforeUnmount(() => {
   box-shadow: none;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Logo Preview
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Logo Preview
+   ========================================================= */
 
 .logo-preview-box {
   padding: 15px;
+
   border-radius: 12px;
   border: 1px dashed #cbd5e1;
+
   background: #f8fafc;
 }
 
 .logo-preview {
   display: block;
+
   width: 130px;
   height: 130px;
+
   object-fit: contain;
+
   border-radius: 12px;
+
   background: #fff;
   border: 1px solid #e5e7eb;
+
   padding: 8px;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Modal Footer
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Modal Footer
+   ========================================================= */
 
 .modal-footer-custom {
+  flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
   gap: 10px;
+
   padding: 18px 24px;
+
   border-top: 1px solid #e5e7eb;
+
   background: #f8fafc;
 }
 
@@ -1138,17 +1173,18 @@ onBeforeUnmount(() => {
   font-weight: 600;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Mobile
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Tablet / Mobile
+   ========================================================= */
 
 @media (max-width: 768px) {
   .institute-page {
     margin-left: 0;
     padding-top: 0;
+    min-height: 100vh;
   }
+
+  /* Page Header */
 
   .page-header {
     flex-direction: column;
@@ -1158,6 +1194,8 @@ onBeforeUnmount(() => {
   .add-btn {
     width: 100%;
   }
+
+  /* Card */
 
   .card-top {
     padding: 18px;
@@ -1187,29 +1225,97 @@ onBeforeUnmount(() => {
     text-align: center;
   }
 
-  .custom-modal {
-    max-height: 95vh;
-    border-radius: 14px;
+  /* =======================================================
+     MOBILE MODAL
+     ======================================================= */
+
+  .modal-backdrop-custom {
+    /*
+     * VERY IMPORTANT:
+     * Start modal from top instead of center.
+     *
+     * If content becomes taller than the mobile screen,
+     * the whole modal area can scroll.
+     */
+    align-items: flex-start;
+    justify-content: center;
+
+    padding: 15px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /*
+     * Do not lock the scrolling.
+     */
+    height: 100dvh;
+    max-height: 100dvh;
+
+    -webkit-overflow-scrolling: touch;
   }
+
+  .custom-modal {
+    width: 100%;
+    max-width: 700px;
+
+    /*
+     * Do NOT force 95vh here.
+     * Let the modal take its natural height.
+     */
+    max-height: none;
+    min-height: 0;
+
+    margin: 0 auto;
+
+    border-radius: 14px;
+
+    /*
+     * Do not hide the content that is outside
+     * the viewport.
+     */
+    overflow: visible;
+
+    flex-shrink: 0;
+  }
+
+  /* Modal Header */
 
   .modal-header-custom {
     padding: 17px;
+
+    /*
+     * Keep header visible while scrolling.
+     */
+    flex-shrink: 0;
   }
+
+  /* Modal Body */
 
   .modal-body-custom {
     padding: 17px;
+
+    /*
+     * On mobile the BACKDROP scrolls,
+     * not the modal body.
+     */
+    overflow: visible;
+
+    min-height: 0;
+    flex: none;
   }
+
+  /* Modal Footer */
 
   .modal-footer-custom {
     padding: 15px 17px;
+
+    flex-shrink: 0;
   }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Small Mobile
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   Small Mobile
+   ========================================================= */
 
 @media (max-width: 480px) {
   .page-title {
@@ -1219,6 +1325,8 @@ onBeforeUnmount(() => {
   .page-subtitle {
     font-size: 13px;
   }
+
+  /* Card */
 
   .card-top {
     flex-direction: column;
@@ -1238,13 +1346,59 @@ onBeforeUnmount(() => {
     height: 40px;
   }
 
+  /* Modal */
+
+  .modal-backdrop-custom {
+    padding: 10px;
+  }
+
+  .custom-modal {
+    border-radius: 12px;
+  }
+
+  .modal-header-custom {
+    padding: 15px;
+  }
+
+  .modal-body-custom {
+    padding: 15px;
+  }
+
   .modal-footer-custom {
     flex-direction: column-reverse;
+    padding: 15px;
   }
 
   .cancel-btn,
   .save-btn {
     width: 100%;
+  }
+}
+
+/* =========================================================
+   Very Small Mobile
+   ========================================================= */
+
+@media (max-width: 360px) {
+  .modal-backdrop-custom {
+    padding: 7px;
+  }
+
+  .modal-header-custom {
+    padding: 13px;
+  }
+
+  .modal-body-custom {
+    padding: 13px;
+  }
+
+  .modal-footer-custom {
+    padding: 13px;
+  }
+
+  .logo-preview {
+    width: 110px;
+    height: 110px;
   }
 }
 </style>

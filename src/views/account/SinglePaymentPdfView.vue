@@ -178,7 +178,6 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/api'
-import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { isLoading } from '@/utils/loading'
 
 const route = useRoute()
