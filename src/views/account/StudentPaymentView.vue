@@ -120,12 +120,19 @@
               <thead>
                 <tr>
                   <th style="width: 50px">#</th>
+
                   <th>Student ID</th>
+
                   <th>Name</th>
+
                   <th>Class</th>
+
                   <th>Email</th>
+
                   <th>Due Months</th>
+
                   <th>Status</th>
+
                   <th class="text-center">Action</th>
                 </tr>
               </thead>
@@ -232,7 +239,7 @@
         </div>
 
         <!-- EMPTY STATE -->
-        <div v-if="filteredStudents.length === 0" class="empty-state">
+        <div v-if="students.length === 0" class="empty-state">
           <div class="empty-icon">
             <i class="fa-solid fa-user-slash"></i>
           </div>
@@ -243,20 +250,17 @@
         </div>
 
         <!-- PAGINATION SECTION -->
-        <div v-if="filteredStudents.length > 0" class="pagination-container">
+        <div v-if="students.length > 0" class="pagination-container">
           <!-- LEFT INFO -->
           <div class="pagination-info">
             Showing
 
-            <strong>
-              {{ (currentPage - 1) * perPage + 1 }} -
-              {{ Math.min(currentPage * perPage, filteredStudents.length) }}
-            </strong>
+            <strong> {{ showingFrom }} - {{ showingTo }} </strong>
 
             of
 
             <strong>
-              {{ filteredStudents.length }}
+              {{ totalStudents }}
             </strong>
 
             Students
@@ -400,7 +404,9 @@
               <option disabled value="">Select Method</option>
 
               <option>Bkash</option>
+
               <option>Nogod</option>
+
               <option>Cash</option>
             </select>
           </div>
@@ -412,6 +418,7 @@
 
           <button class="btn save-btn" @click="savePayment">
             <i class="fa-solid fa-check me-1"></i>
+
             Save Payment
           </button>
         </div>
@@ -431,16 +438,51 @@ import * as bootstrap from 'bootstrap'
 
 const router = useRouter()
 
+/*
+|--------------------------------------------------------------------------
+| Available Months
+|--------------------------------------------------------------------------
+*/
 const availableMonths = ref([])
+
+/*
+|--------------------------------------------------------------------------
+| Students
+|--------------------------------------------------------------------------
+*/
 const students = ref([])
+
+/*
+|--------------------------------------------------------------------------
+| Search
+|--------------------------------------------------------------------------
+*/
 const search = ref('')
+
+/*
+|--------------------------------------------------------------------------
+| Selected Class
+|--------------------------------------------------------------------------
+*/
 const selectedClass = ref('')
 
-/* Pagination */
+/*
+|--------------------------------------------------------------------------
+| Server Pagination
+|--------------------------------------------------------------------------
+*/
 const currentPage = ref(1)
 const perPage = 10
+const totalPages = ref(1)
+const totalStudents = ref(0)
+const showingFrom = ref(0)
+const showingTo = ref(0)
 
-/* Student */
+/*
+|--------------------------------------------------------------------------
+| Selected Student
+|--------------------------------------------------------------------------
+*/
 const selectedStudent = reactive({
   student_id: '',
   full_name: '',
@@ -448,7 +490,11 @@ const selectedStudent = reactive({
   image: null,
 })
 
-/* Payment Form */
+/*
+|--------------------------------------------------------------------------
+| Payment Form
+|--------------------------------------------------------------------------
+*/
 const form = reactive({
   student_id: '',
   amount: '',
@@ -460,106 +506,178 @@ const form = reactive({
   exam_fee: null,
 })
 
-/* Search */
+/*
+|--------------------------------------------------------------------------
+| Students received from backend
+|--------------------------------------------------------------------------
+|
+| Backend already handles:
+| - search
+| - pagination
+|
+| So frontend no longer slices the array.
+|
+*/
 const filteredStudents = computed(() => {
-  return students.value.filter((s) => {
-    const keyword = search.value.toLowerCase()
-
-    const matchSearch =
-      s.student_id?.toLowerCase().includes(keyword) ||
-      s.full_name?.toLowerCase().includes(keyword) ||
-      s.email?.toLowerCase().includes(keyword)
-
-    const matchClass = !selectedClass.value || s.batch_name === selectedClass.value
-
-    return matchSearch && matchClass
-  })
+  return students.value
 })
 
-/* Total Pages */
-const totalPages = computed(() => {
-  return Math.ceil(filteredStudents.value.length / perPage) || 1
-})
-
-/* Paginated Data */
+/*
+|--------------------------------------------------------------------------
+| Paginated Students
+|--------------------------------------------------------------------------
+|
+| Backend already sends only the current page.
+|
+*/
 const paginatedStudents = computed(() => {
-  const start = (currentPage.value - 1) * perPage
-
-  return filteredStudents.value.slice(start, start + perPage)
+  return students.value
 })
 
-/* Page */
+/*
+|--------------------------------------------------------------------------
+| Next Page
+|--------------------------------------------------------------------------
+*/
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++
+    getStudents(currentPage.value + 1)
   }
 }
 
+/*
+|--------------------------------------------------------------------------
+| Previous Page
+|--------------------------------------------------------------------------
+*/
 const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--
+    getStudents(currentPage.value - 1)
   }
 }
 
-/* Reset page on search */
-watch(search, () => {
-  currentPage.value = 1
-})
-
-watch(selectedClass, () => {
-  currentPage.value = 1
-})
-
-/* Payment Modal */
+/*
+|--------------------------------------------------------------------------
+| Open Payment Modal
+|--------------------------------------------------------------------------
+*/
 const openPaymentModal = (student) => {
   selectedStudent.student_id = student.student_id
-
   selectedStudent.full_name = student.full_name
-
   selectedStudent.monthly_fee = student.monthly_fee
-
   selectedStudent.image = student.image
 
   availableMonths.value = student.available_months || []
 
   form.student_id = student.id
-
   form.amount = student.monthly_fee ?? ''
-
   form.paid_amount = ''
-
   form.payment_method = ''
-
   form.payment_date = new Date().toISOString().slice(0, 10)
-
   form.month = ''
-
   form.admission_fee = null
-
   form.exam_fee = null
 }
 
-/* API Calls */
+/*
+|--------------------------------------------------------------------------
+| API Calls
+|--------------------------------------------------------------------------
+*/
 
-/* Get Students List */
-const getStudents = async () => {
+/*
+|--------------------------------------------------------------------------
+| Get Students List
+|--------------------------------------------------------------------------
+|
+| IMPORTANT:
+| Backend:
+|
+| /students?page=1&per_page=10
+|
+| returns:
+| students
+| pagination
+|
+*/
+const getStudents = async (page = 1) => {
   try {
-    const res = await api.get('/students')
+    const res = await api.get('/students', {
+      params: {
+        page,
+        per_page: perPage,
+        search: search.value.trim(),
+      },
+    })
 
-    /* backend data response handle */
-    if (Array.isArray(res.data)) {
-      students.value = res.data
-    } else if (res.data && Array.isArray(res.data.students)) {
-      students.value = res.data.students
+    if (res.data?.status) {
+      students.value = res.data.students || []
+
+      const pagination = res.data.pagination || {}
+
+      currentPage.value = pagination.current_page || 1
+      totalPages.value = pagination.last_page || 1
+      totalStudents.value = pagination.total || 0
+      showingFrom.value = pagination.from || 0
+      showingTo.value = pagination.to || 0
     } else {
       students.value = []
+
+      currentPage.value = 1
+      totalPages.value = 1
+      totalStudents.value = 0
+      showingFrom.value = 0
+      showingTo.value = 0
     }
   } catch (err) {
     console.error('Error fetching students:', err)
+
+    students.value = []
+
+    currentPage.value = 1
+    totalPages.value = 1
+    totalStudents.value = 0
+    showingFrom.value = 0
+    showingTo.value = 0
   }
 }
 
-/* Modal Cleanup */
+/*
+|--------------------------------------------------------------------------
+| Search Watch
+|--------------------------------------------------------------------------
+|
+| Whenever search changes:
+| - go back to page 1
+| - ask backend for filtered students
+|
+*/
+watch(search, () => {
+  getStudents(1)
+})
+
+/*
+|--------------------------------------------------------------------------
+| Class Filter Watch
+|--------------------------------------------------------------------------
+|
+| IMPORTANT:
+| Your current StudentController expects class_id,
+| while this page currently stores batch_name in selectedClass.
+|
+| Therefore we keep the existing class filter behaviour
+| without changing the existing API contract.
+|
+*/
+watch(selectedClass, () => {
+  currentPage.value = 1
+})
+
+/*
+|--------------------------------------------------------------------------
+| Modal Cleanup
+|--------------------------------------------------------------------------
+*/
 const cleanupModals = () => {
   document.querySelectorAll('.modal').forEach((modalEl) => {
     try {
@@ -578,9 +696,7 @@ const cleanupModals = () => {
     modalEl.style.removeProperty('padding-right')
 
     modalEl.removeAttribute('aria-modal')
-
     modalEl.setAttribute('aria-hidden', 'true')
-
     modalEl.removeAttribute('role')
   })
 
@@ -591,20 +707,26 @@ const cleanupModals = () => {
   document.body.classList.remove('modal-open')
 
   document.body.style.removeProperty('overflow')
-
   document.body.style.removeProperty('padding-right')
 
   document.documentElement.style.removeProperty('overflow')
-
   document.documentElement.style.removeProperty('padding-right')
 }
 
-/* Browser Back */
+/*
+|--------------------------------------------------------------------------
+| Browser Back
+|--------------------------------------------------------------------------
+*/
 const handleBrowserBack = () => {
   cleanupModals()
 }
 
-/* Save Payment API */
+/*
+|--------------------------------------------------------------------------
+| Save Payment API
+|--------------------------------------------------------------------------
+*/
 const savePayment = async () => {
   try {
     const res = await api.post('/payments', form)
@@ -625,7 +747,7 @@ const savePayment = async () => {
     if (paymentId) {
       router.push(`/singlePayment/${paymentId}`)
     } else {
-      await getStudents()
+      await getStudents(currentPage.value)
     }
   } catch (err) {
     console.error('Payment error:', err)
@@ -638,23 +760,38 @@ const savePayment = async () => {
   }
 }
 
-/* Unique Classes */
+/*
+|--------------------------------------------------------------------------
+| Unique Classes
+|--------------------------------------------------------------------------
+|
+| Kept from your existing logic.
+|
+*/
 const uniqueClasses = computed(() => {
   const classes = students.value.map((s) => s.batch_name).filter(Boolean)
 
   return [...new Set(classes)]
 })
 
-/* Mounted */
+/*
+|--------------------------------------------------------------------------
+| Mounted
+|--------------------------------------------------------------------------
+*/
 onMounted(() => {
-  getStudents()
+  getStudents(1)
 
   window.addEventListener('popstate', handleBrowserBack)
 
   window.addEventListener('pageshow', handleBrowserBack)
 })
 
-/* Before Unmount */
+/*
+|--------------------------------------------------------------------------
+| Before Unmount
+|--------------------------------------------------------------------------
+*/
 onBeforeUnmount(() => {
   window.removeEventListener('popstate', handleBrowserBack)
 
@@ -663,7 +800,6 @@ onBeforeUnmount(() => {
   cleanupModals()
 })
 </script>
-
 <style scoped>
 /* =========================
    MAIN LAYOUT & FONTS

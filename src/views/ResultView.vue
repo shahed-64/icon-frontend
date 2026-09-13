@@ -8,6 +8,7 @@
       <!-- =====================================================
            SUMMARY CARDS
       ====================================================== -->
+
       <div class="row g-4 mb-4">
         <!-- Exam Participants -->
         <div class="col-md-3 col-sm-6">
@@ -79,6 +80,7 @@
       <!-- =====================================================
            RESULT LIST
       ====================================================== -->
+
       <div class="card border-0 shadow-sm rounded-4 p-4">
         <!-- Header -->
         <div
@@ -115,6 +117,7 @@
         <!-- =====================================================
              TABLE
         ====================================================== -->
+
         <div class="table-responsive">
           <table class="table align-middle table-hover mb-0">
             <thead class="table-light text-uppercase fs-7 text-muted">
@@ -137,7 +140,7 @@
               <!-- Result Rows -->
               <tr v-for="(result, index) in filteredResults" :key="result.id">
                 <td class="ps-3 fw-semibold text-muted">
-                  {{ index + 1 }}
+                  {{ (currentPage - 1) * perPage + index + 1 }}
                 </td>
 
                 <td class="fw-bold text-dark">
@@ -177,9 +180,75 @@
           </table>
         </div>
 
-        <!-- Pagination Footer -->
-        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-          <p class="text-muted small mb-0">Showing {{ filteredResults.length }} result(s)</p>
+        <!-- =====================================================
+             PAGINATION FOOTER
+        ====================================================== -->
+
+        <div
+          v-if="filteredTotal > 0"
+          class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top"
+        >
+          <!-- Showing -->
+          <p class="text-muted small mb-0">
+            Showing
+            <b>{{ showingFrom }}</b>
+            to
+            <b>{{ showingTo }}</b>
+            of
+            <b>{{ filteredTotal }}</b>
+            result(s)
+          </p>
+
+          <!-- Pagination -->
+          <nav v-if="totalPages > 1">
+            <ul class="pagination pagination-sm mb-0">
+              <!-- Previous -->
+              <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                <button
+                  type="button"
+                  class="page-link"
+                  @click="previousPage"
+                  :disabled="currentPage === 1"
+                >
+                  Previous
+                </button>
+              </li>
+
+              <!-- Page Numbers -->
+              <li
+                v-for="(page, index) in pageNumbers"
+                :key="`${page}-${index}`"
+                class="page-item"
+                :class="{
+                  active: page === currentPage,
+                  disabled: page === '...',
+                }"
+              >
+                <button
+                  v-if="page !== '...'"
+                  type="button"
+                  class="page-link"
+                  @click="goToPage(page)"
+                >
+                  {{ page }}
+                </button>
+
+                <span v-else class="page-link"> ... </span>
+              </li>
+
+              <!-- Next -->
+              <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                <button
+                  type="button"
+                  class="page-link"
+                  @click="nextPage"
+                  :disabled="currentPage === totalPages"
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
@@ -259,6 +328,7 @@
 
                     <small class="text-muted d-block">
                       Class:
+
                       {{
                         student.class_info?.class_name ||
                         student.class_name ||
@@ -440,12 +510,14 @@
             <!-- NO STUDENT -->
             <div v-if="!form.student_id" class="alert alert-info">
               <i class="bi bi-info-circle me-2"></i>
+
               Please select a student first.
             </div>
 
             <!-- NO SUBJECT -->
             <div v-else-if="currentSubjects.length === 0" class="alert alert-warning">
               <i class="bi bi-exclamation-triangle me-2"></i>
+
               No subjects are assigned to this student's class/group.
             </div>
 
@@ -580,6 +652,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+
 import dashPageView from './dashPageView.vue'
 import api from '@/services/api'
 
@@ -595,8 +668,24 @@ const examinationsList = ref([])
 const currentSubjects = ref([])
 
 const search = ref('')
+
 const isAddModalOpen = ref(false)
 const isSaving = ref(false)
+
+/**
+ * |--------------------------------------------------------------------------
+ * | PAGINATION
+ * |--------------------------------------------------------------------------
+ */
+
+const currentPage = ref(1)
+const perPage = ref(10)
+
+const filteredTotal = ref(0)
+const totalPages = ref(1)
+
+const showingFrom = ref(0)
+const showingTo = ref(0)
 
 /**
  * |--------------------------------------------------------------------------
@@ -685,19 +774,137 @@ const additionalSubjects = computed(() => {
  * |--------------------------------------------------------------------------
  */
 
-const fetchData = async () => {
+const fetchData = async (page = 1) => {
   try {
-    const response = await api.get('/results')
+    const response = await api.get('/results', {
+      params: {
+        results_page: page,
+        students_page: 1,
+        per_page: perPage.value,
+      },
+    })
 
+    // Result list
     resultsList.value = response.data.results || []
+
+    // Student list
     studentsList.value = response.data.students || []
+
+    // IMPORTANT:
+    // Result pagination must come from results_pagination
+    const resultPagination = response.data.results_pagination || {}
+
+    currentPage.value = resultPagination.current_page || 1
+    totalPages.value = resultPagination.last_page || 1
+    filteredTotal.value = resultPagination.total || 0
+    showingFrom.value = resultPagination.from || 0
+    showingTo.value = resultPagination.to || 0
 
     console.log('Students:', studentsList.value)
     console.log('Results:', resultsList.value)
+    console.log('Result Pagination:', resultPagination)
   } catch (error) {
     console.error('Error fetching result data:', error)
   }
 }
+/**
+ * |--------------------------------------------------------------------------
+ * | PAGINATION - GO TO PAGE
+ * |--------------------------------------------------------------------------
+ */
+
+const goToPage = (page) => {
+  if (page < 1 || page > totalPages.value || page === currentPage.value) {
+    return
+  }
+
+  fetchData(page)
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | PAGINATION - PREVIOUS
+ * |--------------------------------------------------------------------------
+ */
+
+const previousPage = () => {
+  if (currentPage.value > 1) {
+    fetchData(currentPage.value - 1)
+  }
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | PAGINATION - NEXT
+ * |--------------------------------------------------------------------------
+ */
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    fetchData(currentPage.value + 1)
+  }
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | PAGINATION - PAGE NUMBERS
+ * |--------------------------------------------------------------------------
+ */
+
+const pageNumbers = computed(() => {
+  const pages = []
+
+  const total = totalPages.value
+  const current = currentPage.value
+
+  /**
+   * If pages are small
+   */
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) {
+      pages.push(i)
+    }
+
+    return pages
+  }
+
+  /**
+   * First page
+   */
+  pages.push(1)
+
+  /**
+   * Left dots
+   */
+  if (current > 4) {
+    pages.push('...')
+  }
+
+  /**
+   * Current surrounding pages
+   */
+  const start = Math.max(2, current - 1)
+
+  const end = Math.min(total - 1, current + 1)
+
+  for (let i = start; i <= end; i++) {
+    pages.push(i)
+  }
+
+  /**
+   * Right dots
+   */
+  if (current < total - 3) {
+    pages.push('...')
+  }
+
+  /**
+   * Last page
+   */
+  pages.push(total)
+
+  return pages
+})
 
 /**
  * |--------------------------------------------------------------------------
@@ -815,9 +1022,11 @@ const selectStudent = (student) => {
 
 const clearStudentSelection = () => {
   form.student_id = ''
+
   studentSearchText.value = ''
 
   currentSubjects.value = []
+
   form.subjects = []
 
   isStudentDropdownOpen.value = true
@@ -834,17 +1043,26 @@ const loadStudentSubjects = () => {
 
   if (!student) {
     currentSubjects.value = []
+
     form.subjects = []
+
     return
   }
 
   console.log('====================================')
+
   console.log('SELECTED STUDENT:', student)
+
   console.log('CLASS INFO:', student.class_info)
+
   console.log('GROUP:', student.group)
+
   console.log('GROUP NAME:', getStudentGroupName(student))
+
   console.log('GROUP SUBJECTS:', student.group_subjects)
+
   console.log('MAPPED GROUP SUBJECTS:', student.mapped_group_subjects)
+
   console.log('====================================')
 
   /**
@@ -914,6 +1132,7 @@ const loadStudentSubjects = () => {
    */
 
   const normalizedClassSubjects = classSubjects
+
     .filter((subject) => {
       const subjectId = Number(subject.id)
 
@@ -923,6 +1142,7 @@ const loadStudentSubjects = () => {
 
       return true
     })
+
     .map((subject) => {
       return {
         unique_key: `main_${subject.id}`,
@@ -946,11 +1166,13 @@ const loadStudentSubjects = () => {
    */
 
   const normalizedMappedGroupSubjects = mappedGroupSubjects
+
     .filter((subject) => {
       const subjectId = Number(subject.id)
 
       return !Number.isNaN(subjectId) && !additionalSubjectIds.has(subjectId)
     })
+
     .map((subject) => {
       return {
         unique_key: `mapped_group_${subject.id}`,
@@ -1000,7 +1222,9 @@ const loadStudentSubjects = () => {
 
   const mergedSubjects = [
     ...normalizedClassSubjects,
+
     ...normalizedMappedGroupSubjects,
+
     ...normalizedGroupSubjects,
   ]
 
@@ -1107,6 +1331,7 @@ const selectExam = (exam) => {
 
 const clearExamSelection = () => {
   form.exam_type = ''
+
   examSearchText.value = ''
 
   isExamDropdownOpen.value = true
@@ -1134,6 +1359,7 @@ const selectYear = (exam) => {
 
 const clearYearSelection = () => {
   form.exam_year = ''
+
   yearSearchText.value = ''
 
   isYearDropdownOpen.value = true
@@ -1149,7 +1375,9 @@ const closeAddModal = () => {
   isAddModalOpen.value = false
 
   isStudentDropdownOpen.value = false
+
   isYearDropdownOpen.value = false
+
   isExamDropdownOpen.value = false
 }
 
@@ -1161,18 +1389,25 @@ const closeAddModal = () => {
 
 const openAddModal = () => {
   form.student_id = ''
+
   form.exam_year = ''
+
   form.exam_type = ''
+
   form.subjects = []
 
   studentSearchText.value = ''
+
   yearSearchText.value = ''
+
   examSearchText.value = ''
 
   currentSubjects.value = []
 
   isStudentDropdownOpen.value = false
+
   isYearDropdownOpen.value = false
+
   isExamDropdownOpen.value = false
 
   isAddModalOpen.value = true
@@ -1187,21 +1422,25 @@ const openAddModal = () => {
 const saveNewResult = async () => {
   if (!form.student_id) {
     alert('Please select a student!')
+
     return
   }
 
   if (!form.exam_year) {
     alert('Please select an exam year!')
+
     return
   }
 
   if (!form.exam_type) {
     alert('Please select an exam type!')
+
     return
   }
 
   if (!currentSubjects.value.length) {
     alert('No subjects are assigned to this student class/group!')
+
     return
   }
 
@@ -1233,7 +1472,10 @@ const saveNewResult = async () => {
 
       closeAddModal()
 
-      await fetchData()
+      /**
+       * Stay on current page
+       */
+      await fetchData(currentPage.value)
     }
   } catch (error) {
     console.error('Save Result Error:', error)
@@ -1324,7 +1566,9 @@ const calculateResultDetails = (result) => {
   const subjects = result.result_subjects || result.resultSubjects || []
 
   let totalPoints = 0
+
   let subjectCount = 0
+
   let hasFailed = false
 
   subjects.forEach((resultSubject) => {
@@ -1341,6 +1585,7 @@ const calculateResultDetails = (result) => {
     }
 
     totalPoints += point
+
     subjectCount++
 
     if (point === 0) {
@@ -1351,6 +1596,7 @@ const calculateResultDetails = (result) => {
   if (subjectCount === 0 || hasFailed) {
     return {
       gpa: 0,
+
       status: 'Fail',
     }
   }
@@ -1371,11 +1617,11 @@ const calculateResultDetails = (result) => {
  */
 
 const totalStudents = computed(() => {
-  return resultsList.value.length
+  return filteredTotal.value
 })
 
 const publishedResults = computed(() => {
-  return resultsList.value.length
+  return filteredTotal.value
 })
 
 const passRate = computed(() => {
@@ -1414,7 +1660,9 @@ const totalGpaFive = computed(() => {
 
 const closeDropdowns = () => {
   isStudentDropdownOpen.value = false
+
   isYearDropdownOpen.value = false
+
   isExamDropdownOpen.value = false
 }
 
@@ -1425,7 +1673,7 @@ const closeDropdowns = () => {
  */
 
 onMounted(async () => {
-  await Promise.all([fetchData(), fetchExaminations()])
+  await Promise.all([fetchData(1), fetchExaminations()])
 })
 </script>
 

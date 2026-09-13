@@ -13,6 +13,7 @@
 
       <div class="col-auto">
         <button
+          type="button"
           @click="openAddModal"
           class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
         >
@@ -88,6 +89,7 @@
                 <!-- ACTIONS -->
                 <td class="text-end pe-4">
                   <button
+                    type="button"
                     @click="openEditModal(cls)"
                     class="btn btn-sm btn-outline-primary me-2 px-3"
                   >
@@ -95,7 +97,11 @@
                     Edit
                   </button>
 
-                  <button @click="deleteClass(cls.id)" class="btn btn-sm btn-outline-danger px-3">
+                  <button
+                    type="button"
+                    @click="deleteClass(cls.id)"
+                    class="btn btn-sm btn-outline-danger px-3"
+                  >
                     <i class="bi bi-trash me-1"></i>
                     Delete
                   </button>
@@ -114,7 +120,10 @@
       v-if="showModal"
       class="modal fade show d-block"
       tabindex="-1"
+      aria-modal="true"
+      role="dialog"
       style="background-color: rgba(0, 0, 0, 0.5)"
+      @click.self="closeModal"
     >
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-4">
@@ -134,7 +143,7 @@
               </p>
             </div>
 
-            <button type="button" class="btn-close" @click="closeModal"></button>
+            <button type="button" class="btn-close" :disabled="saving" @click="closeModal"></button>
           </div>
 
           <!-- FORM -->
@@ -199,18 +208,24 @@
                       <div
                         class="form-check subject-check-card border rounded-3 p-3"
                         :class="{
-                          'selected-subject': form.subject_ids.includes(subject.id),
+                          'selected-subject': form.subject_ids.includes(Number(subject.id)),
                         }"
+                        @click="toggleSubject(subject.id)"
                       >
                         <input
                           class="form-check-input ms-0 me-2"
                           type="checkbox"
                           :id="'subject-' + subject.id"
-                          :value="subject.id"
+                          :value="Number(subject.id)"
                           v-model="form.subject_ids"
+                          @click.stop
                         />
 
-                        <label class="form-check-label fw-semibold" :for="'subject-' + subject.id">
+                        <label
+                          class="form-check-label fw-semibold"
+                          :for="'subject-' + subject.id"
+                          @click.stop
+                        >
                           {{ subject.subject_name || subject.name }}
 
                           <span v-if="subject.code" class="d-block text-muted small mt-1">
@@ -272,7 +287,6 @@ const classes = ref([])
 ========================================================= */
 
 const subjects = ref([])
-
 const subjectsLoading = ref(false)
 
 /* =========================================================
@@ -280,11 +294,8 @@ const subjectsLoading = ref(false)
 ========================================================= */
 
 const showModal = ref(false)
-
 const isEditMode = ref(false)
-
 const currentClassID = ref(null)
-
 const saving = ref(false)
 
 /* =========================================================
@@ -301,7 +312,6 @@ const form = ref({
 ========================================================= */
 
 const message = ref('')
-
 const isError = ref(false)
 
 /* =========================================================
@@ -310,7 +320,6 @@ const isError = ref(false)
 
 const openAddModal = async () => {
   isEditMode.value = false
-
   currentClassID.value = null
 
   form.value = {
@@ -319,6 +328,7 @@ const openAddModal = async () => {
   }
 
   message.value = ''
+  isError.value = false
 
   showModal.value = true
 
@@ -330,24 +340,40 @@ const openAddModal = async () => {
 ========================================================= */
 
 const openEditModal = async (classItem) => {
-  isEditMode.value = true
+  console.log('EDIT CLICKED:', classItem)
 
+  isEditMode.value = true
   currentClassID.value = classItem.id
 
-  form.value.class_name = classItem.class_name || classItem.name || ''
-
-  /*
-   * Existing assigned subjects
-   */
-  form.value.subject_ids = Array.isArray(classItem.subjects)
-    ? classItem.subjects.map((subject) => Number(subject.id))
-    : []
+  form.value = {
+    class_name: classItem.class_name || classItem.name || '',
+    subject_ids: Array.isArray(classItem.subjects)
+      ? classItem.subjects.map((subject) => Number(subject.id))
+      : [],
+  }
 
   message.value = ''
+  isError.value = false
 
   showModal.value = true
 
   await fetchSubjects()
+}
+
+/* =========================================================
+   TOGGLE SUBJECT
+========================================================= */
+
+const toggleSubject = (subjectId) => {
+  const id = Number(subjectId)
+
+  const index = form.value.subject_ids.indexOf(id)
+
+  if (index === -1) {
+    form.value.subject_ids.push(id)
+  } else {
+    form.value.subject_ids.splice(index, 1)
+  }
 }
 
 /* =========================================================
@@ -411,18 +437,18 @@ const saveClass = async () => {
     return
   }
 
+  if (!form.value.class_name.trim()) {
+    showAlert('Class name is required.', true)
+
+    return
+  }
+
   saving.value = true
 
   try {
-    /*
-     * Backend expects:
-     *
-     * class_name
-     * subject_ids
-     */
-
     const payload = {
       class_name: form.value.class_name.trim(),
+
       subject_ids: form.value.subject_ids.map((id) => Number(id)),
     }
 
@@ -431,6 +457,8 @@ const saveClass = async () => {
     ====================================================== */
 
     if (isEditMode.value) {
+      console.log('UPDATING CLASS:', currentClassID.value, payload)
+
       const response = await api.put(`/classes/${currentClassID.value}`, payload)
 
       if (response.status === 200 || response.data?.status) {
@@ -442,8 +470,9 @@ const saveClass = async () => {
       }
     } else {
       /* =====================================================
-       CREATE
-    ====================================================== */
+         CREATE
+      ====================================================== */
+
       const response = await api.post('/classes', payload)
 
       if (response.status === 201 || response.status === 200 || response.data?.status) {
@@ -502,18 +531,37 @@ const closeModal = () => {
 ========================================================= */
 
 const deleteClass = async (id) => {
+  console.log('DELETE CLICKED:', id)
+
+  if (!id) {
+    showAlert('Invalid class ID.', true)
+
+    return
+  }
+
   if (!confirm('Are you sure you want to delete this class?')) {
     return
   }
 
   try {
-    await api.delete(`/classes/${id}`)
+    const response = await api.delete(`/classes/${id}`)
 
-    classes.value = classes.value.filter((c) => c.id !== id)
+    console.log('DELETE RESPONSE:', response.data)
 
-    showAlert('Class deleted successfully!')
+    if (response.status === 200 || response.data?.status) {
+      showAlert(response.data?.message || 'Class deleted successfully!')
+
+      /*
+       * Backend থেকে fresh data আনা হচ্ছে।
+       * এতে frontend list এবং database-এর data
+       * সবসময় synchronized থাকবে।
+       */
+      await fetchClasses()
+    }
   } catch (error) {
     console.error('Failed to delete class:', error)
+
+    console.error('Delete response:', error.response?.data)
 
     showAlert(error.response?.data?.message || 'Failed to delete class.', true)
   }
@@ -525,7 +573,6 @@ const deleteClass = async (id) => {
 
 const showAlert = (msg, error = false) => {
   message.value = msg
-
   isError.value = error
 
   setTimeout(() => {
@@ -571,7 +618,6 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s ease;
   min-height: 70px;
-
   display: flex;
   align-items: flex-start;
 }

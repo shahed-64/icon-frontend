@@ -19,7 +19,7 @@
           </div>
 
           <div>
-            <h4>{{ teachers.length }}</h4>
+            <h4>{{ totalTeachers }}</h4>
             <span>Total Teachers</span>
           </div>
         </div>
@@ -47,7 +47,6 @@
 
         <select v-model="selectedDepartment" class="class-filter">
           <option value="">All Departments</option>
-
           <option v-for="dept in uniqueDepartments" :key="dept" :value="dept">
             {{ dept }}
           </option>
@@ -71,7 +70,13 @@
           </thead>
 
           <tbody>
-            <tr v-for="(item, index) in paginatedTeachers" :key="item.id">
+            <!-- LOADING -->
+            <tr v-if="loading">
+              <td colspan="8" class="text-center py-4">Loading teachers...</td>
+            </tr>
+
+            <!-- TEACHERS -->
+            <tr v-for="(item, index) in teachers" :key="item.id" v-else>
               <td>
                 {{ (currentPage - 1) * perPage + index + 1 }}
               </td>
@@ -106,7 +111,6 @@
                   <span v-for="sh in item.shifts" :key="sh.id" class="badge bg-secondary">
                     {{ sh.name }}
                   </span>
-
                   <span v-if="!item.shifts || item.shifts.length === 0" class="text-muted small">
                     No Shift
                   </span>
@@ -146,33 +150,30 @@
       </div>
 
       <!-- EMPTY STATE -->
-      <div v-if="filteredTeachers.length === 0" class="empty-state">
+      <div v-if="!loading && teachers.length === 0" class="empty-state">
         <i class="bi bi-person-x"></i>
         <h5>No Teacher Found</h5>
         <p>Try changing search or filter</p>
       </div>
 
       <!-- PAGINATION -->
-      <div v-if="filteredTeachers.length > 0" class="pagination-box">
+      <div v-if="totalTeachers > 0" class="pagination-box">
         <div>
-          Showing
-          <b>{{ (currentPage - 1) * perPage + 1 }}</b>
-          to
-          <b>
-            {{ Math.min(currentPage * perPage, filteredTeachers.length) }}
-          </b>
-          of
-          <b>{{ filteredTeachers.length }}</b>
+          Showing <b>{{ showingFrom }}</b> to <b>{{ showingTo }}</b> of <b>{{ totalTeachers }}</b>
         </div>
 
         <div class="page-buttons">
-          <button class="page-btn" @click="prevPage" :disabled="currentPage === 1">
+          <button class="page-btn" @click="prevPage" :disabled="currentPage === 1 || loading">
             <i class="bi bi-chevron-left"></i>
           </button>
 
           <span> {{ currentPage }} / {{ totalPages }} </span>
 
-          <button class="page-btn" @click="nextPage" :disabled="currentPage === totalPages">
+          <button
+            class="page-btn"
+            @click="nextPage"
+            :disabled="currentPage === totalPages || loading"
+          >
             <i class="bi bi-chevron-right"></i>
           </button>
         </div>
@@ -185,7 +186,6 @@
         <div class="modal-content teacher-modal">
           <div class="modal-header">
             <h5>Add Teacher</h5>
-
             <button
               type="button"
               class="btn-close"
@@ -195,14 +195,12 @@
           </div>
 
           <div class="modal-body">
-            <!-- IMAGE PREVIEW -->
             <div class="text-center mb-3">
               <img
                 :src="addPreview || defaultAvatar"
                 class="image-preview mb-2"
                 alt="Add Preview"
               />
-
               <input
                 type="file"
                 ref="addFileInput"
@@ -213,7 +211,6 @@
             </div>
 
             <input v-model="form.full_name" class="form-control mb-3" placeholder="Full Name *" />
-
             <input
               v-model="form.designation"
               class="form-control mb-3"
@@ -222,15 +219,10 @@
 
             <select v-model="form.department" class="form-control mb-3">
               <option value="" disabled selected>Select Department *</option>
-
               <option value="Computer Science">Computer Science</option>
-
               <option value="Electrical Engineering">Electrical Engineering</option>
-
               <option value="Physics">Physics</option>
-
               <option value="Mathematics">Mathematics</option>
-
               <option value="English">English</option>
             </select>
 
@@ -239,13 +231,9 @@
               class="form-control mb-3"
               placeholder="Qualification *"
             />
-
             <input v-model="form.phone" class="form-control mb-3" placeholder="Phone *" />
-
             <input v-model="form.email" class="form-control mb-3" placeholder="Email *" />
-
             <input v-model="form.joining_date" type="date" class="form-control mb-3" />
-
             <input
               v-model="form.salary"
               type="number"
@@ -253,9 +241,7 @@
               placeholder="Salary"
             />
 
-            <!-- SHIFTS -->
             <label class="form-label fw-bold"> Select Shifts * </label>
-
             <div class="shift-box">
               <div v-for="shift in allShifts" :key="shift.id" class="form-check">
                 <input
@@ -265,21 +251,15 @@
                   :id="'add_shift_' + shift.id"
                   v-model="form.shift_ids"
                 />
-
                 <label class="form-check-label" :for="'add_shift_' + shift.id">
                   {{ shift.name }}
                 </label>
-              </div>
-
-              <div v-if="allShifts.length === 0" class="text-muted small">
-                No shifts available. Please add shifts first.
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
             <button
               type="button"
               class="btn btn-primary"
@@ -299,7 +279,6 @@
         <div class="modal-content teacher-modal">
           <div class="modal-header bg-primary text-white">
             <h5>Teacher Details</h5>
-
             <button
               type="button"
               class="btn-close btn-close-white"
@@ -313,54 +292,23 @@
               class="teacher-modal-avatar mb-3"
               alt="Teacher Avatar"
             />
-
             <h4>{{ selectedTeacher.full_name }}</h4>
-
-            <p class="text-muted">
-              {{ selectedTeacher.teacher_id }}
-            </p>
-
+            <p class="text-muted">{{ selectedTeacher.teacher_id }}</p>
             <hr />
 
             <div class="text-start px-3 teacher-details">
-              <p>
-                <strong>Designation:</strong>
-                {{ selectedTeacher.designation }}
-              </p>
-
-              <p>
-                <strong>Department:</strong>
-                {{ selectedTeacher.department }}
-              </p>
-
-              <p>
-                <strong>Qualification:</strong>
-                {{ selectedTeacher.qualification }}
-              </p>
-
-              <p>
-                <strong>Email:</strong>
-                {{ selectedTeacher.email }}
-              </p>
-
-              <p>
-                <strong>Phone:</strong>
-                {{ selectedTeacher.phone }}
-              </p>
-
+              <p><strong>Designation:</strong> {{ selectedTeacher.designation }}</p>
+              <p><strong>Department:</strong> {{ selectedTeacher.department }}</p>
+              <p><strong>Qualification:</strong> {{ selectedTeacher.qualification }}</p>
+              <p><strong>Email:</strong> {{ selectedTeacher.email }}</p>
+              <p><strong>Phone:</strong> {{ selectedTeacher.phone }}</p>
               <p>
                 <strong>Joining Date:</strong>
                 {{ selectedTeacher.join_date || selectedTeacher.joining_date }}
               </p>
-
-              <p>
-                <strong>Salary:</strong>
-                {{ selectedTeacher.salary }}
-              </p>
-
+              <p><strong>Salary:</strong> {{ selectedTeacher.salary }}</p>
               <p>
                 <strong>Shifts:</strong>
-
                 <span
                   v-for="sh in selectedTeacher.shifts"
                   :key="sh.id"
@@ -381,7 +329,6 @@
         <div class="modal-content teacher-modal">
           <div class="modal-header">
             <h5>Edit Teacher</h5>
-
             <button
               type="button"
               class="btn-close"
@@ -391,14 +338,12 @@
           </div>
 
           <div class="modal-body">
-            <!-- IMAGE PREVIEW -->
             <div class="text-center mb-3">
               <img
                 :src="editPreview || selectedTeacher.image || defaultAvatar"
                 class="image-preview mb-2"
                 alt="Edit Preview"
               />
-
               <input
                 type="file"
                 ref="editFileInput"
@@ -408,63 +353,49 @@
               />
             </div>
 
-            <label class="form-label"> Full Name </label>
-
+            <label class="form-label">Full Name</label>
             <input
               v-model="selectedTeacher.full_name"
               class="form-control mb-3"
               placeholder="Name"
             />
 
-            <label class="form-label"> Designation </label>
-
+            <label class="form-label">Designation</label>
             <input
               v-model="selectedTeacher.designation"
               class="form-control mb-3"
               placeholder="Designation"
             />
 
-            <label class="form-label"> Department </label>
-
+            <label class="form-label">Department</label>
             <select v-model="selectedTeacher.department" class="form-control mb-3">
               <option value="Computer Science">Computer Science</option>
-
               <option value="Electrical Engineering">Electrical Engineering</option>
-
               <option value="Physics">Physics</option>
-
               <option value="Mathematics">Mathematics</option>
-
               <option value="English">English</option>
             </select>
 
-            <label class="form-label"> Qualification </label>
-
+            <label class="form-label">Qualification</label>
             <input
               v-model="selectedTeacher.qualification"
               class="form-control mb-3"
               placeholder="Qualification"
             />
 
-            <label class="form-label"> Phone </label>
-
+            <label class="form-label">Phone</label>
             <input v-model="selectedTeacher.phone" class="form-control mb-3" placeholder="Phone" />
 
-            <label class="form-label"> Email </label>
-
+            <label class="form-label">Email</label>
             <input v-model="selectedTeacher.email" class="form-control mb-3" placeholder="Email" />
 
-            <label class="form-label"> Joining Date </label>
-
+            <label class="form-label">Joining Date</label>
             <input v-model="selectedTeacher.joining_date" type="date" class="form-control mb-3" />
 
-            <label class="form-label"> Salary </label>
-
+            <label class="form-label">Salary</label>
             <input v-model="selectedTeacher.salary" type="number" class="form-control mb-3" />
 
-            <!-- SHIFTS -->
-            <label class="form-label fw-bold"> Select Shifts * </label>
-
+            <label class="form-label fw-bold">Select Shifts *</label>
             <div class="shift-box">
               <div v-for="shift in allShifts" :key="shift.id" class="form-check">
                 <input
@@ -474,7 +405,6 @@
                   :id="'edit_shift_' + shift.id"
                   v-model="selectedTeacher.shift_ids"
                 />
-
                 <label class="form-check-label" :for="'edit_shift_' + shift.id">
                   {{ shift.name }}
                 </label>
@@ -484,7 +414,6 @@
 
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
             <button
               type="button"
               class="btn btn-primary"
@@ -501,12 +430,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import api from '@/services/api'
 import dashPageView from './dashPageView.vue'
-
-/* ================= STATE ================= */
 
 const teachers = ref([])
 const allShifts = ref([])
@@ -517,10 +444,10 @@ const selectedDepartment = ref('')
 
 const currentPage = ref(1)
 const perPage = ref(10)
+const totalTeachers = ref(0)
+const totalPages = ref(1)
 
 const defaultAvatar = ref('https://via.placeholder.com/150')
-
-/* ================= ADD FORM ================= */
 
 const form = ref({
   full_name: '',
@@ -536,8 +463,6 @@ const form = ref({
 })
 
 const addPreview = ref(null)
-
-/* ================= EDIT / VIEW ================= */
 
 const selectedTeacher = ref({
   id: null,
@@ -557,128 +482,82 @@ const selectedTeacher = ref({
 
 const editImageFile = ref(null)
 const editPreview = ref(null)
-
-/* ================= TEMPLATE REFS ================= */
-
 const addFileInput = ref(null)
 
-/* ================= COMPUTED ================= */
-
-const filteredTeachers = computed(() => {
-  return teachers.value.filter((teacher) => {
-    const searchText = search.value.toLowerCase()
-
-    const matchesSearch =
-      teacher.full_name?.toLowerCase().includes(searchText) ||
-      teacher.teacher_id?.toLowerCase().includes(searchText) ||
-      teacher.email?.toLowerCase().includes(searchText)
-
-    const matchesDepartment =
-      !selectedDepartment.value || teacher.department === selectedDepartment.value
-
-    return matchesSearch && matchesDepartment
-  })
-})
-
-const paginatedTeachers = computed(() => {
-  const start = (currentPage.value - 1) * perPage.value
-
-  return filteredTeachers.value.slice(start, start + perPage.value)
-})
-
-const totalPages = computed(() => {
-  return Math.ceil(filteredTeachers.value.length / perPage.value) || 1
-})
+const showingFrom = computed(() =>
+  totalTeachers.value === 0 ? 0 : (currentPage.value - 1) * perPage.value + 1,
+)
+const showingTo = computed(() =>
+  totalTeachers.value === 0 ? 0 : Math.min(currentPage.value * perPage.value, totalTeachers.value),
+)
 
 const uniqueDepartments = computed(() => {
-  const depts = teachers.value.map((teacher) => teacher.department).filter(Boolean)
-
+  const depts = teachers.value.map((t) => t.department).filter(Boolean)
   return [...new Set(depts)]
 })
 
-/* =====================================================
-   BOOTSTRAP MODAL CLEANUP
-   ===================================================== */
-
 const cleanupModals = () => {
-  // Remove all Bootstrap backdrops
-  document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
-    backdrop.remove()
+  document.querySelectorAll('.modal-backdrop').forEach((b) => b.remove())
+  document.querySelectorAll('.modal.show').forEach((m) => {
+    m.classList.remove('show')
+    m.style.display = 'none'
+    m.removeAttribute('aria-modal')
+    m.setAttribute('aria-hidden', 'true')
   })
-
-  // Hide every opened modal
-  document.querySelectorAll('.modal.show').forEach((modal) => {
-    modal.classList.remove('show')
-
-    modal.style.display = 'none'
-
-    modal.removeAttribute('aria-modal')
-
-    modal.setAttribute('aria-hidden', 'true')
-  })
-
-  // Clean body Bootstrap state
   document.body.classList.remove('modal-open')
-
   document.body.style.removeProperty('overflow')
-
   document.body.style.removeProperty('padding-right')
-
-  // Also clean inline styles from modal
-  document.querySelectorAll('.modal').forEach((modal) => {
-    modal.style.removeProperty('display')
-    modal.removeAttribute('aria-modal')
-    modal.setAttribute('aria-hidden', 'true')
-  })
 }
 
-/* ================= LIFECYCLE ================= */
-
-onMounted(() => {
-  fetchTeachers()
-  fetchShifts()
-
-  // Browser/mobile back
+// প্যারালাল রিকোয়েস্টের মাধ্যমে ফাস্ট ডেটা লোড
+onMounted(async () => {
+  loading.value = true
+  await Promise.all([fetchTeachers(), fetchShifts()])
+  loading.value = false
   window.addEventListener('popstate', cleanupModals)
 })
 
-/*
-|--------------------------------------------------------------------------
-| Vue Router navigation
-|--------------------------------------------------------------------------
-| Sidebar/menu দিয়ে অন্য page-এ গেলে modal/backdrop যেন থেকে না যায়।
-*/
-
-onBeforeRouteLeave(() => {
-  cleanupModals()
+watch(search, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    currentPage.value = 1
+    fetchTeachers(1)
+  }
 })
 
+watch(selectedDepartment, () => {
+  currentPage.value = 1
+  fetchTeachers(1)
+})
+
+onBeforeRouteLeave(() => cleanupModals())
 onBeforeUnmount(() => {
   cleanupModals()
-
   window.removeEventListener('popstate', cleanupModals)
 })
 
-/* ================= FETCH TEACHERS ================= */
-
-const fetchTeachers = async () => {
+const fetchTeachers = async (page = currentPage.value) => {
   try {
-    const response = await api.get('/teachers')
+    const params = { page, per_page: perPage.value }
+    if (search.value.trim()) params.search = search.value.trim()
+    if (selectedDepartment.value) params.department = selectedDepartment.value
 
+    const response = await api.get('/teachers', { params })
     if (response.data.status) {
-      teachers.value = response.data.data
+      teachers.value = Array.isArray(response.data.data) ? response.data.data : []
+      const pagination = response.data.pagination || {}
+      currentPage.value = Number(pagination.current_page) || page
+      totalPages.value = Number(pagination.last_page) || 1
+      perPage.value = Number(pagination.per_page) || perPage.value
+      totalTeachers.value = Number(pagination.total) || 0
     }
   } catch (error) {
     console.error('Error fetching teachers:', error)
   }
 }
 
-/* ================= FETCH SHIFTS ================= */
-
 const fetchShifts = async () => {
   try {
     const response = await api.get('/shifts')
-
     if (response.data.status) {
       allShifts.value = response.data.data
     }
@@ -687,39 +566,23 @@ const fetchShifts = async () => {
   }
 }
 
-/* ================= IMAGE CHANGE ================= */
-
 const handleFileChange = (event, type) => {
   const file = event.target.files[0]
-
   if (!file) return
 
   if (type === 'add') {
     form.value.image = file
-
-    if (addPreview.value) {
-      URL.revokeObjectURL(addPreview.value)
-    }
-
+    if (addPreview.value) URL.revokeObjectURL(addPreview.value)
     addPreview.value = URL.createObjectURL(file)
   } else if (type === 'edit') {
     editImageFile.value = file
-
-    if (editPreview.value) {
-      URL.revokeObjectURL(editPreview.value)
-    }
-
+    if (editPreview.value) URL.revokeObjectURL(editPreview.value)
     editPreview.value = URL.createObjectURL(file)
   }
 }
 
-/* ================= RESET FORM ================= */
-
 const resetForm = () => {
-  if (addPreview.value) {
-    URL.revokeObjectURL(addPreview.value)
-  }
-
+  if (addPreview.value) URL.revokeObjectURL(addPreview.value)
   form.value = {
     full_name: '',
     designation: '',
@@ -732,153 +595,86 @@ const resetForm = () => {
     image: null,
     shift_ids: [],
   }
-
   addPreview.value = null
-
-  if (addFileInput.value) {
-    addFileInput.value.value = ''
-  }
+  if (addFileInput.value) addFileInput.value.value = ''
 }
-
-/* ================= CREATE TEACHER ================= */
 
 const teacher_create = async () => {
   loading.value = true
-
   try {
     const formData = new FormData()
-
     formData.append('full_name', form.value.full_name)
-
     formData.append('designation', form.value.designation)
-
     formData.append('department', form.value.department)
-
     formData.append('qualification', form.value.qualification)
-
     formData.append('phone', form.value.phone)
-
     formData.append('email', form.value.email)
-
     formData.append('joining_date', form.value.joining_date)
-
     formData.append('salary', form.value.salary || 0)
 
-    form.value.shift_ids.forEach((id) => {
-      formData.append('shift_ids[]', id)
-    })
-
-    if (form.value.image) {
-      formData.append('image', form.value.image)
-    }
+    form.value.shift_ids.forEach((id) => formData.append('shift_ids[]', id))
+    if (form.value.image) formData.append('image', form.value.image)
 
     const response = await api.post('/teachers', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
 
     if (response.data.status) {
       alert(response.data.message)
-
-      await fetchTeachers()
-
+      currentPage.value = 1
+      await fetchTeachers(1)
       resetForm()
-
       document.getElementById('closeAddModal')?.click()
     }
   } catch (error) {
-    console.log('Backend Error Details:', error.response?.data)
-
-    if (error.response?.data?.errors) {
-      const firstError = Object.values(error.response.data.errors)[0][0]
-
-      alert(firstError)
-    } else {
-      alert(error.response?.data?.message || 'Error creating teacher')
-    }
+    alert(error.response?.data?.message || 'Error creating teacher')
   } finally {
     loading.value = false
   }
 }
 
-/* ================= OPEN VIEW ================= */
-
 const openView = (teacher) => {
-  selectedTeacher.value = {
-    ...teacher,
-    shifts: teacher.shifts || [],
-  }
+  selectedTeacher.value = { ...teacher, shifts: teacher.shifts || [] }
 }
-
-/* ================= OPEN EDIT ================= */
 
 const openEdit = (teacher) => {
   selectedTeacher.value = {
     ...teacher,
-
     joining_date: teacher.join_date || teacher.joining_date,
-
-    shift_ids: teacher.shifts ? teacher.shifts.map((shift) => shift.id) : [],
-
+    shift_ids: teacher.shifts ? teacher.shifts.map((s) => s.id) : [],
     shifts: teacher.shifts || [],
   }
-
-  if (editPreview.value) {
-    URL.revokeObjectURL(editPreview.value)
-  }
-
+  if (editPreview.value) URL.revokeObjectURL(editPreview.value)
   editPreview.value = null
   editImageFile.value = null
 }
 
-/* ================= UPDATE TEACHER ================= */
-
 const updateTeacher = async () => {
   loading.value = true
-
   try {
     const formData = new FormData()
-
     formData.append('_method', 'PUT')
-
     formData.append('full_name', selectedTeacher.value.full_name)
-
     formData.append('designation', selectedTeacher.value.designation)
-
     formData.append('department', selectedTeacher.value.department)
-
     formData.append('qualification', selectedTeacher.value.qualification)
-
     formData.append('phone', selectedTeacher.value.phone)
-
     formData.append('email', selectedTeacher.value.email)
-
     formData.append('joining_date', selectedTeacher.value.joining_date)
-
     formData.append('salary', selectedTeacher.value.salary || 0)
 
-    if (selectedTeacher.value.shift_ids && selectedTeacher.value.shift_ids.length > 0) {
-      selectedTeacher.value.shift_ids.forEach((id) => {
-        formData.append('shift_ids[]', id)
-      })
+    if (selectedTeacher.value.shift_ids) {
+      selectedTeacher.value.shift_ids.forEach((id) => formData.append('shift_ids[]', id))
     }
-
-    if (editImageFile.value) {
-      formData.append('image', editImageFile.value)
-    }
+    if (editImageFile.value) formData.append('image', editImageFile.value)
 
     const response = await api.post(`/teachers/${selectedTeacher.value.id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
 
     if (response.data.status) {
       alert(response.data.message)
-
-      await fetchTeachers()
-
+      await fetchTeachers(currentPage.value)
       document.getElementById('closeEditModal')?.click()
     }
   } catch (error) {
@@ -888,17 +684,14 @@ const updateTeacher = async () => {
   }
 }
 
-/* ================= DELETE TEACHER ================= */
-
 const deleteTeacher = async (id) => {
   if (confirm('Are you sure you want to delete this teacher?')) {
     try {
       const response = await api.delete(`/teachers/${id}`)
-
       if (response.data.status) {
         alert(response.data.message)
-
-        await fetchTeachers()
+        if (teachers.value.length === 1 && currentPage.value > 1) currentPage.value--
+        await fetchTeachers(currentPage.value)
       }
     } catch (error) {
       alert('Error deleting teacher')
@@ -906,21 +699,18 @@ const deleteTeacher = async (id) => {
   }
 }
 
-/* ================= PAGINATION ================= */
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
+const nextPage = async () => {
+  if (currentPage.value < totalPages.value && !loading.value) {
+    await fetchTeachers(currentPage.value + 1)
   }
 }
 
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
+const prevPage = async () => {
+  if (currentPage.value > 1 && !loading.value) {
+    await fetchTeachers(currentPage.value - 1)
   }
 }
 </script>
-
 <style scoped>
 /* =====================================================
    IMAGE PREVIEW

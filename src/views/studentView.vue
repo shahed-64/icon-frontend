@@ -1,11 +1,9 @@
 <template>
   <RouterView />
-
   <dashPageView />
 
   <div class="content">
     <!-- ================= HEADER ================= -->
-
     <div class="staff-header">
       <div>
         <h2>Student Management</h2>
@@ -17,9 +15,8 @@
           <div class="summary-icon">
             <i class="bi bi-mortarboard-fill"></i>
           </div>
-
           <div>
-            <h4>{{ students.length }}</h4>
+            <h4>{{ totalStudents }}</h4>
             <span>Total Students</span>
           </div>
         </div>
@@ -37,22 +34,17 @@
     </div>
 
     <!-- ================= MAIN CARD ================= -->
-
     <div class="staff-table-card">
       <!-- TOOLBAR -->
-
       <div class="staff-toolbar">
         <div class="search-box">
           <i class="bi bi-search"></i>
-
           <input v-model="search" type="text" placeholder="Search student..." />
         </div>
 
         <!-- CLASS FILTER -->
-
         <select v-model="selectedClass" class="class-filter">
           <option value="">All Classes</option>
-
           <option v-for="cls in classes" :key="cls.id" :value="String(cls.id)">
             {{ cls.class_name }}
           </option>
@@ -60,7 +52,6 @@
       </div>
 
       <!-- TABLE -->
-
       <div class="table-responsive">
         <table class="table staff-table align-middle">
           <thead>
@@ -71,79 +62,48 @@
               <th>Class</th>
               <th>Group</th>
               <th>Email</th>
-
-              <!-- <th>Course</th> -->
-
               <th width="180">Action</th>
             </tr>
           </thead>
-
           <tbody>
-            <tr v-for="(item, index) in paginatedStudents" :key="item.id">
-              <!-- SERIAL -->
+            <!-- LOADING -->
+            <tr v-if="loading">
+              <td colspan="7" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="mt-2 text-muted">Loading students...</div>
+              </td>
+            </tr>
 
+            <!-- STUDENTS -->
+            <tr v-for="(item, index) in students" :key="item.id" v-else>
               <td>
                 {{ (currentPage - 1) * perPage + index + 1 }}
               </td>
-
-              <!-- PHOTO -->
-
               <td>
                 <img :src="getImageUrl(item)" class="staff-avatar" alt="Student Photo" />
               </td>
-
-              <!-- NAME -->
-
               <td>
                 <div class="staff-name">
-                  <strong>
-                    {{ item.full_name }}
-                  </strong>
-
-                  <small>
-                    {{ item.student_id }}
-                  </small>
+                  <strong>{{ item.full_name }}</strong>
+                  <small>{{ item.student_id }}</small>
                 </div>
               </td>
-
-              <!-- CLASS -->
-
               <td>
                 <span class="skill-badge">
                   {{ item.class_info ? item.class_info.class_name : 'N/A' }}
                 </span>
               </td>
-
-              <!-- GROUP -->
-
               <td>
                 <span v-if="item.class_group" class="group-badge">
                   {{ item.class_group.group_name }}
                 </span>
-
-                <span v-else class="text-muted"> N/A </span>
+                <span v-else class="text-muted">N/A</span>
               </td>
-
-              <!-- EMAIL -->
-
               <td>
                 {{ item.email || 'N/A' }}
               </td>
-
-              <!-- COURSE -->
-
-              <!--
-              <td>
-                {{ item.course_name || 'N/A' }}
-              </td>
-              -->
-
-              <!-- ACTION -->
-
               <td>
                 <div class="action-buttons">
-                  <!-- VIEW -->
-
                   <button
                     class="action-btn view"
                     @click="openView(item)"
@@ -153,9 +113,6 @@
                   >
                     <i class="bi bi-eye"></i>
                   </button>
-
-                  <!-- EDIT -->
-
                   <button
                     class="action-btn edit"
                     @click="openEdit(item)"
@@ -165,12 +122,20 @@
                   >
                     <i class="bi bi-pencil"></i>
                   </button>
-
-                  <!-- DELETE -->
-
                   <button class="action-btn delete" @click="deleteStudent(item.id)" title="Delete">
                     <i class="bi bi-trash"></i>
                   </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- EMPTY STATE -->
+            <tr v-if="!loading && students.length === 0">
+              <td colspan="7" class="text-center py-5">
+                <div class="empty-state">
+                  <i class="bi bi-person-x"></i>
+                  <h5>No Student Found</h5>
+                  <p>Try changing search or filter</p>
                 </div>
               </td>
             </tr>
@@ -178,83 +143,44 @@
         </table>
       </div>
 
-      <!-- EMPTY STATE -->
-
-      <div v-if="filteredStudents.length === 0" class="empty-state">
-        <i class="bi bi-person-x"></i>
-
-        <h5>No Student Found</h5>
-
-        <p>Try changing search or filter</p>
-      </div>
-
       <!-- PAGINATION -->
-
-      <div v-if="filteredStudents.length > 0" class="pagination-box">
+      <div v-if="filteredTotal > 0" class="pagination-box">
         <div>
-          Showing
-
-          <b>
-            {{ (currentPage - 1) * perPage + 1 }}
-          </b>
-
-          to
-
-          <b>
-            {{ Math.min(currentPage * perPage, filteredStudents.length) }}
-          </b>
-
-          of
-
-          <b>
-            {{ filteredStudents.length }}
-          </b>
+          Showing <b>{{ showingFrom }}</b> to <b>{{ showingTo }}</b> of <b>{{ filteredTotal }}</b>
         </div>
 
         <div class="page-buttons">
-          <button class="page-btn" @click="prevPage" :disabled="currentPage === 1">
+          <button class="page-btn" @click="prevPage" :disabled="currentPage === 1 || loading">
             <i class="bi bi-chevron-left"></i>
           </button>
-
           <span> {{ currentPage }} / {{ totalPages }} </span>
-
-          <button class="page-btn" @click="nextPage" :disabled="currentPage === totalPages">
+          <button
+            class="page-btn"
+            @click="nextPage"
+            :disabled="currentPage === totalPages || loading"
+          >
             <i class="bi bi-chevron-right"></i>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- ===================================================== -->
     <!-- ================= ADD STUDENT MODAL ================= -->
-    <!-- ===================================================== -->
-
     <div class="modal fade" id="addModal" ref="addModalRef">
       <div class="modal-dialog modal-lg">
         <div class="modal-content student-modal">
-          <!-- HEADER -->
-
           <div class="modal-header">
-            <h5>
-              <i class="bi bi-person-plus-fill me-2"></i>
-              Add Student
-            </h5>
-
+            <h5><i class="bi bi-person-plus-fill me-2"></i> Add Student</h5>
             <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
-          <!-- BODY -->
-
           <div class="modal-body">
-            <!-- IMAGE -->
-
             <div class="text-center mb-4">
               <img
                 :src="addPreview || defaultAvatar"
                 class="image-preview mb-2"
                 alt="Add Preview"
               />
-
               <input
                 type="file"
                 ref="addFileInput"
@@ -264,14 +190,8 @@
               />
             </div>
 
-            <!-- FULL NAME -->
-
             <div class="mb-3">
-              <label class="form-label">
-                Full Name
-                <span class="text-danger">*</span>
-              </label>
-
+              <label class="form-label">Full Name <span class="text-danger">*</span></label>
               <input
                 v-model="form.full_name"
                 type="text"
@@ -280,14 +200,8 @@
               />
             </div>
 
-            <!-- FATHER -->
-
             <div class="mb-3">
-              <label class="form-label">
-                Father's Name
-                <span class="text-danger">*</span>
-              </label>
-
+              <label class="form-label">Father's Name <span class="text-danger">*</span></label>
               <input
                 v-model="form.fathers_name"
                 type="text"
@@ -296,14 +210,8 @@
               />
             </div>
 
-            <!-- MOTHER -->
-
             <div class="mb-3">
-              <label class="form-label">
-                Mother's Name
-                <span class="text-danger">*</span>
-              </label>
-
+              <label class="form-label">Mother's Name <span class="text-danger">*</span></label>
               <input
                 v-model="form.mothers_name"
                 type="text"
@@ -312,14 +220,8 @@
               />
             </div>
 
-            <!-- PHONE -->
-
             <div class="mb-3">
-              <label class="form-label">
-                Phone
-                <span class="text-danger">*</span>
-              </label>
-
+              <label class="form-label">Phone <span class="text-danger">*</span></label>
               <input
                 v-model="form.phone"
                 type="text"
@@ -328,11 +230,8 @@
               />
             </div>
 
-            <!-- EMAIL -->
-
             <div class="mb-3">
-              <label class="form-label"> Email </label>
-
+              <label class="form-label">Email</label>
               <input
                 v-model="form.email"
                 type="email"
@@ -341,105 +240,48 @@
               />
             </div>
 
-            <!-- COURSE -->
-
-            <!--
             <div class="mb-3">
-
-              <label class="form-label">
-                Course
-              </label>
-
-              <input
-                v-model="form.course_name"
-                type="text"
-                class="form-control"
-                placeholder="Enter course name"
-              />
-
-            </div>
-            -->
-
-            <!-- ================= CLASS GROUP ================= -->
-
-            <div class="mb-3">
-              <label class="form-label">
-                Class Group
-                <span class="text-danger">*</span>
-              </label>
-
+              <label class="form-label">Class Group <span class="text-danger">*</span></label>
               <select v-model="form.class_group_id" class="form-select">
                 <option value="" disabled>Select Group</option>
-
                 <option v-for="group in classGroups" :key="group.id" :value="group.id">
                   {{ group.group_name }}
                 </option>
               </select>
             </div>
 
-            <!-- CLASS -->
-
             <div class="mb-3">
-              <label class="form-label">
-                Class
-                <span class="text-danger">*</span>
-              </label>
-
+              <label class="form-label">Class <span class="text-danger">*</span></label>
               <select v-model="form.class_id" class="form-select">
                 <option value="" disabled>Select Class</option>
-
                 <option v-for="cls in classes" :key="cls.id" :value="cls.id">
                   {{ cls.class_name }}
                 </option>
               </select>
             </div>
 
-            <!-- SECTION -->
-
             <div class="mb-3">
-              <label class="form-label"> Section </label>
-
+              <label class="form-label">Section</label>
               <select v-model="form.section_id" class="form-select">
                 <option value="">Select Section</option>
-
                 <option v-for="sec in sections" :key="sec.id" :value="sec.id">
                   {{ sec.section_name }}
                 </option>
               </select>
             </div>
 
-            <!-- SHIFT -->
-
             <div class="mb-3">
-              <label class="form-label"> Assign Shift </label>
-
+              <label class="form-label">Assign Shift</label>
               <select v-model="form.shift_id" class="form-select">
                 <option value="" disabled>Select Shift</option>
-
                 <option v-for="shift in shifts" :key="shift.id" :value="shift.id">
-                  {{ shift.name }}
-                  ({{ shift.start_time }} - {{ shift.end_time }})
+                  {{ shift.name }} ({{ shift.start_time }} - {{ shift.end_time }})
                 </option>
               </select>
             </div>
 
-            <!-- ADMISSION DATE -->
-
             <div class="mb-3">
-              <!--
-              <label class="form-label">
-                Admission Date
-              </label>
-              -->
-
-              <input hidden v-model="form.admission_date" type="date" class="form-control" />
-            </div>
-
-            <!-- MONTHLY FEE -->
-
-            <div class="mb-3">
-              <label class="form-label"> Monthly Fee </label>
-
+              <label class="form-label">Monthly Fee</label>
               <input
                 v-model="form.monthly_fee"
                 type="number"
@@ -450,37 +292,23 @@
             </div>
           </div>
 
-          <!-- FOOTER -->
-
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
             <button class="btn btn-primary" :disabled="loading" @click="student_create">
-              <span v-if="loading"> Saving... </span>
-
-              <span v-else>
-                <i class="bi bi-person-plus-fill me-1"></i>
-                Save Student
-              </span>
+              <span v-if="loading">Saving...</span>
+              <span v-else><i class="bi bi-person-plus-fill me-1"></i> Save Student</span>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===================================================== -->
     <!-- ================= VIEW STUDENT MODAL ================= -->
-    <!-- ===================================================== -->
-
-    <div class="modal fade" id="viewModal">
+    <div class="modal fade" id="viewModal" ref="viewModalRef">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content student-modal">
           <div class="modal-header bg-primary text-white">
-            <h5>
-              <i class="bi bi-person-vcard-fill me-2"></i>
-              Student Details
-            </h5>
-
+            <h5><i class="bi bi-person-vcard-fill me-2"></i> Student Details</h5>
             <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
 
@@ -490,106 +318,45 @@
               class="student-modal-avatar mb-3"
               alt="Student Avatar"
             />
-
-            <h4>
-              {{ selectedStudent.full_name }}
-            </h4>
-
-            <p class="text-muted">
-              {{ selectedStudent.student_id }}
-            </p>
-
+            <h4>{{ selectedStudent.full_name }}</h4>
+            <p class="text-muted">{{ selectedStudent.student_id }}</p>
             <hr />
-
             <div class="text-start px-3">
-              <p>
-                <strong>Father's Name:</strong>
-                {{ selectedStudent.fathers_name || 'N/A' }}
-              </p>
-
-              <p>
-                <strong>Mother's Name:</strong>
-                {{ selectedStudent.mothers_name || 'N/A' }}
-              </p>
-
-              <p>
-                <strong>Email:</strong>
-                {{ selectedStudent.email || 'N/A' }}
-              </p>
-
-              <p>
-                <strong>Phone:</strong>
-                {{ selectedStudent.phone || 'N/A' }}
-              </p>
-
-              <p>
-                <strong>Class:</strong>
-                {{ selectedStudent.class_info ? selectedStudent.class_info.class_name : 'N/A' }}
-              </p>
-
-              <!-- GROUP -->
-
-              <p>
-                <strong>Group:</strong>
-                {{ selectedStudent.class_group ? selectedStudent.class_group.group_name : 'N/A' }}
-              </p>
-
-              <p>
-                <strong>Section:</strong>
-                {{ selectedStudent.section ? selectedStudent.section.section_name : 'N/A' }}
-              </p>
-
-              <p>
-                <strong>Shift:</strong>
-                {{ selectedStudent.shift ? selectedStudent.shift.name : 'N/A' }}
-              </p>
-
-              <p>
-                <strong>Course:</strong>
-                {{ selectedStudent.course_name || 'N/A' }}
-              </p>
-
+              <p><strong>Father's Name:</strong> {{ selectedStudent.fathers_name || 'N/A' }}</p>
+              <p><strong>Mother's Name:</strong> {{ selectedStudent.mothers_name || 'N/A' }}</p>
+              <p><strong>Email:</strong> {{ selectedStudent.email || 'N/A' }}</p>
+              <p><strong>Phone:</strong> {{ selectedStudent.phone || 'N/A' }}</p>
+              <p><strong>Class:</strong> {{ selectedStudent.class_info?.class_name || 'N/A' }}</p>
+              <p><strong>Group:</strong> {{ selectedStudent.class_group?.group_name || 'N/A' }}</p>
+              <p><strong>Section:</strong> {{ selectedStudent.section?.section_name || 'N/A' }}</p>
+              <p><strong>Shift:</strong> {{ selectedStudent.shift?.name || 'N/A' }}</p>
               <p>
                 <strong>Monthly Fee:</strong>
                 {{ selectedStudent.monthly_fee ? '৳ ' + selectedStudent.monthly_fee : 'N/A' }}
               </p>
-
-              <p>
-                <strong>Admission Date:</strong>
-                {{ selectedStudent.admission_date || 'N/A' }}
-              </p>
+              <p><strong>Admission Date:</strong> {{ selectedStudent.admission_date || 'N/A' }}</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===================================================== -->
     <!-- ================= EDIT STUDENT MODAL ================= -->
-    <!-- ===================================================== -->
-
-    <div class="modal fade" id="editModal">
+    <div class="modal fade" id="editModal" ref="editModalRef">
       <div class="modal-dialog modal-lg">
         <div class="modal-content student-modal">
           <div class="modal-header">
-            <h5>
-              <i class="bi bi-pencil-square me-2"></i>
-              Edit Student
-            </h5>
-
+            <h5><i class="bi bi-pencil-square me-2"></i> Edit Student</h5>
             <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
           <div class="modal-body">
-            <!-- IMAGE -->
-
             <div class="text-center mb-4">
               <img
                 :src="editPreview || getImageUrl(selectedStudent)"
                 class="image-preview mb-2"
                 alt="Edit Preview"
               />
-
               <input
                 type="file"
                 ref="editFileInput"
@@ -599,125 +366,74 @@
               />
             </div>
 
-            <!-- NAME -->
-
             <div class="mb-3">
-              <label class="form-label"> Full Name </label>
-
+              <label class="form-label">Full Name</label>
               <input v-model="selectedStudent.full_name" class="form-control" placeholder="Name" />
             </div>
 
-            <!-- PHONE -->
-
             <div class="mb-3">
-              <label class="form-label"> Phone </label>
-
+              <label class="form-label">Phone</label>
               <input v-model="selectedStudent.phone" class="form-control" placeholder="Phone" />
             </div>
 
-            <!-- EMAIL -->
-
             <div class="mb-3">
-              <label class="form-label"> Email </label>
-
+              <label class="form-label">Email</label>
               <input v-model="selectedStudent.email" class="form-control" placeholder="Email" />
             </div>
 
-            <!-- COURSE -->
-
             <div class="mb-3">
-              <label class="form-label"> Course </label>
-
-              <input
-                v-model="selectedStudent.course_name"
-                class="form-control"
-                placeholder="Course Name"
-              />
-            </div>
-
-            <!-- ================= CLASS GROUP ================= -->
-
-            <div class="mb-3">
-              <label class="form-label"> Class Group </label>
-
+              <label class="form-label">Class Group</label>
               <select v-model="selectedStudent.class_group_id" class="form-select">
                 <option value="" disabled>Select Group</option>
-
                 <option v-for="group in classGroups" :key="group.id" :value="group.id">
                   {{ group.group_name }}
                 </option>
               </select>
             </div>
 
-            <!-- CLASS -->
-
             <div class="mb-3">
-              <label class="form-label"> Class </label>
-
+              <label class="form-label">Class</label>
               <select v-model="selectedStudent.class_id" class="form-select">
                 <option value="" disabled>Select Class</option>
-
                 <option v-for="cls in classes" :key="cls.id" :value="cls.id">
                   {{ cls.class_name }}
                 </option>
               </select>
             </div>
 
-            <!-- SECTION -->
-
             <div class="mb-3">
-              <label class="form-label"> Section </label>
-
+              <label class="form-label">Section</label>
               <select v-model="selectedStudent.section_id" class="form-select">
                 <option value="">Select Section</option>
-
                 <option v-for="sec in sections" :key="sec.id" :value="sec.id">
                   {{ sec.section_name }}
                 </option>
               </select>
             </div>
 
-            <!-- SHIFT -->
-
             <div class="mb-3">
-              <label class="form-label"> Shift </label>
-
+              <label class="form-label">Shift</label>
               <select v-model="selectedStudent.shift_id" class="form-select">
                 <option value="">Select Shift</option>
-
                 <option v-for="shift in shifts" :key="shift.id" :value="shift.id">
                   {{ shift.name }}
-                  ({{ shift.start_time }} - {{ shift.end_time }})
                 </option>
               </select>
             </div>
 
-            <!-- ADMISSION DATE -->
-
             <div class="mb-3">
-              <label class="form-label"> Admission Date </label>
-
-              <input v-model="selectedStudent.admission_date" type="date" class="form-control" />
-            </div>
-
-            <!-- MONTHLY FEE -->
-
-            <div class="mb-3">
-              <label class="form-label"> Monthly Fee </label>
-
+              <label class="form-label">Monthly Fee</label>
               <input
                 v-model="selectedStudent.monthly_fee"
                 type="number"
                 min="0"
                 class="form-control"
-                placeholder="Monthly Fee"
               />
             </div>
           </div>
 
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
             <button class="btn btn-primary" :disabled="loading" @click="updateStudent">
               {{ loading ? 'Updating...' : 'Update' }}
             </button>
@@ -730,593 +446,310 @@
 
 <script setup>
 import dashPageView from './dashPageView.vue'
-
-import { ref, reactive, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import api from '@/services/api'
-
 import * as bootstrap from 'bootstrap'
-
 import 'bootstrap/dist/css/bootstrap.min.css'
-
 import { getImageUrl } from '@/utils/img'
-
-/* =====================================================
-   DEFAULT IMAGE
-===================================================== */
 
 const defaultAvatar = 'https://i.pravatar.cc/150'
 
-/* =====================================================
-   STATES
-===================================================== */
-
 const students = ref([])
-
 const sections = ref([])
-
 const classes = ref([])
-
 const classGroups = ref([])
-
 const shifts = ref([])
 
 const search = ref('')
-
 const selectedClass = ref('')
-
 const loading = ref(false)
 
-/* =====================================================
-   FILE STATES
-===================================================== */
+const currentPage = ref(1)
+const perPage = ref(10)
+const totalStudents = ref(0)
+const filteredTotal = ref(0)
+const totalPages = ref(1)
 
 const addImageFile = ref(null)
-
 const editImageFile = ref(null)
-
 const addPreview = ref(null)
-
 const editPreview = ref(null)
-
 const addFileInput = ref(null)
-
 const editFileInput = ref(null)
 
 const addModalRef = ref(null)
-
-/* =====================================================
-   PAGINATION
-===================================================== */
-
-const currentPage = ref(1)
-
-const perPage = ref(10)
-
-/* =====================================================
-   ADD STUDENT FORM
-===================================================== */
+const editModalRef = ref(null)
 
 const form = reactive({
   full_name: '',
-
   fathers_name: '',
-
   mothers_name: '',
-
   phone: '',
-
   email: '',
-
   course_name: '',
-
   class_group_id: '',
-
   class_id: '',
-
   section_id: '',
-
   shift_id: '',
-
   admission_date: '',
-
   monthly_fee: '',
 })
-
-/* =====================================================
-   SELECTED STUDENT
-===================================================== */
 
 const selectedStudent = ref({
   id: null,
-
   full_name: '',
-
   fathers_name: '',
-
   mothers_name: '',
-
   student_id: '',
-
   phone: '',
-
   email: '',
-
   course_name: '',
-
   class_group_id: '',
-
   class_id: '',
-
   section_id: '',
-
   shift_id: '',
-
   admission_date: '',
-
   monthly_fee: '',
-
   image: null,
 })
 
-/* =====================================================
-   GET SECTIONS
-===================================================== */
+// Computed Properties for Pagination Info
+const showingFrom = computed(() => {
+  if (filteredTotal.value === 0) return 0
+  return (currentPage.value - 1) * perPage.value + 1
+})
 
-const getSections = async () => {
-  try {
-    const res = await api.get('/sections')
+const showingTo = computed(() => {
+  return Math.min(currentPage.value * perPage.value, filteredTotal.value)
+})
 
-    sections.value = res.data.sections || res.data.data || res.data || []
-  } catch (error) {
-    console.error('Error fetching sections:', error.response?.data || error)
-  }
-}
-
-/* =====================================================
-   GET CLASSES
-===================================================== */
-
-const getClasses = async () => {
-  try {
-    const res = await api.get('/classes')
-
-    classes.value = res.data.classes || res.data.data || res.data || []
-  } catch (error) {
-    console.error('Error fetching classes:', error.response?.data || error)
-  }
-}
-
-/* =====================================================
-   GET CLASS GROUPS
-===================================================== */
-
-const getClassGroups = async () => {
-  try {
-    const res = await api.get('/class_group')
-
-    classGroups.value = res.data.classGroups || res.data.groups || res.data.data || res.data || []
-  } catch (error) {
-    console.error('Error fetching class groups:', error.response?.data || error)
-  }
-}
-
-/* =====================================================
-   GET SHIFTS
-===================================================== */
-
-const getShifts = async () => {
-  try {
-    const res = await api.get('/shifts')
-
-    shifts.value = res.data.data || res.data.shifts || res.data || []
-  } catch (error) {
-    console.error('Error fetching shifts:', error.response?.data || error)
-  }
-}
-
-/* =====================================================
-   IMAGE CHANGE
-===================================================== */
-
+// Handle File Change for Images
 const handleFileChange = (event, type) => {
   const file = event.target.files[0]
-
   if (!file) return
 
   if (type === 'add') {
-    if (addPreview.value) {
-      URL.revokeObjectURL(addPreview.value)
-    }
-
+    if (addPreview.value) URL.revokeObjectURL(addPreview.value)
     addImageFile.value = file
-
     addPreview.value = URL.createObjectURL(file)
   } else {
-    if (editPreview.value) {
-      URL.revokeObjectURL(editPreview.value)
-    }
-
+    if (editPreview.value) URL.revokeObjectURL(editPreview.value)
     editImageFile.value = file
-
     editPreview.value = URL.createObjectURL(file)
   }
 }
 
-/* =====================================================
-   RESET FORM
-===================================================== */
-
+// Reset Add Form
 const resetForm = () => {
-  form.full_name = ''
-
-  form.fathers_name = ''
-
-  form.mothers_name = ''
-
-  form.phone = ''
-
-  form.email = ''
-
-  form.course_name = ''
-
-  form.class_group_id = ''
-
-  form.class_id = ''
-
-  form.section_id = ''
-
-  form.shift_id = ''
-
-  form.admission_date = ''
-
-  form.monthly_fee = ''
-
+  Object.keys(form).forEach((key) => (form[key] = ''))
   addImageFile.value = null
-
   if (addPreview.value) {
     URL.revokeObjectURL(addPreview.value)
-
     addPreview.value = null
   }
-
-  if (addFileInput.value) {
-    addFileInput.value.value = ''
-  }
+  if (addFileInput.value) addFileInput.value.value = ''
 }
 
-/* =====================================================
-   GET ALL STUDENTS
-===================================================== */
+// Close Modal Utility
+const closeModal = (modalId) => {
+  const modalEl = document.getElementById(modalId)
+  const modalInstance = bootstrap.Modal.getInstance(modalEl)
+  if (modalInstance) modalInstance.hide()
+}
 
-const getStudent = async () => {
+// Get Students (Server-side Pagination & Filter)
+const getStudent = async (page = 1) => {
   try {
-    loading.value = true
+    const params = { page, per_page: perPage.value }
 
-    const res = await api.get('/students')
+    if (search.value.trim()) params.search = search.value.trim()
+    if (selectedClass.value) params.class_id = selectedClass.value
 
-    students.value = res.data.students || res.data.data || res.data || []
+    const res = await api.get('/students', { params })
+    const response = res.data
+
+    students.value = response.students || response.data || []
+    const pagination = response.pagination || {}
+
+    currentPage.value = Number(pagination.current_page || response.current_page || page)
+    totalPages.value = Number(pagination.last_page || response.last_page || 1)
+    filteredTotal.value = Number(pagination.total || response.filtered_total || response.total || 0)
+    totalStudents.value = Number(response.total_students || filteredTotal.value)
+
+    if (students.value.length === 0 && currentPage.value > 1 && filteredTotal.value > 0) {
+      currentPage.value = Math.max(1, currentPage.value - 1)
+      await getStudent(currentPage.value)
+    }
   } catch (error) {
     console.error('Error fetching students:', error.response?.data || error)
-  } finally {
-    loading.value = false
+    students.value = []
   }
 }
 
-/* =====================================================
-   CREATE STUDENT
-===================================================== */
-
+// Create Student
 const student_create = async () => {
   try {
     loading.value = true
-
     const formData = new FormData()
-
-    formData.append('full_name', form.full_name)
-
-    formData.append('fathers_name', form.fathers_name)
-
-    formData.append('mothers_name', form.mothers_name)
-
-    formData.append('phone', form.phone)
-
-    formData.append('email', form.email)
-
-    formData.append('course_name', form.course_name)
-
-    formData.append('class_group_id', form.class_group_id)
-
-    formData.append('class_id', form.class_id)
-
-    formData.append('section_id', form.section_id)
-
-    formData.append('shift_id', form.shift_id)
-
-    formData.append('admission_date', form.admission_date)
-
-    formData.append('monthly_fee', form.monthly_fee)
-
-    if (addImageFile.value) {
-      formData.append('image', addImageFile.value)
-    }
+    Object.keys(form).forEach((key) => {
+      if (form[key] !== '') formData.append(key, form[key])
+    })
+    if (addImageFile.value) formData.append('image', addImageFile.value)
 
     const res = await api.post('/students', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
 
     alert(res.data.message || 'Student Created Successfully')
-
     closeModal('addModal')
-
     resetForm()
-
-    await getStudent()
+    currentPage.value = 1
+    await getStudent(1)
   } catch (error) {
-    console.error('Create student error:', error.response?.data || error)
-
     alert(error.response?.data?.message || 'Failed to create student')
   } finally {
     loading.value = false
   }
 }
 
-/* =====================================================
-   OPEN VIEW
-===================================================== */
-
+// Open View Modal
 const openView = (student) => {
-  selectedStudent.value = {
-    ...student,
-  }
+  selectedStudent.value = { ...student }
 }
 
-/* =====================================================
-   OPEN EDIT
-===================================================== */
-
+// Open Edit Modal
 const openEdit = (student) => {
-  selectedStudent.value = JSON.parse(JSON.stringify(student))
-
-  if (!selectedStudent.value.class_group_id && selectedStudent.value.class_group) {
-    selectedStudent.value.class_group_id = selectedStudent.value.class_group.id
-  }
-
+  selectedStudent.value = { ...student }
   editImageFile.value = null
-
-  if (editPreview.value) {
-    URL.revokeObjectURL(editPreview.value)
-
-    editPreview.value = null
-  }
-
-  if (editFileInput.value) {
-    editFileInput.value.value = ''
-  }
+  editPreview.value = null
+  if (editFileInput.value) editFileInput.value.value = ''
 }
 
-/* =====================================================
-   UPDATE STUDENT
-===================================================== */
-
+// Update Student
 const updateStudent = async () => {
   try {
     loading.value = true
-
     const formData = new FormData()
 
-    formData.append('full_name', selectedStudent.value.full_name || '')
-
-    formData.append('phone', selectedStudent.value.phone || '')
-
-    formData.append('email', selectedStudent.value.email || '')
-
-    formData.append('course_name', selectedStudent.value.course_name || '')
-
-    formData.append('class_group_id', selectedStudent.value.class_group_id || '')
-
-    formData.append('class_id', selectedStudent.value.class_id || '')
-
-    formData.append('section_id', selectedStudent.value.section_id || '')
-
-    formData.append('shift_id', selectedStudent.value.shift_id || '')
-
-    formData.append('admission_date', selectedStudent.value.admission_date || '')
-
-    formData.append('monthly_fee', selectedStudent.value.monthly_fee || '')
-
-    formData.append('_method', 'PUT')
+    Object.keys(selectedStudent.value).forEach((key) => {
+      if (selectedStudent.value[key] !== null && selectedStudent.value[key] !== undefined) {
+        if (!['class_info', 'class_group', 'section', 'shift'].includes(key)) {
+          formData.append(key, selectedStudent.value[key])
+        }
+      }
+    })
 
     if (editImageFile.value) {
       formData.append('image', editImageFile.value)
     }
 
-    await api.post(`/students/${selectedStudent.value.id}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    formData.append('_method', 'PUT')
+
+    const res = await api.post(`/students/${selectedStudent.value.id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
     })
 
-    alert('Updated successfully')
-
+    alert(res.data.message || 'Student Updated Successfully')
     closeModal('editModal')
-
-    await getStudent()
+    await getStudent(currentPage.value)
   } catch (error) {
-    console.error('Error updating student:', error.response?.data || error)
-
-    alert(error.response?.data?.message || 'Update failed')
+    alert(error.response?.data?.message || 'Failed to update student')
   } finally {
     loading.value = false
   }
 }
 
-/* =====================================================
-   DELETE STUDENT
-===================================================== */
-
+// Delete Student
 const deleteStudent = async (id) => {
-  if (!confirm('Are you sure you want to delete this student?')) {
-    return
-  }
-
+  if (!confirm('Are you sure you want to delete this student?')) return
   try {
+    loading.value = true
     await api.delete(`/students/${id}`)
-
-    students.value = students.value.filter((item) => item.id !== id)
-
-    alert('Deleted successfully')
+    await getStudent(currentPage.value)
   } catch (error) {
-    console.error('Error deleting student:', error.response?.data || error)
-
     alert('Failed to delete student')
+  } finally {
+    loading.value = false
   }
 }
 
-/* =====================================================
-   CLOSE MODAL
-===================================================== */
-
-const closeModal = (modalId) => {
-  const modalEl = document.getElementById(modalId)
-
-  if (modalEl) {
-    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl)
-
-    modal.hide()
-  }
-
-  setTimeout(() => {
-    document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove())
-
-    document.body.classList.remove('modal-open')
-
-    document.body.style.overflow = ''
-
-    document.body.style.paddingRight = ''
-  }, 300)
-}
-
-/* =====================================================
-   FILTER STUDENTS
-===================================================== */
-
-const filteredStudents = computed(() => {
-  const keyword = search.value.toLowerCase().trim()
-
-  return students.value.filter((student) => {
-    const matchSearch =
-      student.full_name?.toLowerCase().includes(keyword) ||
-      student.email?.toLowerCase().includes(keyword) ||
-      student.student_id?.toLowerCase().includes(keyword)
-
-    const matchClass =
-      !selectedClass.value || String(student.class_id) === String(selectedClass.value)
-
-    return matchSearch && matchClass
-  })
-})
-
-/* =====================================================
-   PAGINATION
-===================================================== */
-
-const totalPages = computed(() => {
-  return Math.ceil(filteredStudents.value.length / perPage.value) || 1
-})
-
-const paginatedStudents = computed(() => {
-  const start = (currentPage.value - 1) * perPage.value
-
-  return filteredStudents.value.slice(start, start + perPage.value)
-})
-
+// Pagination Controls
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++
+    getStudent(currentPage.value)
   }
 }
 
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
+    getStudent(currentPage.value)
   }
 }
 
-/* =====================================================
-   WATCH FILTER
-===================================================== */
+// Watcher with Debounce for Search and Class Filter
+let searchTimer = null
+watch(search, () => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    currentPage.value = 1
+    getStudent(1)
+  }, 400)
+})
 
-watch([search, selectedClass], () => {
+watch(selectedClass, () => {
   currentPage.value = 1
+  getStudent(1)
 })
 
-/* =====================================================
-   MODAL CLEANUP
-   MOBILE / BROWSER BACK FIX
-===================================================== */
+// Lifecycle Hook: Optimized Parallel Loading with Session Caching
+onMounted(async () => {
+  loading.value = true
+  try {
+    // Check if dropdowns are already cached in session storage
+    const cachedSections = sessionStorage.getItem('cache_sections')
+    const cachedClasses = sessionStorage.getItem('cache_classes')
+    const cachedGroups = sessionStorage.getItem('cache_groups')
+    const cachedShifts = sessionStorage.getItem('cache_shifts')
 
-const cleanupModals = () => {
-  // Remove stuck Bootstrap backdrop
-  document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove())
+    if (cachedSections && cachedClasses && cachedGroups && cachedShifts) {
+      sections.value = JSON.parse(cachedSections)
+      classes.value = JSON.parse(cachedClasses)
+      classGroups.value = JSON.parse(cachedGroups)
+      shifts.value = JSON.parse(cachedShifts)
 
-  // Close any opened modal
-  document.querySelectorAll('.modal.show').forEach((modalEl) => {
-    const modalInstance = bootstrap.Modal.getInstance(modalEl)
+      // Only fetch students since dropdowns are loaded from cache
+      await getStudent(1)
+    } else {
+      // Fetch everything in parallel if cache is empty
+      const [secRes, clsRes, grpRes, shfRes] = await Promise.all([
+        api.get('/sections'),
+        api.get('/classes'),
+        api.get('/class_group'),
+        api.get('/shifts'),
+        getStudent(1), // Student list also fetched in parallel
+      ])
 
-    if (modalInstance) {
-      modalInstance.hide()
+      sections.value = secRes.data.sections || secRes.data.data || secRes.data || []
+      classes.value = clsRes.data.classes || clsRes.data.data || clsRes.data || []
+      classGroups.value =
+        grpRes.data.classGroups || grpRes.data.groups || grpRes.data.data || grpRes.data || []
+      shifts.value = shfRes.data.data || shfRes.data.shifts || shfRes.data || []
+
+      // Save to sessionStorage
+      sessionStorage.setItem('cache_sections', JSON.stringify(sections.value))
+      sessionStorage.setItem('cache_classes', JSON.stringify(classes.value))
+      sessionStorage.setItem('cache_groups', JSON.stringify(classGroups.value))
+      sessionStorage.setItem('cache_shifts', JSON.stringify(shifts.value))
     }
-
-    modalEl.classList.remove('show')
-
-    modalEl.style.display = 'none'
-
-    modalEl.removeAttribute('aria-modal')
-
-    modalEl.setAttribute('aria-hidden', 'true')
-  })
-
-  // Restore body state
-  document.body.classList.remove('modal-open')
-
-  document.body.style.removeProperty('overflow')
-
-  document.body.style.removeProperty('padding-right')
-}
-
-/* =====================================================
-   ON MOUNTED
-===================================================== */
-
-onMounted(() => {
-  getStudent()
-
-  getSections()
-
-  getClasses()
-
-  getClassGroups()
-
-  getShifts()
-
-  // Browser / Mobile Back button
-  window.addEventListener('popstate', cleanupModals)
-})
-
-/* =====================================================
-   ON BEFORE UNMOUNT
-===================================================== */
-
-onBeforeUnmount(() => {
-  cleanupModals()
-
-  window.removeEventListener('popstate', cleanupModals)
+  } catch (error) {
+    console.error('Initialization error:', error)
+  } finally {
+    loading.value = false
+  }
 })
 </script>
-
 <style scoped>
 /* =====================================================
    IMAGE
