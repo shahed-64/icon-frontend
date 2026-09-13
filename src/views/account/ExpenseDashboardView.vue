@@ -1,5 +1,6 @@
 <template>
   <RouterView />
+
   <AccountMenuView />
 
   <div class="mid">
@@ -30,6 +31,7 @@
               <small>Total Expense</small>
               <h2>৳ {{ totalExpense }}</h2>
             </div>
+
             <div class="summary-icon">
               <i class="bi bi-wallet2"></i>
             </div>
@@ -42,6 +44,7 @@
               <small>Monthly Expense</small>
               <h2>৳ {{ monthlyExpense }}</h2>
             </div>
+
             <div class="summary-icon">
               <i class="bi bi-calendar-check"></i>
             </div>
@@ -54,6 +57,7 @@
               <small>Total Paid</small>
               <h2>৳ {{ totalPaid }}</h2>
             </div>
+
             <div class="summary-icon">
               <i class="bi bi-check-circle"></i>
             </div>
@@ -66,6 +70,7 @@
               <small>Pending Due</small>
               <h2>৳ {{ totalDue }}</h2>
             </div>
+
             <div class="summary-icon">
               <i class="bi bi-clock-history"></i>
             </div>
@@ -109,14 +114,24 @@
               </tr>
             </thead>
 
-            <TransitionGroup name="table-row" tag="tbody">
+            <!-- Normal tbody
+                 TransitionGroup removed to prevent reload jump -->
+            <tbody>
               <tr v-for="(expense, index) in paginatedExpenses" :key="expense.id">
                 <td class="fw-semibold text-muted">
                   {{ (currentPage - 1) * itemsPerPage + index + 1 }}
                 </td>
-                <td class="fw-bold text-dark">{{ expense.expense_type }}</td>
-                <td>{{ expense.employee_name || '-' }}</td>
+
+                <td class="fw-bold text-dark">
+                  {{ expense.expense_type }}
+                </td>
+
+                <td>
+                  {{ expense.employee_name || '-' }}
+                </td>
+
                 <td>৳ {{ expense.salary_amount }}</td>
+
                 <td>
                   <span
                     class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"
@@ -124,6 +139,7 @@
                     ৳ {{ expense.paid_amount }}
                   </span>
                 </td>
+
                 <td>
                   <span
                     class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1"
@@ -131,17 +147,26 @@
                     ৳ {{ expense.due_amount }}
                   </span>
                 </td>
+
                 <td class="text-success fw-semibold">
                   {{ formatPaymentMonth(expense.payment_month) }}
                 </td>
-                <td>{{ expense.payment_method }}</td>
+
+                <td>
+                  {{ expense.payment_method }}
+                </td>
+
                 <td>
                   <span class="badge bg-light text-dark border fw-semibold">
                     <i class="bi bi-person-fill me-1 text-secondary"></i>
                     {{ expense.created_by || 'Admin' }}
                   </span>
                 </td>
-                <td>{{ expense.payment_date }}</td>
+
+                <td>
+                  {{ expense.payment_date }}
+                </td>
+
                 <td>
                   <div class="d-flex justify-content-center gap-2">
                     <button
@@ -163,10 +188,10 @@
                 </td>
               </tr>
 
-              <tr v-if="filteredExpenses.length === 0" key="no-data">
+              <tr v-if="filteredExpenses.length === 0">
                 <td colspan="11" class="text-center py-5 text-muted">No Expense Record Found</td>
               </tr>
-            </TransitionGroup>
+            </tbody>
           </table>
         </div>
 
@@ -196,7 +221,9 @@
 
             <button
               class="btn btn-light border px-3 fw-semibold text-muted"
-              :class="{ disabled: currentPage === totalPages || filteredExpenses.length === 0 }"
+              :class="{
+                disabled: currentPage === totalPages || filteredExpenses.length === 0,
+              }"
               @click="currentPage++"
               :disabled="currentPage === totalPages || filteredExpenses.length === 0"
             >
@@ -215,6 +242,7 @@
                 <h5 class="modal-title fw-bold">
                   {{ isEditing ? 'Update Expense' : 'Add Expense' }}
                 </h5>
+
                 <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
               </div>
 
@@ -223,20 +251,21 @@
                   <!-- Expense Type -->
                   <div class="col-md-6">
                     <label class="form-label fw-semibold"> Expense Type </label>
+
                     <select class="form-select rounded-3" v-model="form.expense_type" required>
                       <option value="">Select Expense Type</option>
+
                       <option v-for="type in expenseTypes" :key="type.id" :value="type.name">
                         {{ type.name }}
                       </option>
                     </select>
                   </div>
 
-                  <!-- Employee / Teacher Name (Dynamic) -->
-                  <!-- Employee / Teacher Name (Dynamic) -->
+                  <!-- Employee / Teacher Name -->
                   <div class="col-md-6">
                     <label class="form-label fw-semibold"> Employee / Teacher Name </label>
 
-                    <!-- ১. যদি Teacher Payment সিলেক্ট করা হয় -->
+                    <!-- Teacher -->
                     <select
                       v-if="form.expense_type === 'Teacher Payment'"
                       class="form-select rounded-3"
@@ -245,6 +274,7 @@
                       required
                     >
                       <option value="">Select Teacher</option>
+
                       <option
                         v-for="teacher in teachersList"
                         :key="teacher.id"
@@ -254,7 +284,7 @@
                       </option>
                     </select>
 
-                    <!-- ২. যদি Staff Payment সিলেক্ট করা হয় (এখানে user_name হবে) -->
+                    <!-- Staff -->
                     <select
                       v-else-if="form.expense_type === 'Staff Payment'"
                       class="form-select rounded-3"
@@ -263,12 +293,13 @@
                       required
                     >
                       <option value="">Select Staff</option>
+
                       <option v-for="staff in staffsList" :key="staff.id" :value="staff.user_name">
                         {{ staff.user_name }}
                       </option>
                     </select>
 
-                    <!-- ৩. অন্যথায় সাধারণ ইনপুট বক্স -->
+                    <!-- Other -->
                     <input
                       v-else
                       class="form-control rounded-3"
@@ -276,9 +307,11 @@
                       placeholder="Optional"
                     />
                   </div>
+
                   <!-- Salary -->
                   <div class="col-md-4">
                     <label class="form-label fw-semibold"> Salary Amount </label>
+
                     <input
                       type="number"
                       class="form-control rounded-3"
@@ -290,6 +323,7 @@
                   <!-- Paid -->
                   <div class="col-md-4">
                     <label class="form-label fw-semibold"> Paid Amount </label>
+
                     <input
                       type="number"
                       class="form-control rounded-3"
@@ -301,6 +335,7 @@
                   <!-- Due -->
                   <div class="col-md-4">
                     <label class="form-label fw-semibold"> Due Amount </label>
+
                     <input
                       type="number"
                       class="form-control rounded-3 bg-light"
@@ -312,6 +347,7 @@
                   <!-- Payment Month -->
                   <div class="col-md-6">
                     <label class="form-label fw-semibold"> Payment Month </label>
+
                     <input
                       type="month"
                       class="form-control rounded-3"
@@ -323,8 +359,10 @@
                   <!-- Payment Method -->
                   <div class="col-md-6">
                     <label class="form-label fw-semibold"> Payment Method </label>
+
                     <select class="form-select rounded-3" v-model="form.payment_method" required>
                       <option value="">Select Payment Method</option>
+
                       <option v-for="method in paymentMethods" :key="method" :value="method">
                         {{ method }}
                       </option>
@@ -337,6 +375,7 @@
                 <button class="btn btn-light px-4 rounded-3" data-bs-dismiss="modal" type="button">
                   Cancel
                 </button>
+
                 <button class="btn btn-primary px-4 rounded-3 btn-hover-effect" type="submit">
                   {{ isEditing ? 'Update Expense' : 'Save Expense' }}
                 </button>
@@ -350,7 +389,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+
+import * as bootstrap from 'bootstrap'
+
 import api from '@/services/api'
 import AccountMenuView from './AccountMenuView.vue'
 
@@ -390,7 +432,7 @@ const expenseTypes = [
 
 const paymentMethods = ['Cash', 'Bkash', 'Nagad', 'Bank']
 
-// Fetch Teachers for Auto-fill
+// Fetch Teachers
 const fetchTeachers = async () => {
   try {
     const response = await api.get('/expense-teachers')
@@ -400,7 +442,7 @@ const fetchTeachers = async () => {
   }
 }
 
-// Fetch Staffs for Auto-fill
+// Fetch Staffs
 const fetchStaffs = async () => {
   try {
     const response = await api.get('/expense-staffs')
@@ -410,7 +452,7 @@ const fetchStaffs = async () => {
   }
 }
 
-// Employee / Teacher Selection Handler (Auto Fill Salary)
+// Employee / Teacher Selection Handler
 const onEmployeeSelect = () => {
   let selectedPerson = null
 
@@ -427,7 +469,7 @@ const onEmployeeSelect = () => {
   }
 }
 
-// Watcher to auto-update salary if employee_name changes programmatically or via dropdown
+// Auto-update salary
 watch(
   () => form.value.employee_name,
   (newName) => {
@@ -435,11 +477,13 @@ watch(
 
     if (form.value.expense_type === 'Teacher Payment') {
       const selectedTeacher = teachersList.value.find((t) => t.full_name === newName)
+
       if (selectedTeacher) {
         form.value.salary_amount = selectedTeacher.salary
       }
     } else if (form.value.expense_type === 'Staff Payment') {
       const selectedStaff = staffsList.value.find((s) => s.user_name === newName)
+
       if (selectedStaff) {
         form.value.salary_amount = selectedStaff.salary
       }
@@ -452,6 +496,7 @@ watch(
   () => [form.value.salary_amount, form.value.paid_amount],
   () => {
     const salary = Number(form.value.salary_amount) || 0
+
     const paid = Number(form.value.paid_amount) || 0
 
     form.value.due_amount = salary - paid
@@ -462,7 +507,7 @@ watch(
   },
 )
 
-// Filter & Pagination
+// Filter
 const filteredExpenses = computed(() => {
   if (!search.value) {
     return expenses.value
@@ -476,9 +521,12 @@ const filteredExpenses = computed(() => {
   )
 })
 
+// Pagination
 const paginatedExpenses = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
+
   const end = start + itemsPerPage.value
+
   return filteredExpenses.value.slice(start, end)
 })
 
@@ -487,12 +535,16 @@ const totalPages = computed(() => {
 })
 
 const showingStart = computed(() => {
-  if (filteredExpenses.value.length === 0) return 0
+  if (filteredExpenses.value.length === 0) {
+    return 0
+  }
+
   return (currentPage.value - 1) * itemsPerPage.value + 1
 })
 
 const showingEnd = computed(() => {
   const end = currentPage.value * itemsPerPage.value
+
   return end > filteredExpenses.value.length ? filteredExpenses.value.length : end
 })
 
@@ -511,18 +563,23 @@ const totalDue = computed(() => {
 
 const monthlyExpense = computed(() => {
   const currentMonth = new Date().getMonth()
+
   const currentYear = new Date().getFullYear()
 
   return expenses.value
     .filter((expense) => {
-      if (!expense.payment_date) return false
+      if (!expense.payment_date) {
+        return false
+      }
+
       const date = new Date(expense.payment_date)
+
       return date.getMonth() === currentMonth && date.getFullYear() === currentYear
     })
     .reduce((total, expense) => total + Number(expense.salary_amount || 0), 0)
 })
 
-// Actions
+// Reset Form
 const resetForm = () => {
   isEditing.value = false
   editingId.value = null
@@ -538,21 +595,33 @@ const resetForm = () => {
   }
 }
 
+// Format Payment Month
 const formatPaymentMonth = (monthStr) => {
   if (!monthStr) return '-'
 
   try {
     const dateObj = new Date(monthStr)
+
     if (!isNaN(dateObj.getTime())) {
-      return dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      return dateObj.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      })
     }
 
     const parts = monthStr.split('-')
+
     if (parts.length >= 2) {
       const year = parts[0]
+
       const monthIndex = parseInt(parts[1], 10) - 1
+
       const date = new Date(year, monthIndex, 1)
-      return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+      return date.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      })
     }
   } catch (e) {
     console.error('Error formatting month:', e)
@@ -565,48 +634,100 @@ const formatPaymentMonth = (monthStr) => {
 const getExpenses = async () => {
   try {
     const response = await api.get('/expenses')
+
     expenses.value = [...(response.data.expenses || response.data || [])]
   } catch (error) {
     console.error('Error fetching expenses:', error)
   }
 }
 
-// Modal Hide & Cleanup
+// =====================================================
+// MODAL CLEANUP
+// =====================================================
+
+const cleanupModals = () => {
+  document.querySelectorAll('.modal').forEach((modalEl) => {
+    try {
+      const instance = bootstrap.Modal.getInstance(modalEl)
+
+      if (instance) {
+        instance.dispose()
+      }
+    } catch (error) {
+      console.warn('Modal cleanup warning:', error)
+    }
+
+    modalEl.classList.remove('show')
+
+    modalEl.style.removeProperty('display')
+
+    modalEl.style.removeProperty('padding-right')
+
+    modalEl.removeAttribute('aria-modal')
+
+    modalEl.setAttribute('aria-hidden', 'true')
+
+    modalEl.removeAttribute('role')
+  })
+
+  document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+    backdrop.remove()
+  })
+
+  document.body.classList.remove('modal-open')
+
+  document.body.style.removeProperty('overflow')
+
+  document.body.style.removeProperty('padding-right')
+
+  document.documentElement.style.removeProperty('overflow')
+
+  document.documentElement.style.removeProperty('padding-right')
+}
+
+const handleBrowserBack = () => {
+  cleanupModals()
+}
+
+// Close Modal
 const closeModal = () => {
   const modalElement = document.getElementById('expenseModal')
 
   if (modalElement) {
-    const modalInstance = window.bootstrap?.Modal?.getInstance(modalElement)
+    const modalInstance = bootstrap.Modal.getInstance(modalElement)
+
     if (modalInstance) {
       modalInstance.hide()
-    } else if (window.bootstrap?.Modal) {
-      new window.bootstrap.Modal(modalElement).hide()
     }
   }
 
   setTimeout(() => {
-    document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove())
-    document.body.classList.remove('modal-open')
-    document.body.style.removeProperty('padding-right')
-    document.body.style.removeProperty('overflow')
+    cleanupModals()
   }, 150)
 }
 
+// Save Expense
 const saveExpense = async () => {
   try {
-    if (isEditing.value) {
+    // Preserve editing state before resetForm()
+    const wasEditing = isEditing.value
+
+    if (wasEditing) {
       await api.put(`/expenses/${editingId.value}`, form.value)
     } else {
       await api.post('/expenses', form.value)
     }
 
     closeModal()
+
     resetForm()
+
     await getExpenses()
 
-    alert(isEditing.value ? 'Expense Updated Successfully' : 'Expense Added Successfully')
+    alert(wasEditing ? 'Expense Updated Successfully' : 'Expense Added Successfully')
   } catch (error) {
     console.error('Error saving expense:', error)
+
     if (error.response?.data?.errors) {
       alert(Object.values(error.response.data.errors).flat().join('\n'))
     } else {
@@ -615,40 +736,67 @@ const saveExpense = async () => {
   }
 }
 
+// Edit Expense
 const editExpense = (expense) => {
   isEditing.value = true
   editingId.value = expense.id
 
   form.value = {
     expense_type: expense.expense_type || '',
+
     employee_name: expense.employee_name || '',
+
     salary_amount: expense.salary_amount || '',
+
     paid_amount: expense.paid_amount || '',
+
     due_amount: expense.due_amount || 0,
+
     payment_month: expense.payment_month || '',
+
     payment_method: expense.payment_method || '',
   }
 }
 
+// Delete Expense
 const deleteExpense = async (id) => {
-  if (!confirm('Are you sure you want to delete this expense?')) return
+  if (!confirm('Are you sure you want to delete this expense?')) {
+    return
+  }
 
   try {
     await api.delete(`/expenses/${id}`)
+
     alert('Expense Deleted Successfully')
+
     await getExpenses()
   } catch (error) {
     console.error('Error deleting expense:', error)
   }
 }
 
-// Lifecycle Hook
+// Lifecycle
 onMounted(() => {
+  // Browser / Mobile Back button
+  window.addEventListener('popstate', handleBrowserBack)
+
+  // Page restore / reload
+  window.addEventListener('pageshow', handleBrowserBack)
+
   getExpenses()
   fetchTeachers()
   fetchStaffs()
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('popstate', handleBrowserBack)
+
+  window.removeEventListener('pageshow', handleBrowserBack)
+
+  cleanupModals()
+})
 </script>
+
 <style scoped>
 /* SUMMARY CARDS */
 .dash-summary-card {
@@ -683,12 +831,15 @@ onMounted(() => {
 .card-blue {
   background: #1d4ed8;
 }
+
 .card-green {
   background: #15803d;
 }
+
 .card-orange {
   background: #c2410c;
 }
+
 .card-purple {
   background: #6d28d9;
 }
@@ -723,6 +874,9 @@ onMounted(() => {
   white-space: nowrap;
 }
 
+/* Kept for existing design.
+   Since TransitionGroup is removed,
+   these no longer affect initial table load. */
 .table-row-enter-active,
 .table-row-leave-active {
   transition: all 0.3s ease;
