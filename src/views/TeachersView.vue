@@ -385,7 +385,7 @@
 import { ref, computed, onMounted } from 'vue'
 import api from '@/services/api'
 import dashPageView from './dashPageView.vue'
-
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 // --- State Variables ---
 const teachers = ref([])
 const allShifts = ref([]) // 👈 সমস্ত শিফটের তালিকা রাখার জন্য
@@ -460,6 +460,28 @@ const uniqueDepartments = computed(() => {
   return [...new Set(depts)]
 })
 
+// --- Clean Bootstrap Modals on Browser Back / Route Change ---
+const cleanupModals = () => {
+  // Remove modal-open from body
+  document.body.classList.remove('modal-open')
+
+  // Remove Bootstrap modal backdrops
+  document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+    backdrop.remove()
+  })
+
+  // Reset body styles added by Bootstrap
+  document.body.style.removeProperty('overflow')
+  document.body.style.removeProperty('padding-right')
+
+  // Hide any active modal
+  document.querySelectorAll('.modal.show').forEach((modal) => {
+    modal.classList.remove('show')
+    modal.style.display = 'none'
+    modal.removeAttribute('aria-modal')
+    modal.setAttribute('aria-hidden', 'true')
+  })
+}
 // --- Lifecycle Hook ---
 onMounted(() => {
   fetchTeachers()
