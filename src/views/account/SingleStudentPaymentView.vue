@@ -1,5 +1,6 @@
 <template>
   <RouterView />
+
   <AccountMenuView />
 
   <div class="main-content">
@@ -13,9 +14,14 @@
       <!-- Logged-in Staff/User Profile Info -->
       <div class="d-flex align-items-center gap-3 bg-white px-3 py-2 rounded-pill shadow-sm border">
         <div class="text-end">
-          <h6 class="fw-bold text-dark mb-0">{{ displayUser.name }}</h6>
-          <small class="text-muted text-capitalize">{{ displayUser.role }}</small>
+          <h6 class="fw-bold text-dark mb-0">
+            {{ displayUser.name }}
+          </h6>
+          <small class="text-muted text-capitalize">
+            {{ displayUser.role }}
+          </small>
         </div>
+
         <div class="profile-avatar-wrapper">
           <img
             :src="getImageUrl(displayUser)"
@@ -36,6 +42,7 @@
           <span class="input-group-text">
             <i class="fa-solid fa-magnifying-glass"></i>
           </span>
+
           <input
             v-model="search"
             type="text"
@@ -55,6 +62,7 @@
             <small>Total Students</small>
             <h2>{{ totalStudents }}</h2>
           </div>
+
           <div class="summary-icon">
             <i class="fa-solid fa-user-graduate"></i>
           </div>
@@ -67,6 +75,7 @@
             <small>Total Collection</small>
             <h2>৳ {{ totalCollection }}</h2>
           </div>
+
           <div class="summary-icon">
             <i class="fa-solid fa-money-bill-wave"></i>
           </div>
@@ -79,6 +88,7 @@
             <small>Total Due</small>
             <h2>৳ {{ totalDue }}</h2>
           </div>
+
           <div class="summary-icon">
             <i class="fa-solid fa-circle-exclamation"></i>
           </div>
@@ -91,6 +101,7 @@
             <small>Total Unpaid Students</small>
             <h2>{{ totalUnpaidStudents }}</h2>
           </div>
+
           <div class="summary-icon">
             <i class="fa-solid fa-user-xmark"></i>
           </div>
@@ -121,6 +132,7 @@
         class="card-header bg-white d-flex justify-content-between align-items-center py-3 flex-wrap gap-2"
       >
         <h5 class="fw-bold mb-0">Student Payment Report</h5>
+
         <span class="badge bg-primary fs-6 fw-normal"> {{ totalStudents }} Students </span>
       </div>
 
@@ -240,7 +252,8 @@
           <ul class="pagination pagination-sm mb-0 align-items-center">
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
               <button class="page-link px-3" @click="currentPage--" :disabled="currentPage === 1">
-                <i class="fa-solid fa-chevron-left me-1"></i> Prev
+                <i class="fa-solid fa-chevron-left me-1"></i>
+                Prev
               </button>
             </li>
 
@@ -250,19 +263,24 @@
               class="page-item"
               :class="{ active: currentPage === page }"
             >
-              <button class="page-link" @click="currentPage = page">{{ page }}</button>
+              <button class="page-link" @click="currentPage = page">
+                {{ page }}
+              </button>
             </li>
 
             <li
               class="page-item"
-              :class="{ disabled: currentPage === totalPages || filteredStudents.length === 0 }"
+              :class="{
+                disabled: currentPage === totalPages || filteredStudents.length === 0,
+              }"
             >
               <button
                 class="page-link px-3"
                 @click="currentPage++"
                 :disabled="currentPage === totalPages || filteredStudents.length === 0"
               >
-                Next <i class="fa-solid fa-chevron-right ms-1"></i>
+                Next
+                <i class="fa-solid fa-chevron-right ms-1"></i>
               </button>
             </li>
           </ul>
@@ -272,12 +290,24 @@
   </div>
 
   <!-- Student Profile Modal -->
-  <div class="modal fade" id="studentModal" tabindex="-1">
+  <div
+    class="modal fade"
+    id="studentModal"
+    tabindex="-1"
+    aria-labelledby="studentModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
         <div class="modal-header border-0 pb-0">
-          <h4 class="fw-bold mb-0">Student Profile</h4>
-          <button class="btn-close" data-bs-dismiss="modal"></button>
+          <h4 class="fw-bold mb-0" id="studentModalLabel">Student Profile</h4>
+
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
 
         <div class="modal-body p-4">
@@ -291,8 +321,13 @@
                   @error="onImageError"
                 />
 
-                <h5 class="fw-bold mb-1">{{ selectedStudent.full_name }}</h5>
-                <p class="text-muted mb-2">{{ selectedStudent.student_id }}</p>
+                <h5 class="fw-bold mb-1">
+                  {{ selectedStudent.full_name }}
+                </h5>
+
+                <p class="text-muted mb-2">
+                  {{ selectedStudent.student_id }}
+                </p>
 
                 <span
                   class="badge"
@@ -306,12 +341,17 @@
                 <div class="profile-info text-start">
                   <div>
                     <small class="d-block">Batch</small>
-                    <h6 class="mb-0">{{ selectedStudent.batch_name }}</h6>
+                    <h6 class="mb-0">
+                      {{ selectedStudent.batch_name }}
+                    </h6>
                   </div>
+
                   <div class="mt-3">
                     <small class="d-block">Monthly Fee</small>
+
                     <h6 class="mb-0">
-                      ৳ {{ Number(selectedStudent.monthly_fee || 0).toLocaleString() }}
+                      ৳
+                      {{ Number(selectedStudent.monthly_fee || 0).toLocaleString() }}
                     </h6>
                   </div>
                 </div>
@@ -320,12 +360,15 @@
 
             <div class="col-md-8">
               <h6 class="fw-bold mb-3">Payment Summary</h6>
+
               <div class="row g-3">
                 <div class="col-6 col-sm-6">
                   <div class="modal-summary-card">
                     <small>Total Paid</small>
+
                     <h4 class="text-success">
-                      ৳ {{ Number(selectedStudent.total_paid || 0).toLocaleString() }}
+                      ৳
+                      {{ Number(selectedStudent.total_paid || 0).toLocaleString() }}
                     </h4>
                   </div>
                 </div>
@@ -333,8 +376,10 @@
                 <div class="col-6 col-sm-6">
                   <div class="modal-summary-card">
                     <small>Total Due</small>
+
                     <h4 class="text-danger">
-                      ৳ {{ Number(selectedStudent.total_due || 0).toLocaleString() }}
+                      ৳
+                      {{ Number(selectedStudent.total_due || 0).toLocaleString() }}
                     </h4>
                   </div>
                 </div>
@@ -342,15 +387,20 @@
                 <div class="col-6 col-sm-6">
                   <div class="modal-summary-card">
                     <small>Unpaid Month</small>
-                    <h4 style="color: brown">{{ selectedStudent.unpaid_months || 0 }}</h4>
+
+                    <h4 style="color: brown">
+                      {{ selectedStudent.unpaid_months || 0 }}
+                    </h4>
                   </div>
                 </div>
 
                 <div class="col-6 col-sm-6">
                   <div class="modal-summary-card">
                     <small>Unpaid Amount</small>
+
                     <h4 class="text-warning">
-                      ৳ {{ Number(selectedStudent.unpaid_amount || 0).toLocaleString() }}
+                      ৳
+                      {{ Number(selectedStudent.unpaid_amount || 0).toLocaleString() }}
                     </h4>
                   </div>
                 </div>
@@ -358,8 +408,10 @@
 
               <div class="outstanding-card mt-4">
                 <small>Total Outstanding</small>
+
                 <h2 class="text-danger fw-bold mt-2 mb-0">
-                  ৳ {{ Number(selectedStudent.total_outstanding || 0).toLocaleString() }}
+                  ৳
+                  {{ Number(selectedStudent.total_outstanding || 0).toLocaleString() }}
                 </h2>
               </div>
             </div>
@@ -367,7 +419,9 @@
         </div>
 
         <div class="modal-footer border-0 pt-0">
-          <button class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">
+            Close
+          </button>
         </div>
       </div>
     </div>
@@ -375,11 +429,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
 import AccountMenuView from './AccountMenuView.vue'
 import api from '@/services/api'
 import { getImageUrl } from '@/utils/img'
+import * as bootstrap from 'bootstrap'
 
 /* =========================
    Search & State
@@ -394,7 +449,6 @@ const totalUnpaidStudents = ref(0)
 
 const payments = ref([])
 const students = ref([])
-
 const selectedStudent = ref({})
 
 /* =========================
@@ -421,14 +475,14 @@ const onImageError = (e) => {
 }
 
 /* =========================
- Pagination
+   Pagination
 ========================= */
 
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
 
 /* =========================
- Batch
+   Batch
 ========================= */
 
 const batches = ref([
@@ -455,16 +509,64 @@ const selectBatch = (batch) => {
 }
 
 /* =========================
- Load Data
+   Modal Cleanup
+========================= */
+
+const cleanupModals = () => {
+  document.querySelectorAll('.modal').forEach((modalElement) => {
+    try {
+      const modalInstance = bootstrap.Modal.getInstance(modalElement)
+
+      if (modalInstance) {
+        modalInstance.dispose()
+      }
+    } catch (error) {
+      console.warn('Modal cleanup warning:', error)
+    }
+
+    modalElement.classList.remove('show')
+
+    modalElement.style.removeProperty('display')
+    modalElement.style.removeProperty('padding-right')
+
+    modalElement.removeAttribute('aria-modal')
+    modalElement.setAttribute('aria-hidden', 'true')
+
+    modalElement.removeAttribute('role')
+  })
+
+  document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+    backdrop.remove()
+  })
+
+  document.body.classList.remove('modal-open')
+
+  document.body.style.removeProperty('overflow')
+
+  document.body.style.removeProperty('padding-right')
+
+  document.documentElement.style.removeProperty('overflow')
+
+  document.documentElement.style.removeProperty('padding-right')
+}
+
+/* =========================
+   Browser Back Fix
+========================= */
+
+const handleBrowserBack = () => {
+  cleanupModals()
+}
+
+/* =========================
+   Load Data
 ========================= */
 
 onMounted(async () => {
   try {
-    /*
-|--------------------------------------------------------------------------
-| Get Payment Summary
-|--------------------------------------------------------------------------
-*/
+    /* -------------------------------------------
+       Get Payment Summary
+    ------------------------------------------- */
 
     const paymentRes = await api.get('/payments')
 
@@ -488,11 +590,9 @@ onMounted(async () => {
       }
     }
 
-    /*
-|--------------------------------------------------------------------------
-| Get All Students
-|--------------------------------------------------------------------------
-*/
+    /* -------------------------------------------
+       Get All Students
+    ------------------------------------------- */
 
     const studentRes = await api.get('/students')
 
@@ -500,11 +600,9 @@ onMounted(async () => {
 
     totalStudents.value = allStudents.length
 
-    /*
-|--------------------------------------------------------------------------
-| Merge Student + Payment
-|--------------------------------------------------------------------------
-*/
+    /* -------------------------------------------
+       Merge Student + Payment
+    ------------------------------------------- */
 
     const formattedStudents = allStudents.map((student) => {
       let latestPayment = null
@@ -533,13 +631,26 @@ onMounted(async () => {
     payments.value = formattedStudents
 
     students.value = allStudents
+
+    /* -------------------------------------------
+       Browser Back / Page Show Modal Cleanup
+    ------------------------------------------- */
+
+    window.addEventListener('popstate', handleBrowserBack)
+
+    window.addEventListener('pageshow', handleBrowserBack)
   } catch (error) {
     console.error('API Error:', error)
+
+    // Even if API fails, register modal cleanup
+    window.addEventListener('popstate', handleBrowserBack)
+
+    window.addEventListener('pageshow', handleBrowserBack)
   }
 })
 
 /* =========================
- Modal
+   Modal
 ========================= */
 
 const openSummary = (student) => {
@@ -563,20 +674,17 @@ const openSummary = (student) => {
     ...reportStudent,
 
     total_paid: totalPaid,
-
     total_due: totalDue,
-
     unpaid_months: unpaidMonths,
-
     unpaid_amount: unpaidAmount,
-
     total_outstanding: totalOutstanding,
   }
 
   console.log('MODAL DATA:', selectedStudent.value)
 }
+
 /* =========================
- Filter
+   Filter
 ========================= */
 
 const filteredStudents = computed(() => {
@@ -594,7 +702,7 @@ const filteredStudents = computed(() => {
 })
 
 /* =========================
- Pagination
+   Pagination
 ========================= */
 
 const paginatedStudents = computed(() => {
@@ -608,7 +716,9 @@ const totalPages = computed(() => {
 })
 
 const showingStart = computed(() => {
-  if (filteredStudents.value.length === 0) return 0
+  if (filteredStudents.value.length === 0) {
+    return 0
+  }
 
   return (currentPage.value - 1) * itemsPerPage.value + 1
 })
@@ -617,6 +727,18 @@ const showingEnd = computed(() => {
   const end = currentPage.value * itemsPerPage.value
 
   return end > filteredStudents.value.length ? filteredStudents.value.length : end
+})
+
+/* =========================
+   Component Cleanup
+========================= */
+
+onBeforeUnmount(() => {
+  window.removeEventListener('popstate', handleBrowserBack)
+
+  window.removeEventListener('pageshow', handleBrowserBack)
+
+  cleanupModals()
 })
 </script>
 
@@ -683,12 +805,15 @@ const showingEnd = computed(() => {
 .blue {
   background: linear-gradient(135deg, #3b82f6, #2563eb);
 }
+
 .green {
   background: linear-gradient(135deg, #22c55e, #16a34a);
 }
+
 .red {
   background: linear-gradient(135deg, #ef4444, #dc2626);
 }
+
 .orange {
   background: linear-gradient(135deg, #f59e0b, #ea580c);
 }
@@ -811,6 +936,7 @@ const showingEnd = computed(() => {
     width: 100% !important;
     padding: 18px;
   }
+
   .search-box {
     width: 100%;
   }
