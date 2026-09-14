@@ -379,16 +379,30 @@ const getLogoUrl = (logo) => {
 /* =========================================================
    FETCH INSTITUTE INFORMATION
 ========================================================= */
-
 const fetchInstitute = async () => {
   try {
-    const response = await api.get('/institute-info')
+    console.time('DASHBOARD-NATIVE-FETCH')
 
-    institute.value = response.data.data
+    const token = localStorage.getItem('token')
+
+    const response = await fetch('http://127.0.0.1:8000/api/institute-info', {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    const data = await response.json()
+
+    console.timeEnd('DASHBOARD-NATIVE-FETCH')
+
+    console.log('DASHBOARD FETCH STATUS:', response.status)
+
+    institute.value = data.data
 
     console.log('Institute Information:', institute.value)
   } catch (error) {
-    console.error('Failed to fetch institute information:', error.response || error)
+    console.error('Failed to fetch institute information:', error)
   }
 }
 

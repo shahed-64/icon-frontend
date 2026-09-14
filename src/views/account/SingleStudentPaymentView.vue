@@ -147,92 +147,110 @@
           </thead>
 
           <tbody>
-            <tr v-for="student in students" :key="student.id">
-              <td class="fw-bold">
-                {{ student.student_id }}
+            <tr v-if="isLoading">
+              <td colspan="8" class="text-center py-4">
+                <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                Loading student records...
               </td>
+            </tr>
 
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <img
-                    :src="getImageUrl(student)"
-                    alt="Student Avatar"
-                    class="student-table-img rounded-circle object-fit-cover border"
-                    width="38"
-                    height="38"
-                    @error="onImageError"
-                  />
+            <template v-else>
+              <tr v-for="student in students" :key="student.id">
+                <td class="fw-bold">
+                  {{ student.student_id }}
+                </td>
 
-                  <span class="fw-semibold text-dark">
-                    {{ student.full_name }}
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <img
+                      :src="getImageUrl(student)"
+                      alt="Student Avatar"
+                      class="student-table-img rounded-circle object-fit-cover border"
+                      width="38"
+                      height="38"
+                      @error="onImageError"
+                    />
+
+                    <span class="fw-semibold text-dark">
+                      {{ student.full_name }}
+                    </span>
+                  </div>
+                </td>
+
+                <td>
+                  <span class="badge bg-light text-dark border">
+                    {{
+                      student.classInfo?.name || student.course_name || student.batch_name || 'N/A'
+                    }}
                   </span>
-                </div>
-              </td>
+                </td>
 
-              <td>
-                <span class="badge bg-light text-dark border">
+                <td>৳ {{ Number(student.monthly_fee || 0).toLocaleString() }}</td>
+
+                <td class="text-success fw-semibold">
+                  ৳
                   {{
-                    student.classInfo?.name || student.course_name || student.batch_name || 'N/A'
+                    Number(
+                      student.total_paid ??
+                        student.paid_amount ??
+                        student.paid ??
+                        student.total_received ??
+                        (Array.isArray(student.payments)
+                          ? student.payments.reduce(
+                              (sum, p) => sum + Number(p.amount || p.paid_amount || 0),
+                              0,
+                            )
+                          : 0),
+                    ).toLocaleString()
                   }}
-                </span>
-              </td>
+                </td>
 
-              <td>৳ {{ Number(student.monthly_fee || 0).toLocaleString() }}</td>
-
-              <td class="text-success fw-semibold">
-                ৳
-                {{
-                  Number(
-                    student.payments?.reduce((sum, p) => sum + Number(p.paid_amount || 0), 0) || 0,
-                  ).toLocaleString()
-                }}
-              </td>
-
-              <td class="text-danger fw-semibold">
-                ৳
-                {{
-                  Number(
-                    (student.payments?.reduce((sum, p) => sum + Number(p.due_amount || 0), 0) ||
-                      0) +
-                      (student.due_months?.length || 0) * Number(student.monthly_fee || 0),
-                  ).toLocaleString()
-                }}
-              </td>
-
-              <td>
-                <span
-                  class="badge"
-                  :class="
-                    student.due_months?.length > 0 ||
-                    student.payments?.some((p) => p.status === 'due')
-                      ? 'bg-danger'
-                      : 'bg-success'
-                  "
-                >
+                <td class="text-danger fw-semibold">
+                  ৳
                   {{
-                    student.due_months?.length > 0 ||
-                    student.payments?.some((p) => p.status === 'due')
-                      ? 'Due'
-                      : 'Paid'
+                    Number(
+                      (student.payments?.reduce((sum, p) => sum + Number(p.due_amount || 0), 0) ||
+                        0) +
+                        (student.due_months?.length || 0) * Number(student.monthly_fee || 0),
+                    ).toLocaleString()
                   }}
-                </span>
-              </td>
+                </td>
 
-              <td>
-                <button
-                  class="btn btn-sm btn-primary"
-                  @click="openSummary(student)"
-                  data-bs-toggle="modal"
-                  data-bs-target="#studentModal"
-                >
-                  View
-                </button>
-              </td>
-            </tr>
+                <td>
+                  <span
+                    class="badge"
+                    :class="
+                      student.due_months?.length > 0 ||
+                      student.payments?.some((p) => p.status === 'due')
+                        ? 'bg-danger'
+                        : 'bg-success'
+                    "
+                  >
+                    {{
+                      student.due_months?.length > 0 ||
+                      student.payments?.some((p) => p.status === 'due')
+                        ? 'Due'
+                        : 'Paid'
+                    }}
+                  </span>
+                </td>
 
-            <tr v-if="students.length === 0">
-              <td colspan="8" class="text-center py-4 text-muted">No record found!</td>
-            </tr>
+                <td>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    @click="openSummary(student)"
+                    data-bs-toggle="modal"
+                    data-bs-target="#studentModal"
+                  >
+                    View
+                  </button>
+                </td>
+              </tr>
+
+              <tr v-if="students.length === 0">
+                <td colspan="8" class="text-center py-4 text-muted">No record found!</td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -399,6 +417,9 @@ import { getImageUrl } from '@/utils/img'
    Search & State
 ========================= */
 const search = ref('')
+let searchTimeout = null
+const isLoading = ref(false)
+
 const totalStudents = ref(0)
 const totalCollection = ref(0)
 const totalDue = ref(0)
@@ -453,7 +474,6 @@ const selectBatch = (batchId) => {
 const fetchClasses = async () => {
   try {
     const res = await api.get('/classes')
-    console.log('Classes Response:', res.data) // কনসোলে কী আসছে দেখুন
     classesList.value = res.data.data || res.data.classes || res.data || []
   } catch (error) {
     console.error('Classes API Error:', error)
@@ -464,6 +484,7 @@ const fetchClasses = async () => {
    Fetch Data from API
 ========================= */
 const fetchStudents = async () => {
+  isLoading.value = true
   try {
     const params = {
       page: currentPage.value,
@@ -480,7 +501,6 @@ const fetchStudents = async () => {
 
     const studentRes = await api.get('/students', { params })
 
-    // ব্যাকএন্ড থেকে আসা প্যাগিনেটেড ডেটা সেট করা
     students.value = studentRes.data.students || []
     totalStudents.value = studentRes.data.total_students || 0
 
@@ -492,13 +512,15 @@ const fetchStudents = async () => {
     totalEntries.value = pagination.total || 0
   } catch (error) {
     console.error('API Error:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 
-// ওভারঅল পেমেন্ট ও ড্যাশবোর্ড ডেটা লোড
 onMounted(async () => {
   try {
-    const paymentRes = await api.get('/payments')
+    const [paymentRes] = await Promise.all([api.get('/payments'), fetchClasses(), fetchStudents()])
+
     totalCollection.value = paymentRes.data.total_paid_amount || 0
     totalDue.value = paymentRes.data.total_due_amount || 0
     totalUnpaidStudents.value = paymentRes.data.total_unpaid_students || 0
@@ -518,58 +540,59 @@ onMounted(async () => {
   } catch (error) {
     console.error('Payment API Error:', error)
   }
-
-  // ক্লাস ও স্টুডেন্ট লিস্ট ফেচ করা
-  await fetchClasses()
-  fetchStudents()
 })
 
-/* =========================
-   Search & Pagination Watchers
-========================= */
-// সার্চ বক্সে টাইপ করলে স্বয়ংক্রিয়ভাবে ব্যাকএন্ডে রিকোয়েস্ট যাবে
 watch(search, () => {
-  currentPage.value = 1
-  fetchStudents()
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    currentPage.value = 1
+    fetchStudents()
+  }, 350)
 })
 
-// পেজ পরিবর্তন ফাংশন
 const changePage = (page) => {
   if (page < 1 || page > lastPage.value) return
   currentPage.value = page
   fetchStudents()
 }
 
-/* =========================
-   Modal Summary
-========================= */
-const openSummary = (student) => {
-  const monthlyFee = Number(student.monthly_fee || 0)
+const openSummary = async (student) => {
+  try {
+    const response = await api.get(`/students/${student.id}`)
+    const detailedStudent = response.data.student || response.data || student
 
-  // যতগুলো মাস পেমেন্ট করা হয়েছে তার পরিমাণ
-  const paidMonthsCount = student.payments?.length || 0
-  const totalPaid = paidMonthsCount * monthlyFee
+    const unpaidMonthsList =
+      detailedStudent.due_months || detailedStudent.unpaid_months || student.due_months || []
+    const unpaidMonthsCount = Array.isArray(unpaidMonthsList)
+      ? unpaidMonthsList.length
+      : Number(detailedStudent.unpaid_months || student.unpaid_months || 0)
 
-  // পেমেন্টের কোনো অংশ বাকি থাকলে (যদি পেমেন্ট অবজেক্টে due_amount থাকে, নতুবা 0)
-  const paymentsDue =
-    student.payments?.reduce((sum, p) => {
-      return sum + Number(p.due_amount || 0)
-    }, 0) || 0
+    const monthlyFee = Number(detailedStudent.monthly_fee || student.monthly_fee || 0)
+    const unpaidAmount = unpaidMonthsCount * monthlyFee
 
-  // আনপেইড মাস ও তার পরিমাণ
-  const unpaidMonthsCount = student.due_months?.length || 0
-  const unpaidAmount = unpaidMonthsCount * monthlyFee
+    const paymentsList = detailedStudent.payments || student.payments || []
 
-  // আপনার রুল অনুযায়ী: Total Due + Unpaid Amount = Total Outstanding
-  const totalOutstanding = paymentsDue + unpaidAmount
+    const totalPaid = paymentsList.reduce((sum, p) => sum + Number(p.paid_amount || 0), 0) || 0
 
-  selectedStudent.value = {
-    ...student,
-    total_paid: totalPaid,
-    total_due: paymentsDue,
-    unpaid_months: unpaidMonthsCount,
-    unpaid_amount: unpaidAmount,
-    total_outstanding: totalOutstanding,
+    const paymentsDue =
+      paymentsList.reduce((sum, p) => {
+        return sum + Number(p.due_amount || p.due || 0)
+      }, 0) || 0
+
+    const totalDue = paymentsDue
+    const totalOutstanding = paymentsDue + unpaidAmount
+
+    selectedStudent.value = {
+      ...student,
+      ...detailedStudent,
+      total_paid: totalPaid,
+      total_due: totalDue,
+      unpaid_months: unpaidMonthsCount,
+      unpaid_amount: unpaidAmount,
+      total_outstanding: totalOutstanding,
+    }
+  } catch (error) {
+    console.error('Error fetching student summary:', error)
   }
 }
 </script>

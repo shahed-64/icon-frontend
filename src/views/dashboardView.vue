@@ -1,7 +1,9 @@
 <template>
   <RouterView />
+
   <!-- Sidebar Component -->
   <dashPageView />
+
   <div class="dashboard-layout">
     <!-- Main Content Area -->
     <main class="main-content">
@@ -14,9 +16,14 @@
 
         <div class="topbar-right">
           <div class="profile-info">
-            <span class="admin-name">{{ currentUser.name || 'Administrator' }}</span>
-            <small>{{ currentUser.role || 'System Admin' }}</small>
+            <span class="admin-name">
+              {{ currentUser.name || 'Administrator' }}
+            </span>
+            <small>
+              {{ currentUser.role || 'System Admin' }}
+            </small>
           </div>
+
           <img
             :src="currentUser.image || 'https://i.pravatar.cc/100'"
             class="profile-img"
@@ -29,11 +36,13 @@
       <div class="dashboard-body">
         <!-- STATS CARDS -->
         <div class="row g-4 mb-4">
+          <!-- TOTAL STAFF -->
           <div class="col-12 col-sm-6 col-lg-3">
             <div class="card-box blue">
               <div class="card-icon">
                 <i class="fa-solid fa-users"></i>
               </div>
+
               <div class="card-content">
                 <h3>{{ totalStaff }}</h3>
                 <p>Total Staff</p>
@@ -41,11 +50,13 @@
             </div>
           </div>
 
+          <!-- TOTAL STUDENTS -->
           <div class="col-12 col-sm-6 col-lg-3">
             <div class="card-box green">
               <div class="card-icon">
                 <i class="fa-solid fa-user-graduate"></i>
               </div>
+
               <div class="card-content">
                 <h3>{{ totalStudents }}</h3>
                 <p>Total Students</p>
@@ -53,26 +64,29 @@
             </div>
           </div>
 
+          <!-- TOTAL TEACHERS -->
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card-box red">
+              <div class="card-icon">
+                <i class="fa-solid fa-chalkboard-user"></i>
+              </div>
+
+              <div class="card-content">
+                <h3>{{ totalTeachers }}</h3>
+                <p>Total Teachers</p>
+              </div>
+            </div>
+          </div>
+          <!-- TOTAL PAYMENTS -->
           <div class="col-12 col-sm-6 col-lg-3">
             <div class="card-box orange">
               <div class="card-icon">
                 <i class="fa-solid fa-wallet"></i>
               </div>
+
               <div class="card-content">
                 <h3>{{ totalPayments }}</h3>
                 <p>Total Payments</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card-box red">
-              <div class="card-icon">
-                <i class="fa-solid fa-sack-dollar"></i>
-              </div>
-              <div class="card-content">
-                <h3>৳ {{ totalCollection }}</h3>
-                <p>Total Collection</p>
               </div>
             </div>
           </div>
@@ -80,6 +94,7 @@
 
         <!-- CHARTS & PROFILE ROW -->
         <div class="row g-4 mb-4">
+          <!-- CHART -->
           <div class="col-12 col-lg-8">
             <div class="chart-card">
               <div class="chart-header">
@@ -87,11 +102,13 @@
                   <h5>Traffic Analytics</h5>
                   <p>Monthly collection overview</p>
                 </div>
+
                 <div class="chart-filter">
                   <i class="fa-solid fa-calendar-days"></i>
                   Yearly
                 </div>
               </div>
+
               <div class="chart-wrapper">
                 <canvas id="trafficChart"></canvas>
               </div>
@@ -105,7 +122,11 @@
                 :src="currentUser.image || 'https://i.pravatar.cc/150?img=12'"
                 alt="Profile Image"
               />
-              <h4 class="mt-3">{{ currentUser.name || 'Jim Doe' }}</h4>
+
+              <h4 class="mt-3">
+                {{ currentUser.name || 'Jim Doe' }}
+              </h4>
+
               <p class="text-muted">
                 {{ currentUser.designation || currentUser.role || 'Project Manager' }}
               </p>
@@ -129,6 +150,7 @@
                   <h5>Recent Staff</h5>
                   <p>Latest registered staff members</p>
                 </div>
+
                 <div class="staff-count">
                   <i class="fa-solid fa-users"></i>
                   {{ recentStaff.length }}
@@ -146,18 +168,25 @@
                       <th>Status</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     <tr v-for="(staff, index) in recentStaff.slice(0, 5)" :key="staff.id">
                       <td>{{ index + 1 }}</td>
+
                       <td>
                         <div class="staff-profile">
                           <span>{{ staff.name }}</span>
                         </div>
                       </td>
+
                       <td>{{ staff.email }}</td>
+
                       <td>
-                        <span class="role-badge">{{ staff.role }}</span>
+                        <span class="role-badge">
+                          {{ staff.role }}
+                        </span>
                       </td>
+
                       <td>
                         <span class="status-badge">
                           <i class="fa-solid fa-circle"></i>
@@ -186,15 +215,22 @@ import Chart from 'chart.js/auto'
 import api from '@/services/api'
 import dashPageView from './dashPageView.vue'
 
-// State variables
+// ===============================
+// State Variables
+// ===============================
+
 const totalStaff = ref(0)
 const totalStudents = ref(0)
 const totalPayments = ref(0)
-const totalCollection = ref(0)
+const totalTeachers = ref(0)
+
 const recentStaff = ref([])
 const monthlyCollection = ref([])
 
+// ===============================
 // Current Logged-in User Info
+// ===============================
+
 const currentUser = ref({
   name: '',
   role: '',
@@ -207,26 +243,36 @@ const currentUser = ref({
 
 let chart = null
 
+// ===============================
+// Get Dashboard Data
+// ===============================
+
 const getDashboardData = async () => {
   try {
     // LocalStorage
     const storedUser = localStorage.getItem('user')
+
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser)
-      currentUser.value = { ...currentUser.value, ...parsedUser }
+
+      currentUser.value = {
+        ...currentUser.value,
+        ...parsedUser,
+      }
     }
 
-    //  api (axios instance)
+    // API
     const response = await api.get('/staff/dashboard')
 
     totalStaff.value = response.data.total_staff
     totalStudents.value = response.data.total_students
     totalPayments.value = response.data.total_payments
-    totalCollection.value = response.data.total_collection
+    totalTeachers.value = response.data.total_teachers
+
     recentStaff.value = response.data.recent_staff
     monthlyCollection.value = response.data.monthly_collection
 
-    // API
+    // User data from API
     if (response.data.user) {
       currentUser.value = {
         name: response.data.user.name,
@@ -243,6 +289,10 @@ const getDashboardData = async () => {
   }
 }
 
+// ===============================
+// Create Chart
+// ===============================
+
 const createChart = () => {
   const months = Array(12).fill(0)
 
@@ -254,14 +304,20 @@ const createChart = () => {
 
   const ctx = document.getElementById('trafficChart')
 
+  if (!ctx) {
+    return
+  }
+
   if (chart) {
     chart.destroy()
   }
 
   chart = new Chart(ctx, {
     type: 'bar',
+
     data: {
       labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+
       datasets: [
         {
           label: 'Collection',
@@ -273,16 +329,28 @@ const createChart = () => {
         },
       ],
     },
+
     options: {
       responsive: true,
       maintainAspectRatio: false,
+
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: false,
+        },
+
         tooltip: {
           backgroundColor: '#111827',
           padding: 12,
-          titleFont: { size: 14 },
-          bodyFont: { size: 13 },
+
+          titleFont: {
+            size: 14,
+          },
+
+          bodyFont: {
+            size: 13,
+          },
+
           callbacks: {
             label: function (context) {
               return ' ৳ ' + context.raw.toLocaleString()
@@ -290,31 +358,47 @@ const createChart = () => {
           },
         },
       },
+
       scales: {
         y: {
           beginAtZero: true,
-          grid: { color: '#f1f5f9' },
+
+          grid: {
+            color: '#f1f5f9',
+          },
+
           ticks: {
             callback: function (value) {
               return '৳ ' + value
             },
           },
         },
+
         x: {
-          grid: { display: false },
+          grid: {
+            display: false,
+          },
         },
       },
     },
   })
 }
 
+// ===============================
+// Mounted
+// ===============================
+
 onMounted(async () => {
   await getDashboardData()
   createChart()
 })
 </script>
+
 <style scoped>
-/* Base Layout */
+/* ===============================
+   Base Layout
+================================ */
+
 .dashboard-layout {
   display: flex;
   width: 100%;
@@ -330,7 +414,10 @@ onMounted(async () => {
   width: calc(100% - 250px);
 }
 
-/* Card Box */
+/* ===============================
+   Card Box
+================================ */
+
 .card-box {
   background: #ffffff;
   border-radius: 18px;
@@ -365,21 +452,30 @@ onMounted(async () => {
   margin: 0;
 }
 
-/* Icon Colors */
+/* ===============================
+   Icon Colors
+================================ */
+
 .blue i {
   color: #2563eb;
 }
+
 .green i {
   color: #16a34a;
 }
+
 .orange i {
   color: #f59e0b;
 }
+
 .red i {
   color: #ef4444;
 }
 
-/* Topbar */
+/* ===============================
+   Topbar
+================================ */
+
 .topbar {
   background: #ffffff;
   border-radius: 16px;
@@ -433,7 +529,10 @@ onMounted(async () => {
   object-fit: cover;
 }
 
-/* Chart Card */
+/* ===============================
+   Chart Card
+================================ */
+
 .chart-card {
   background: #ffffff;
   border-radius: 20px;
@@ -485,7 +584,10 @@ onMounted(async () => {
   position: relative;
 }
 
-/* Profile Card */
+/* ===============================
+   Profile Card
+================================ */
+
 .profile-card {
   background: #ffffff;
   border-radius: 20px;
@@ -542,7 +644,10 @@ onMounted(async () => {
   font-size: 13px;
 }
 
-/* Table Card */
+/* ===============================
+   Table Card
+================================ */
+
 .table-card {
   background: #ffffff;
   border-radius: 20px;
@@ -643,7 +748,10 @@ onMounted(async () => {
   margin-right: 5px;
 }
 
-/* RESPONSIVE DESIGN */
+/* ===============================
+   RESPONSIVE DESIGN
+================================ */
+
 @media (max-width: 991px) {
   .main-content {
     margin-left: 0;

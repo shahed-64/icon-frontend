@@ -184,12 +184,31 @@ const institute = ref(null)
 // ============================================================
 
 const fetchInstitute = async () => {
-  try {
-    const response = await api.get('/institute-info')
+  console.log('🔥 NEW FETCH FUNCTION RUNNING')
 
-    institute.value = response.data.data
+  try {
+    console.time('native-fetch-auth')
+
+    const token = localStorage.getItem('token')
+
+    const response = await fetch('http://127.0.0.1:8000/api/institute-info', {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    const data = await response.json()
+
+    console.timeEnd('native-fetch-auth')
+
+    console.log('AUTH FETCH STATUS:', response.status)
+    console.log('AUTH FETCH DATA:', data)
+
+    institute.value = data.data || null
   } catch (error) {
-    console.error('Failed to fetch institute information:', error)
+    console.error('Native auth fetch failed:', error)
+    institute.value = null
   }
 }
 

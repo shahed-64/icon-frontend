@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { startLoading, stopLoading } from '../utils/loading'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -17,22 +16,18 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
-    startLoading()
     return config
   },
   (error) => {
-    stopLoading()
     return Promise.reject(error)
   },
 )
 
 api.interceptors.response.use(
   (response) => {
-    stopLoading()
     return response
   },
   (error) => {
-    stopLoading()
     return Promise.reject(error)
   },
 )
