@@ -120,19 +120,12 @@
               <thead>
                 <tr>
                   <th style="width: 50px">#</th>
-
                   <th>Student ID</th>
-
                   <th>Name</th>
-
                   <th>Class</th>
-
                   <th>Email</th>
-
                   <th>Due Months</th>
-
                   <th>Status</th>
-
                   <th class="text-center">Action</th>
                 </tr>
               </thead>
@@ -224,7 +217,6 @@
                           class="me-1"
                         >
                           <rect width="20" height="14" x="2" y="5" rx="2" />
-
                           <line x1="2" x2="22" y1="10" y2="10" />
                         </svg>
 
@@ -283,7 +275,10 @@
     </div>
   </div>
 
+  <!-- ========================================================= -->
   <!-- PAYMENT MODAL -->
+  <!-- ========================================================= -->
+
   <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content payment-modal">
@@ -329,15 +324,18 @@
           <div class="form-group mb-3">
             <label class="form-label fw-semibold text-secondary"> Monthly Fee </label>
 
+            <!-- If monthly fee is not assigned -->
             <div v-if="!selectedStudent.monthly_fee">
               <input
                 v-model="form.amount"
                 type="number"
+                min="0"
                 class="form-control custom-input"
                 placeholder="Enter monthly fee"
               />
             </div>
 
+            <!-- If monthly fee exists -->
             <div v-else>
               <input
                 :value="selectedStudent.monthly_fee"
@@ -349,11 +347,31 @@
 
           <!-- PAID AMOUNT -->
           <div class="form-group mb-3">
-            <label class="form-label fw-semibold text-secondary"> Paid Amount </label>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="form-label fw-semibold text-secondary mb-0"> Paid Amount </label>
+
+              <!-- FULL PAYMENT CHECKBOX -->
+              <div class="form-check mb-0">
+                <input
+                  id="fullPaymentCheck"
+                  v-model="fullPayment"
+                  class="form-check-input"
+                  type="checkbox"
+                />
+
+                <label class="form-check-label fw-semibold text-success" for="fullPaymentCheck">
+                  Full Payment
+                </label>
+              </div>
+            </div>
 
             <input
               v-model="form.paid_amount"
+              type="number"
+              min="0"
               class="form-control custom-input"
+              :readonly="fullPayment"
+              :class="{ 'bg-light': fullPayment }"
               placeholder="Enter paid amount"
             />
           </div>
@@ -373,22 +391,26 @@
 
           <!-- EXTRA FEES -->
           <div class="row g-3 mb-3">
+            <!-- ADMISSION FEE -->
             <div class="col-md-6">
               <label class="form-label fw-semibold text-secondary"> Admission Fee </label>
 
               <input
                 type="number"
+                min="0"
                 class="form-control custom-input"
                 v-model="form.admission_fee"
                 placeholder="Admission fee"
               />
             </div>
 
+            <!-- EXAM FEE -->
             <div class="col-md-6">
               <label class="form-label fw-semibold text-secondary"> Exam Fee </label>
 
               <input
                 type="number"
+                min="0"
                 class="form-control custom-input"
                 v-model="form.exam_fee"
                 placeholder="Exam fee"
@@ -403,18 +425,18 @@
             <select v-model="form.payment_method" class="form-select custom-select">
               <option disabled value="">Select Method</option>
 
-              <option>Bkash</option>
-
-              <option>Nogod</option>
-
               <option>Cash</option>
+              <option>Bkash</option>
+              <option>Nogod</option>
             </select>
           </div>
         </div>
 
         <!-- FOOTER -->
         <div class="modal-footer payment-footer">
-          <button class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">
+            Close
+          </button>
 
           <button class="btn save-btn" @click="savePayment">
             <i class="fa-solid fa-check me-1"></i>
@@ -431,9 +453,13 @@
 import { ref, reactive, onMounted, onBeforeUnmount, computed, watch } from 'vue'
 
 import AccountMenuView from './AccountMenuView.vue'
+
 import { useRouter } from 'vue-router'
+
 import api from '@/services/api'
+
 import { getImageUrl } from '@/utils/img'
+
 import * as bootstrap from 'bootstrap'
 
 const router = useRouter()
@@ -443,6 +469,7 @@ const router = useRouter()
 | Available Months
 |--------------------------------------------------------------------------
 */
+
 const availableMonths = ref([])
 
 /*
@@ -450,6 +477,7 @@ const availableMonths = ref([])
 | Students
 |--------------------------------------------------------------------------
 */
+
 const students = ref([])
 
 /*
@@ -457,6 +485,7 @@ const students = ref([])
 | Search
 |--------------------------------------------------------------------------
 */
+
 const search = ref('')
 
 /*
@@ -464,6 +493,7 @@ const search = ref('')
 | Selected Class
 |--------------------------------------------------------------------------
 */
+
 const selectedClass = ref('')
 
 /*
@@ -471,11 +501,17 @@ const selectedClass = ref('')
 | Server Pagination
 |--------------------------------------------------------------------------
 */
+
 const currentPage = ref(1)
+
 const perPage = 10
+
 const totalPages = ref(1)
+
 const totalStudents = ref(0)
+
 const showingFrom = ref(0)
+
 const showingTo = ref(0)
 
 /*
@@ -483,26 +519,55 @@ const showingTo = ref(0)
 | Selected Student
 |--------------------------------------------------------------------------
 */
+
 const selectedStudent = reactive({
   student_id: '',
+
   full_name: '',
+
   monthly_fee: null,
+
   image: null,
 })
+
+/*
+|--------------------------------------------------------------------------
+| Full Payment
+|--------------------------------------------------------------------------
+|
+| Default:
+| ON
+|
+| Full Payment means:
+| Monthly Fee only.
+|
+| Admission Fee and Exam Fee remain separate.
+|--------------------------------------------------------------------------
+*/
+
+const fullPayment = ref(true)
 
 /*
 |--------------------------------------------------------------------------
 | Payment Form
 |--------------------------------------------------------------------------
 */
+
 const form = reactive({
   student_id: '',
+
   amount: '',
+
   paid_amount: '',
+
   payment_method: '',
+
   payment_date: new Date().toISOString().slice(0, 10),
+
   month: '',
+
   admission_fee: null,
+
   exam_fee: null,
 })
 
@@ -516,8 +581,9 @@ const form = reactive({
 | - pagination
 |
 | So frontend no longer slices the array.
-|
+|--------------------------------------------------------------------------
 */
+
 const filteredStudents = computed(() => {
   return students.value
 })
@@ -528,8 +594,9 @@ const filteredStudents = computed(() => {
 |--------------------------------------------------------------------------
 |
 | Backend already sends only the current page.
-|
+|--------------------------------------------------------------------------
 */
+
 const paginatedStudents = computed(() => {
   return students.value
 })
@@ -539,6 +606,7 @@ const paginatedStudents = computed(() => {
 | Next Page
 |--------------------------------------------------------------------------
 */
+
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     getStudents(currentPage.value + 1)
@@ -550,6 +618,7 @@ const nextPage = () => {
 | Previous Page
 |--------------------------------------------------------------------------
 */
+
 const prevPage = () => {
   if (currentPage.value > 1) {
     getStudents(currentPage.value - 1)
@@ -560,24 +629,139 @@ const prevPage = () => {
 |--------------------------------------------------------------------------
 | Open Payment Modal
 |--------------------------------------------------------------------------
+|
+| When payment modal opens:
+|
+| 1. Student information is loaded
+| 2. Monthly fee is loaded
+| 3. Full Payment becomes ON
+| 4. Paid Amount becomes Monthly Fee
+| 5. First unpaid month is selected
+| 6. Cash becomes default payment method
+| 7. Admission / Exam Fee remain empty
+|--------------------------------------------------------------------------
 */
+
 const openPaymentModal = (student) => {
   selectedStudent.student_id = student.student_id
+
   selectedStudent.full_name = student.full_name
+
   selectedStudent.monthly_fee = student.monthly_fee
+
   selectedStudent.image = student.image
+
+  /*
+  |--------------------------------------------------------------------------
+  | Available unpaid months
+  |--------------------------------------------------------------------------
+  */
 
   availableMonths.value = student.available_months || []
 
+  /*
+  |--------------------------------------------------------------------------
+  | Student ID
+  |--------------------------------------------------------------------------
+  */
+
   form.student_id = student.id
+
+  /*
+  |--------------------------------------------------------------------------
+  | Monthly Fee
+  |--------------------------------------------------------------------------
+  */
+
   form.amount = student.monthly_fee ?? ''
-  form.paid_amount = ''
-  form.payment_method = ''
+
+  /*
+  |--------------------------------------------------------------------------
+  | Full Payment ON by default
+  |--------------------------------------------------------------------------
+  */
+
+  fullPayment.value = true
+
+  /*
+  |--------------------------------------------------------------------------
+  | Paid Amount = Monthly Fee
+  |--------------------------------------------------------------------------
+  */
+
+  form.paid_amount = student.monthly_fee ?? ''
+
+  /*
+  |--------------------------------------------------------------------------
+  | First unpaid month
+  |--------------------------------------------------------------------------
+  */
+
+  form.month = availableMonths.value[0] ?? ''
+
+  /*
+  |--------------------------------------------------------------------------
+  | Cash default
+  |--------------------------------------------------------------------------
+  */
+
+  form.payment_method = 'Cash'
+
+  /*
+  |--------------------------------------------------------------------------
+  | Payment Date
+  |--------------------------------------------------------------------------
+  */
+
   form.payment_date = new Date().toISOString().slice(0, 10)
-  form.month = ''
+
+  /*
+  |--------------------------------------------------------------------------
+  | Extra Fees
+  |--------------------------------------------------------------------------
+  */
+
   form.admission_fee = null
+
   form.exam_fee = null
 }
+
+/*
+|--------------------------------------------------------------------------
+| Full Payment Watcher
+|--------------------------------------------------------------------------
+|
+| When checkbox is checked again:
+| Paid Amount automatically returns to Monthly Fee.
+|--------------------------------------------------------------------------
+*/
+
+watch(fullPayment, (isFullPayment) => {
+  if (isFullPayment) {
+    form.paid_amount = form.amount || selectedStudent.monthly_fee || ''
+  }
+})
+
+/*
+|--------------------------------------------------------------------------
+| Monthly Fee Watcher
+|--------------------------------------------------------------------------
+|
+| This matters when a student does not have a predefined monthly fee.
+|
+| If staff enters Monthly Fee while Full Payment is ON,
+| Paid Amount will automatically follow it.
+|--------------------------------------------------------------------------
+*/
+
+watch(
+  () => form.amount,
+  (amount) => {
+    if (fullPayment.value) {
+      form.paid_amount = amount || ''
+    }
+  },
+)
 
 /*
 |--------------------------------------------------------------------------
@@ -590,7 +774,6 @@ const openPaymentModal = (student) => {
 | Get Students List
 |--------------------------------------------------------------------------
 |
-| IMPORTANT:
 | Backend:
 |
 | /students?page=1&per_page=10
@@ -598,14 +781,17 @@ const openPaymentModal = (student) => {
 | returns:
 | students
 | pagination
-|
+|--------------------------------------------------------------------------
 */
+
 const getStudents = async (page = 1) => {
   try {
     const res = await api.get('/students', {
       params: {
         page,
+
         per_page: perPage,
+
         search: search.value.trim(),
       },
     })
@@ -616,17 +802,25 @@ const getStudents = async (page = 1) => {
       const pagination = res.data.pagination || {}
 
       currentPage.value = pagination.current_page || 1
+
       totalPages.value = pagination.last_page || 1
+
       totalStudents.value = pagination.total || 0
+
       showingFrom.value = pagination.from || 0
+
       showingTo.value = pagination.to || 0
     } else {
       students.value = []
 
       currentPage.value = 1
+
       totalPages.value = 1
+
       totalStudents.value = 0
+
       showingFrom.value = 0
+
       showingTo.value = 0
     }
   } catch (err) {
@@ -635,9 +829,13 @@ const getStudents = async (page = 1) => {
     students.value = []
 
     currentPage.value = 1
+
     totalPages.value = 1
+
     totalStudents.value = 0
+
     showingFrom.value = 0
+
     showingTo.value = 0
   }
 }
@@ -650,8 +848,9 @@ const getStudents = async (page = 1) => {
 | Whenever search changes:
 | - go back to page 1
 | - ask backend for filtered students
-|
+|--------------------------------------------------------------------------
 */
+
 watch(search, () => {
   getStudents(1)
 })
@@ -667,8 +866,9 @@ watch(search, () => {
 |
 | Therefore we keep the existing class filter behaviour
 | without changing the existing API contract.
-|
+|--------------------------------------------------------------------------
 */
+
 watch(selectedClass, () => {
   currentPage.value = 1
 })
@@ -678,6 +878,7 @@ watch(selectedClass, () => {
 | Modal Cleanup
 |--------------------------------------------------------------------------
 */
+
 const cleanupModals = () => {
   document.querySelectorAll('.modal').forEach((modalEl) => {
     try {
@@ -693,10 +894,13 @@ const cleanupModals = () => {
     modalEl.classList.remove('show')
 
     modalEl.style.removeProperty('display')
+
     modalEl.style.removeProperty('padding-right')
 
     modalEl.removeAttribute('aria-modal')
+
     modalEl.setAttribute('aria-hidden', 'true')
+
     modalEl.removeAttribute('role')
   })
 
@@ -707,9 +911,11 @@ const cleanupModals = () => {
   document.body.classList.remove('modal-open')
 
   document.body.style.removeProperty('overflow')
+
   document.body.style.removeProperty('padding-right')
 
   document.documentElement.style.removeProperty('overflow')
+
   document.documentElement.style.removeProperty('padding-right')
 }
 
@@ -718,6 +924,7 @@ const cleanupModals = () => {
 | Browser Back
 |--------------------------------------------------------------------------
 */
+
 const handleBrowserBack = () => {
   cleanupModals()
 }
@@ -727,6 +934,7 @@ const handleBrowserBack = () => {
 | Save Payment API
 |--------------------------------------------------------------------------
 */
+
 const savePayment = async () => {
   try {
     const res = await api.post('/payments', form)
@@ -766,8 +974,9 @@ const savePayment = async () => {
 |--------------------------------------------------------------------------
 |
 | Kept from your existing logic.
-|
+|--------------------------------------------------------------------------
 */
+
 const uniqueClasses = computed(() => {
   const classes = students.value.map((s) => s.batch_name).filter(Boolean)
 
@@ -779,6 +988,7 @@ const uniqueClasses = computed(() => {
 | Mounted
 |--------------------------------------------------------------------------
 */
+
 onMounted(() => {
   getStudents(1)
 
@@ -792,6 +1002,7 @@ onMounted(() => {
 | Before Unmount
 |--------------------------------------------------------------------------
 */
+
 onBeforeUnmount(() => {
   window.removeEventListener('popstate', handleBrowserBack)
 
