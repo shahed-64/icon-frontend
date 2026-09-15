@@ -254,9 +254,9 @@
 
                   <option value="Accountant">Accountant</option>
 
-                  <option value="Editor">Editor</option>
+                  <!-- <option value="Editor">Editor</option> -->
 
-                  <option value="Staff">Staff</option>
+                  <!-- <option value="Staff">Staff</option> -->
                 </select>
               </div>
 
@@ -482,6 +482,14 @@
             <div class="list-group-item">
               <strong>Role:</strong>
               {{ viewData.role }}
+            </div>
+            <div class="list-group-item">
+              <strong>Joining Date:</strong>
+              {{
+                viewData.created_at
+                  ? new Date(viewData.created_at).toLocaleDateString('en-GB')
+                  : 'N/A'
+              }}
             </div>
           </div>
         </div>

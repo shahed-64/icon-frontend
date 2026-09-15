@@ -80,7 +80,7 @@
 
       <!-- Main Card Container -->
       <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
-        <!-- Search Bar Header Area -->
+        <!-- Search -->
         <div class="card-body bg-white border-bottom py-3">
           <div class="row g-3 justify-content-end align-items-center">
             <div class="col-md-4 col-lg-3">
@@ -114,8 +114,6 @@
               </tr>
             </thead>
 
-            <!-- Normal tbody
-                 TransitionGroup removed to prevent reload jump -->
             <tbody>
               <tr v-for="(expense, index) in paginatedExpenses" :key="expense.id">
                 <td class="fw-semibold text-muted">
@@ -195,7 +193,7 @@
           </table>
         </div>
 
-        <!-- Pagination Controls -->
+        <!-- Pagination -->
         <div
           class="card-footer bg-white py-3 border-0 d-flex justify-content-between align-items-center flex-wrap gap-3"
         >
@@ -390,9 +388,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-
 import * as bootstrap from 'bootstrap'
-
 import api from '@/services/api'
 import AccountMenuView from './AccountMenuView.vue'
 
@@ -452,6 +448,18 @@ const fetchStaffs = async () => {
   }
 }
 
+// Previous Month
+const getPreviousMonth = () => {
+  const date = new Date()
+
+  date.setMonth(date.getMonth() - 1)
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+
+  return `${year}-${month}`
+}
+
 // Employee / Teacher Selection Handler
 const onEmployeeSelect = () => {
   let selectedPerson = null
@@ -464,6 +472,15 @@ const onEmployeeSelect = () => {
 
   if (selectedPerson) {
     form.value.salary_amount = selectedPerson.salary
+
+    // Teacher / Staff payment হলে Paid Amount salary হবে
+    form.value.paid_amount = selectedPerson.salary
+
+    // Teacher / Staff payment হলে Cash default হবে
+    form.value.payment_method = 'Cash'
+
+    // Teacher / Staff select করার পর previous month হবে
+    form.value.payment_month = getPreviousMonth()
   } else {
     form.value.salary_amount = ''
   }
@@ -480,12 +497,18 @@ watch(
 
       if (selectedTeacher) {
         form.value.salary_amount = selectedTeacher.salary
+        form.value.paid_amount = selectedTeacher.salary
+        form.value.payment_method = 'Cash'
+        form.value.payment_month = getPreviousMonth()
       }
     } else if (form.value.expense_type === 'Staff Payment') {
       const selectedStaff = staffsList.value.find((s) => s.user_name === newName)
 
       if (selectedStaff) {
         form.value.salary_amount = selectedStaff.salary
+        form.value.paid_amount = selectedStaff.salary
+        form.value.payment_method = 'Cash'
+        form.value.payment_month = getPreviousMonth()
       }
     }
   },
@@ -496,7 +519,6 @@ watch(
   () => [form.value.salary_amount, form.value.paid_amount],
   () => {
     const salary = Number(form.value.salary_amount) || 0
-
     const paid = Number(form.value.paid_amount) || 0
 
     form.value.due_amount = salary - paid
@@ -524,7 +546,6 @@ const filteredExpenses = computed(() => {
 // Pagination
 const paginatedExpenses = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
-
   const end = start + itemsPerPage.value
 
   return filteredExpenses.value.slice(start, end)
@@ -563,7 +584,6 @@ const totalDue = computed(() => {
 
 const monthlyExpense = computed(() => {
   const currentMonth = new Date().getMonth()
-
   const currentYear = new Date().getFullYear()
 
   return expenses.value
@@ -590,7 +610,10 @@ const resetForm = () => {
     salary_amount: '',
     paid_amount: '',
     due_amount: 0,
+
+    // Add Expense খুললে month blank থাকবে
     payment_month: '',
+
     payment_method: '',
   }
 }
@@ -613,7 +636,6 @@ const formatPaymentMonth = (monthStr) => {
 
     if (parts.length >= 2) {
       const year = parts[0]
-
       const monthIndex = parseInt(parts[1], 10) - 1
 
       const date = new Date(year, monthIndex, 1)
@@ -644,7 +666,6 @@ const getExpenses = async () => {
 // =====================================================
 // MODAL CLEANUP
 // =====================================================
-
 const cleanupModals = () => {
   document.querySelectorAll('.modal').forEach((modalEl) => {
     try {
@@ -658,15 +679,10 @@ const cleanupModals = () => {
     }
 
     modalEl.classList.remove('show')
-
     modalEl.style.removeProperty('display')
-
     modalEl.style.removeProperty('padding-right')
-
     modalEl.removeAttribute('aria-modal')
-
     modalEl.setAttribute('aria-hidden', 'true')
-
     modalEl.removeAttribute('role')
   })
 
@@ -675,13 +691,9 @@ const cleanupModals = () => {
   })
 
   document.body.classList.remove('modal-open')
-
   document.body.style.removeProperty('overflow')
-
   document.body.style.removeProperty('padding-right')
-
   document.documentElement.style.removeProperty('overflow')
-
   document.documentElement.style.removeProperty('padding-right')
 }
 
@@ -719,9 +731,7 @@ const saveExpense = async () => {
     }
 
     closeModal()
-
     resetForm()
-
     await getExpenses()
 
     alert(wasEditing ? 'Expense Updated Successfully' : 'Expense Added Successfully')
@@ -743,17 +753,11 @@ const editExpense = (expense) => {
 
   form.value = {
     expense_type: expense.expense_type || '',
-
     employee_name: expense.employee_name || '',
-
     salary_amount: expense.salary_amount || '',
-
     paid_amount: expense.paid_amount || '',
-
     due_amount: expense.due_amount || 0,
-
     payment_month: expense.payment_month || '',
-
     payment_method: expense.payment_method || '',
   }
 }
@@ -779,8 +783,6 @@ const deleteExpense = async (id) => {
 onMounted(() => {
   // Browser / Mobile Back button
   window.addEventListener('popstate', handleBrowserBack)
-
-  // Page restore / reload
   window.addEventListener('pageshow', handleBrowserBack)
 
   getExpenses()
@@ -790,7 +792,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('popstate', handleBrowserBack)
-
   window.removeEventListener('pageshow', handleBrowserBack)
 
   cleanupModals()
@@ -798,7 +799,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* SUMMARY CARDS */
 .dash-summary-card {
   border-radius: 12px;
   padding: 20px 24px;
@@ -874,9 +874,6 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-/* Kept for existing design.
-   Since TransitionGroup is removed,
-   these no longer affect initial table load. */
 .table-row-enter-active,
 .table-row-leave-active {
   transition: all 0.3s ease;

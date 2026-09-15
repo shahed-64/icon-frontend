@@ -233,7 +233,12 @@
             />
             <input v-model="form.phone" class="form-control mb-3" placeholder="Phone *" />
             <input v-model="form.email" class="form-control mb-3" placeholder="Email *" />
-            <input v-model="form.joining_date" type="date" class="form-control mb-3" />
+            <input
+              style="display: none"
+              v-model="form.joining_date"
+              type="date"
+              class="form-control mb-3"
+            />
             <input
               v-model="form.salary"
               type="number"
@@ -304,7 +309,13 @@
               <p><strong>Phone:</strong> {{ selectedTeacher.phone }}</p>
               <p>
                 <strong>Joining Date:</strong>
-                {{ selectedTeacher.join_date || selectedTeacher.joining_date }}
+                {{
+                  formatDisplayDate(
+                    selectedTeacher.joining_date ||
+                      selectedTeacher.join_date ||
+                      selectedTeacher.created_at,
+                  )
+                }}
               </p>
               <p><strong>Salary:</strong> {{ selectedTeacher.salary }}</p>
               <p>
@@ -682,6 +693,29 @@ const updateTeacher = async () => {
   } finally {
     loading.value = false
   }
+}
+const formatDisplayDate = (value) => {
+  if (!value) return 'N/A'
+
+  const datePart = String(value).slice(0, 10)
+  const [year, month, day] = datePart.split('-')
+
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+
+  return `${day} ${months[Number(month) - 1]} ${year}`
 }
 
 const deleteTeacher = async (id) => {
