@@ -14,7 +14,7 @@
 
         <button
           type="button"
-          class="btn btn-primary action-btn"
+          class="btn btn-dark action-btn"
           :disabled="downloading"
           @click="downloadPdf"
         >
@@ -36,35 +36,32 @@
       <!-- Loading -->
       <div v-if="loading" class="d-flex justify-content-center align-items-center py-5">
         <div class="text-center">
-          <div class="spinner-border text-primary mb-3" role="status"></div>
-
-          <p class="text-muted mb-0">Loading final result...</p>
+          <div class="spinner-border text-secondary mb-3" role="status"></div>
+          <p class="text-muted small mb-0">Loading transcript...</p>
         </div>
       </div>
 
       <!-- Error -->
-      <div v-else-if="errorMessage" class="alert alert-danger shadow-sm">
+      <div v-else-if="errorMessage" class="alert alert-danger rounded-0">
         <i class="bi bi-exclamation-triangle me-2"></i>
-
         {{ errorMessage }}
       </div>
 
-      <!-- Result -->
-      <div v-else-if="resultData" class="card result-card border-0 shadow-lg">
+      <!-- Result Card -->
+      <div v-else-if="resultData" class="card result-card border">
         <!-- ===================================================== -->
         <!-- SCHOOL HEADER -->
         <!-- ===================================================== -->
-
         <div class="card-header school-header text-center py-3 bg-white border-bottom">
           <div class="row align-items-center">
             <div class="col-2 text-start ps-4"></div>
 
             <div class="col-8">
-              <h3 class="fw-bold text-navy mb-0">
+              <h3 class="fw-bold text-dark mb-1 tracking-normal font-sans">
                 {{ instituteName }}
               </h3>
 
-              <p v-if="instituteAddress" class="text-muted small mb-0 fw-semibold">
+              <p v-if="instituteAddress" class="text-muted small mb-1">
                 {{ instituteAddress }}
               </p>
 
@@ -75,119 +72,96 @@
 
             <div class="col-2 text-end pe-4">
               <span class="text-muted tiny d-block"> Publication Date: </span>
-
-              <strong class="small text-dark">
+              <strong class="small text-dark font-monospace">
                 {{ publicationDate }}
               </strong>
             </div>
           </div>
 
-          <div class="mt-2">
-            <h5
-              class="fw-bold text-uppercase text-secondary tracking-wide d-inline-block border-bottom border-2 pb-1 px-4 mb-0"
+          <div class="mt-3">
+            <h6
+              class="fw-bold text-uppercase text-secondary tracking-wide d-inline-block border-bottom border-1 border-secondary pb-1 px-3 mb-0"
             >
-              STUDENT RESULT CARD - {{ selectedYear }}
-            </h5>
+              ACADEMIC TRANSCRIPT &mdash; {{ selectedYear }}
+            </h6>
           </div>
         </div>
 
         <!-- ===================================================== -->
         <!-- CARD BODY -->
         <!-- ===================================================== -->
-
-        <div class="card-body p-4">
+        <div class="card-body p-4 bg-white">
           <!-- =================================================== -->
-          <!-- STUDENT INFO -->
+          <!-- STUDENT INFO BAR -->
           <!-- =================================================== -->
-
-          <div class="student-info-bar p-3 mb-4 rounded-3 border bg-light-subtle shadow-sm">
+          <div class="student-info-bar p-3 mb-4 border bg-light-subtle">
             <div class="row align-items-center g-3">
               <!-- Student Photo -->
-
               <div class="col-auto">
                 <div
-                  class="student-photo-sm bg-white border d-flex align-items-center justify-content-center rounded shadow-sm overflow-hidden"
+                  class="student-photo-sm bg-white border d-flex align-items-center justify-content-center overflow-hidden"
                 >
-                  <!--
-                    IMPORTANT:
-                    Existing project uses getImageUrl(item).
-                    So here we pass the complete student object.
-                  -->
-
                   <img
                     v-if="student.image"
                     :src="getImageUrl(student)"
                     class="student-photo-image"
                     alt="Student Photo"
                   />
-
                   <div v-else class="text-center text-muted">
-                    <i class="bi bi-person-fill fs-3 text-secondary"></i>
-
-                    <small class="tiny d-block"> Photo </small>
+                    <i class="bi bi-person fs-4 text-secondary"></i>
+                    <small class="tiny d-block">Photo</small>
                   </div>
                 </div>
               </div>
 
-              <!-- Student Information -->
+              <!-- Student Information Details -->
               <div class="col">
-                <div class="row row-cols-2 row-cols-lg-4 g-2 text-dark small font-monospace-custom">
-                  <!-- Row 1 -->
-
+                <div class="row row-cols-2 row-cols-lg-4 g-2 text-dark small">
                   <div>
-                    <span class="text-secondary fw-semibold"> Name: </span>
-
+                    <span class="text-muted">Name:</span>
                     <strong class="text-dark ms-1">
                       {{ student.name || '-' }}
                     </strong>
                   </div>
 
                   <div>
-                    <span class="text-secondary fw-semibold"> Student ID: </span>
-
-                    <span class="ms-1">
+                    <span class="text-muted">Student ID:</span>
+                    <span class="ms-1 font-monospace">
                       {{ student.studentId || '-' }}
                     </span>
                   </div>
 
                   <div>
-                    <span class="text-secondary fw-semibold"> Shift: </span>
-
+                    <span class="text-muted">Shift:</span>
                     <span class="ms-1">
                       {{ student.shift || '-' }}
                     </span>
                   </div>
 
                   <div>
-                    <span class="text-secondary fw-semibold"> Class: </span>
-
+                    <span class="text-muted">Class:</span>
                     <span class="ms-1">
                       {{ student.class || '-' }}
                     </span>
                   </div>
 
-                  <!-- Row 2 -->
-
                   <div>
-                    <span class="text-secondary fw-semibold"> Group: </span>
-
+                    <span class="text-muted">Group:</span>
                     <span class="ms-1">
                       {{ student.group || '-' }}
                     </span>
                   </div>
 
                   <div>
-                    <span class="text-secondary fw-semibold"> Section: </span>
-
+                    <span class="text-muted">Section:</span>
                     <span class="ms-1">
                       {{ student.section || '-' }}
                     </span>
                   </div>
 
                   <div>
-                    <span class="text-secondary fw-semibold"> Roll: </span>
-
-                    <span class="ms-1">
+                    <span class="text-muted">Roll:</span>
+                    <span class="ms-1 font-monospace fw-semibold">
                       {{ student.roll || '-' }}
                     </span>
                   </div>
@@ -199,127 +173,81 @@
           <!-- =================================================== -->
           <!-- MARKS TABLE -->
           <!-- =================================================== -->
-
-          <div v-if="processedSubjects.length" class="table-responsive mb-4 shadow-sm rounded-3">
+          <div v-if="processedSubjects.length" class="table-responsive mb-4">
             <table
               class="table table-bordered custom-result-table align-middle text-center mb-0 bg-white"
             >
-              <!-- ================= HEADER ================= -->
-
+              <!-- HEADER -->
               <thead>
-                <tr class="table-header-custom">
-                  <th rowspan="2" class="align-middle text-start ps-3" style="min-width: 240px">
+                <tr class="table-light">
+                  <th class="align-middle text-start ps-3 py-2 text-dark" style="width: 25%">
                     Subject Name
                   </th>
-
-                  <th rowspan="2" class="align-middle" style="min-width: 90px">Full Marks</th>
-
-                  <!-- Dynamic Exams -->
-
-                  <th v-for="exam in exams" :key="exam.id" colspan="1" style="min-width: 125px">
-                    {{ exam.name }}
+                  <th class="align-middle py-2 text-dark" style="width: 8%">Full Marks</th>
+                  <th
+                    v-for="exam in exams"
+                    :key="exam.id"
+                    class="py-2 text-dark"
+                    style="width: 12%"
+                  >
+                    {{ exam.name }}<br />
+                    <span class="tiny text-muted fw-normal"
+                      >({{ formatPercentage(exam.percentage) }})</span
+                    >
                   </th>
-
-                  <th rowspan="2" class="align-middle" style="min-width: 110px">Obtained Total</th>
-
-                  <th rowspan="2" class="align-middle" style="min-width: 100px">Letter Grade</th>
-
-                  <th rowspan="2" class="align-middle" style="min-width: 90px">Grade Point</th>
-
-                  <th rowspan="2" class="align-middle bg-gpa-head" style="min-width: 100px">
-                    G.P.A
-                  </th>
-                </tr>
-
-                <!-- Dynamic Exam Percentage -->
-
-                <tr class="table-header-sub">
-                  <th v-for="exam in exams" :key="`percentage-${exam.id}`">
-                    {{ formatPercentage(exam.percentage) }}
-                  </th>
+                  <th class="align-middle py-2 text-dark" style="width: 10%">Obtained Total</th>
+                  <th class="align-middle py-2 text-dark" style="width: 10%">Letter Grade</th>
+                  <th class="align-middle py-2 text-dark" style="width: 10%">Grade Point</th>
                 </tr>
               </thead>
 
-              <!-- ================= BODY ================= -->
-
+              <!-- BODY -->
               <tbody>
-                <tr
-                  v-for="(subject, index) in processedSubjects"
-                  :key="subject.id || index"
-                  class="table-row-hover"
-                >
-                  <!-- Subject -->
-
-                  <td class="text-start ps-3 fw-semibold text-dark">
+                <tr v-for="(subject, index) in processedSubjects" :key="subject.id || index">
+                  <td class="text-start ps-3 fw-semibold text-dark py-2">
                     {{ subject.name }}
                   </td>
 
-                  <!-- Full Marks -->
-
-                  <td>
+                  <td class="text-secondary py-2">
                     {{ displayFullMark(subject) }}
                   </td>
 
-                  <!-- Dynamic Exam Marks -->
-
-                  <td v-for="exam in exams" :key="`${subject.id}-${exam.id}`">
+                  <td
+                    v-for="exam in exams"
+                    :key="`${subject.id}-${exam.id}`"
+                    class="font-monospace py-2"
+                  >
                     {{ getExamMarks(subject, exam.id) }}
                   </td>
 
-                  <!-- Final Weighted Total -->
-
-                  <td class="fw-bold text-primary">
+                  <td class="fw-semibold text-dark font-monospace py-2">
                     {{ subject.obtainedTotal }}
                   </td>
 
-                  <!-- Grade -->
-
-                  <td>
-                    <span
-                      class="badge grade-badge px-2 py-1"
-                      :class="getBadgeClass(subject.letterGrade)"
-                    >
+                  <td class="py-2">
+                    <span class="fw-semibold text-dark">
                       {{ subject.letterGrade }}
                     </span>
                   </td>
 
-                  <!-- Point -->
-
-                  <td class="fw-semibold">
+                  <td class="font-monospace py-2">
                     {{ subject.gradePoint }}
-                  </td>
-
-                  <!-- GPA -->
-
-                  <td
-                    v-if="index === 0"
-                    :rowspan="processedSubjects.length"
-                    class="align-middle gpa-cell bg-light"
-                  >
-                    <div class="gpa-box py-3">
-                      <span class="gpa-value text-success display-6 fw-bold">
-                        {{ overallGPA }}
-                      </span>
-
-                      <small class="text-muted tiny d-block mt-1 uppercase"> Final GPA </small>
-                    </div>
                   </td>
                 </tr>
               </tbody>
 
-              <!-- ================= FOOTER ================= -->
-
+              <!-- FOOTER / SUMMARY -->
               <tfoot>
-                <tr class="table-footer-row fw-bold">
-                  <td :colspan="2 + exams.length" class="text-end pe-3 text-secondary">
+                <tr class="table-light fw-bold">
+                  <td :colspan="2 + exams.length" class="text-end pe-3 text-dark py-2.5">
                     Total Weighted Score:
                   </td>
 
-                  <td colspan="4" class="text-start ps-3 text-dark fs-6">
-                    {{ totalObtainedMarks }}
-
-                    <span class="text-muted fw-normal small">
-                      (Calculated via Percentage Weight)
+                  <td colspan="3" class="text-start ps-3 text-dark fs-6 py-2.5">
+                    <span class="font-monospace">{{ totalObtainedMarks }}</span>
+                    <span class="text-muted fw-normal small ms-2">
+                      (GPA: <strong class="text-dark font-monospace">{{ overallGPA }}</strong
+                      >)
                     </span>
                   </td>
                 </tr>
@@ -328,25 +256,21 @@
           </div>
 
           <!-- No Subjects -->
-
-          <div v-else class="alert alert-warning text-center">
+          <div v-else class="alert alert-light border text-center text-muted">
             <i class="bi bi-info-circle me-2"></i>
-
             No result subjects were found for this student.
           </div>
 
           <!-- =================================================== -->
           <!-- SIGNATURES -->
           <!-- =================================================== -->
-
           <div class="row text-center g-4 mt-4 pt-3 border-top">
             <div class="col-4">
               <div class="signature-area px-3">
                 <div class="signature-space mb-2"></div>
-
-                <div class="border-top border-dark w-100 mx-auto pt-2">
-                  <p class="fw-semibold mb-0 small text-dark">
-                    Class Teacher's Remarks & Signature
+                <div class="border-top border-secondary w-75 mx-auto pt-2">
+                  <p class="fw-semibold mb-0 tiny text-dark text-uppercase tracking-wide">
+                    Class Teacher's Signature
                   </p>
                 </div>
               </div>
@@ -355,11 +279,11 @@
             <div class="col-4">
               <div class="signature-area px-3">
                 <div class="signature-space mb-2"></div>
-
-                <div class="border-top border-dark w-100 mx-auto pt-2">
-                  <p class="fw-semibold mb-0 small text-dark">Assistant Head Teacher</p>
-
-                  <small class="text-muted tiny"> Shift in-Charge </small>
+                <div class="border-top border-secondary w-75 mx-auto pt-2">
+                  <p class="fw-semibold mb-0 tiny text-dark text-uppercase tracking-wide">
+                    Assistant Head Teacher
+                  </p>
+                  <small class="text-muted tiny">Shift In-Charge</small>
                 </div>
               </div>
             </div>
@@ -367,11 +291,11 @@
             <div class="col-4">
               <div class="signature-area px-3">
                 <div class="signature-space mb-2"></div>
-
-                <div class="border-top border-dark w-100 mx-auto pt-2">
-                  <p class="fw-semibold mb-0 small text-dark">Head Teacher / Headmaster</p>
-
-                  <small class="text-muted tiny"> Authorized Signature </small>
+                <div class="border-top border-secondary w-75 mx-auto pt-2">
+                  <p class="fw-semibold mb-0 tiny text-dark text-uppercase tracking-wide">
+                    Principal / Headmaster
+                  </p>
+                  <small class="text-muted tiny">Authorized Signature</small>
                 </div>
               </div>
             </div>
@@ -379,26 +303,16 @@
         </div>
 
         <!-- ===================================================== -->
-        <!-- FOOTER -->
+        <!-- CARD FOOTER -->
         <!-- ===================================================== -->
-
         <div
-          class="card-footer bg-light text-muted d-flex justify-content-between align-items-center py-2 px-4 small border-top"
+          class="card-footer bg-white text-muted d-flex justify-content-between align-items-center py-2 px-4 tiny border-top"
         >
-          <span>
-            Software developed by:
-            {{ softwareDeveloper }}
-          </span>
+          <span> System: {{ softwareDeveloper }} </span>
 
-          <span>
-            Prepared by:
-            {{ preparedBy }}
-          </span>
+          <span> Prepared by: {{ preparedBy }} </span>
 
-          <span>
-            Print Date:
-            {{ printDate }}
-          </span>
+          <span> Printed: {{ printDate }} </span>
         </div>
       </div>
     </div>
@@ -413,19 +327,7 @@ import { getImageUrl } from '@/utils/img'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 
-/**
- * |--------------------------------------------------------------------------
- * | Route
- * |--------------------------------------------------------------------------
- */
-
 const route = useRoute()
-
-/**
- * |--------------------------------------------------------------------------
- * | State
- * |--------------------------------------------------------------------------
- */
 
 const loading = ref(true)
 const errorMessage = ref('')
@@ -436,12 +338,6 @@ const subjects = ref([])
 const resultPdf = ref(null)
 const downloading = ref(false)
 
-/**
- * |--------------------------------------------------------------------------
- * | Year & Student
- * |--------------------------------------------------------------------------
- */
-
 const selectedYear = computed(() => {
   return route.query.year || ''
 })
@@ -450,23 +346,11 @@ const selectedStudentId = computed(() => {
   return route.query.student_id || ''
 })
 
-/**
- * |--------------------------------------------------------------------------
- * | Institute / Footer Information
- * |--------------------------------------------------------------------------
- */
-
 const instituteName = ref('Institute Name')
 const instituteAddress = ref('')
 const instituteContact = ref('')
 const softwareDeveloper = ref('ADDIE Soft Ltd.')
 const preparedBy = ref('IT Section')
-
-/**
- * |--------------------------------------------------------------------------
- * | Dates
- * |--------------------------------------------------------------------------
- */
 
 const currentDate = new Date()
 
@@ -486,12 +370,6 @@ const printDate = computed(() => {
   return formatDate(currentDate)
 })
 
-/**
- * |--------------------------------------------------------------------------
- * | Load Institute Information
- * |--------------------------------------------------------------------------
- */
-
 const loadInstituteInfo = async () => {
   try {
     const response = await api.get('/institute-info')
@@ -507,7 +385,6 @@ const loadInstituteInfo = async () => {
     }
 
     instituteName.value = data.institute_name || 'Institute Name'
-
     instituteAddress.value = data.location || ''
 
     const contactParts = []
@@ -525,12 +402,6 @@ const loadInstituteInfo = async () => {
     console.error('Institute information loading error:', error)
   }
 }
-
-/**
- * |--------------------------------------------------------------------------
- * | Load Final Result
- * |--------------------------------------------------------------------------
- */
 
 const loadFinalResult = async () => {
   loading.value = true
@@ -556,43 +427,16 @@ const loadFinalResult = async () => {
     }
 
     resultData.value = response.data
-
-    /**
-     * |--------------------------------------------------------------------------
-     * | Student
-     * |--------------------------------------------------------------------------
-     */
-
     student.value = response.data.student || {}
-
-    /**
-     * |--------------------------------------------------------------------------
-     * | Make backend student_id available as studentId
-     * |--------------------------------------------------------------------------
-     */
 
     if (!student.value.studentId && student.value.student_id) {
       student.value.studentId = student.value.student_id
     }
 
-    /**
-     * |--------------------------------------------------------------------------
-     * | Exams
-     * |--------------------------------------------------------------------------
-     */
-
     exams.value = response.data.exams || []
-
-    /**
-     * |--------------------------------------------------------------------------
-     * | Subjects
-     * |--------------------------------------------------------------------------
-     */
-
     subjects.value = response.data.subjects || []
   } catch (error) {
     console.error('Final result loading error:', error)
-
     errorMessage.value =
       error.response?.data?.message || error.message || 'Failed to load final result.'
   } finally {
@@ -600,25 +444,15 @@ const loadFinalResult = async () => {
   }
 }
 
-/**
- * |--------------------------------------------------------------------------
- * | Processed Subjects
- * |--------------------------------------------------------------------------
- */
-
 const processedSubjects = computed(() => {
   return subjects.value.map((subject) => {
     const obtainedTotal = Number(subject.obtained_total ?? 0)
-
     const gradeInfo = calculateGradeAndPoint(obtainedTotal)
 
     return {
       ...subject,
-
       obtainedTotal: obtainedTotal.toFixed(2),
-
       letterGrade: subject.letter_grade || gradeInfo.grade,
-
       gradePoint:
         subject.grade_point !== undefined
           ? Number(subject.grade_point).toFixed(2)
@@ -627,28 +461,10 @@ const processedSubjects = computed(() => {
   })
 })
 
-/**
- * |--------------------------------------------------------------------------
- * | Overall GPA
- * |--------------------------------------------------------------------------
- */
-
 const overallGPA = computed(() => {
-  /**
-   * |--------------------------------------------------------------------------
-   * | Prefer backend GPA
-   * |--------------------------------------------------------------------------
-   */
-
   if (resultData.value?.overall_gpa !== undefined && resultData.value?.overall_gpa !== null) {
     return Number(resultData.value.overall_gpa).toFixed(2)
   }
-
-  /**
-   * |--------------------------------------------------------------------------
-   * | Fallback Frontend Calculation
-   * |--------------------------------------------------------------------------
-   */
 
   const validSubjects = processedSubjects.value.filter(
     (subject) => subject.gradePoint !== '-' && subject.letterGrade !== 'F',
@@ -659,44 +475,24 @@ const overallGPA = computed(() => {
   }
 
   const totalPoint = validSubjects.reduce((sum, subject) => sum + Number(subject.gradePoint), 0)
-
   const gpa = totalPoint / validSubjects.length
 
   return Math.min(5, gpa).toFixed(2)
 })
 
-/**
- * |--------------------------------------------------------------------------
- * | Total Weighted Marks
- * |--------------------------------------------------------------------------
- */
-
 const totalObtainedMarks = computed(() => {
   const total = processedSubjects.value.reduce((sum, subject) => {
     const value = Number(subject.obtainedTotal)
-
     return sum + (Number.isFinite(value) ? value : 0)
   }, 0)
 
   return total.toFixed(2)
 })
 
-/**
- * |--------------------------------------------------------------------------
- * | Display Full Mark
- * |--------------------------------------------------------------------------
- */
-
 const displayFullMark = (subject) => {
   if (subject.full_mark !== undefined && subject.full_mark !== null) {
     return subject.full_mark
   }
-
-  /**
-   * |--------------------------------------------------------------------------
-   * | Find largest full mark from exams
-   * |--------------------------------------------------------------------------
-   */
 
   const marks = exams.value
     .map((exam) => {
@@ -712,31 +508,15 @@ const displayFullMark = (subject) => {
   return Math.max(...marks)
 }
 
-/**
- * |--------------------------------------------------------------------------
- * | Get Exam Marks
- * |--------------------------------------------------------------------------
- */
-
 const getExamMarks = (subject, examId) => {
   const examData = subject.exams?.[examId]
 
-  if (!examData) {
-    return '-'
-  }
-
-  if (examData.marks === null || examData.marks === undefined) {
+  if (!examData || examData.marks === null || examData.marks === undefined) {
     return '-'
   }
 
   return examData.marks
 }
-
-/**
- * |--------------------------------------------------------------------------
- * | Format Percentage
- * |--------------------------------------------------------------------------
- */
 
 const formatPercentage = (percentage) => {
   const value = Number(percentage)
@@ -748,100 +528,22 @@ const formatPercentage = (percentage) => {
   return `${value}%`
 }
 
-/**
- * |--------------------------------------------------------------------------
- * | Grade Calculation
- * |--------------------------------------------------------------------------
- */
-
 const calculateGradeAndPoint = (marks) => {
   const percentage = Number(marks)
 
-  if (percentage >= 80) {
-    return {
-      grade: 'A+',
-      point: 5.0,
-    }
-  }
+  if (percentage >= 80) return { grade: 'A+', point: 5.0 }
+  if (percentage >= 70) return { grade: 'A', point: 4.0 }
+  if (percentage >= 60) return { grade: 'A-', point: 3.5 }
+  if (percentage >= 50) return { grade: 'B', point: 3.0 }
+  if (percentage >= 40) return { grade: 'C', point: 2.0 }
+  if (percentage >= 33) return { grade: 'D', point: 1.0 }
 
-  if (percentage >= 70) {
-    return {
-      grade: 'A',
-      point: 4.0,
-    }
-  }
-
-  if (percentage >= 60) {
-    return {
-      grade: 'A-',
-      point: 3.5,
-    }
-  }
-
-  if (percentage >= 50) {
-    return {
-      grade: 'B',
-      point: 3.0,
-    }
-  }
-
-  if (percentage >= 40) {
-    return {
-      grade: 'C',
-      point: 2.0,
-    }
-  }
-
-  if (percentage >= 33) {
-    return {
-      grade: 'D',
-      point: 1.0,
-    }
-  }
-
-  return {
-    grade: 'F',
-    point: 0.0,
-  }
+  return { grade: 'F', point: 0.0 }
 }
-
-/**
- * |--------------------------------------------------------------------------
- * | Grade Badge
- * |--------------------------------------------------------------------------
- */
-
-const getBadgeClass = (grade) => {
-  if (grade === 'A+' || grade === 'A') {
-    return 'bg-success'
-  }
-
-  if (grade === 'A-' || grade === 'B') {
-    return 'bg-primary'
-  }
-
-  if (grade === 'C' || grade === 'D') {
-    return 'bg-warning text-dark'
-  }
-
-  return 'bg-danger'
-}
-
-/**
- * |--------------------------------------------------------------------------
- * | Print Result
- * |--------------------------------------------------------------------------
- */
 
 const printResult = () => {
   window.print()
 }
-
-/**
- * |--------------------------------------------------------------------------
- * | Download PDF
- * |--------------------------------------------------------------------------
- */
 
 const downloadPdf = async () => {
   if (!resultPdf.value) {
@@ -851,23 +553,11 @@ const downloadPdf = async () => {
   downloading.value = true
 
   try {
-    /**
-     * |--------------------------------------------------------------------------
-     * | Give browser time to finish rendering
-     * |--------------------------------------------------------------------------
-     */
-
     await new Promise((resolve) => {
       setTimeout(resolve, 300)
     })
 
     const element = resultPdf.value
-
-    /**
-     * |--------------------------------------------------------------------------
-     * | Generate Canvas
-     * |--------------------------------------------------------------------------
-     */
 
     const canvas = await html2canvas(element, {
       scale: 2,
@@ -876,15 +566,26 @@ const downloadPdf = async () => {
       backgroundColor: '#ffffff',
       logging: false,
       windowWidth: element.scrollWidth,
+      onclone: (clonedDoc) => {
+        const headers = clonedDoc.querySelectorAll('thead th')
+        headers.forEach((th) => {
+          th.style.cssText = `
+            background-color: #f8f9fa !important;
+            color: #000000 !important;
+            border: 1px solid #dee2e6 !important;
+            padding: 8px !important;
+            font-weight: 600 !important;
+          `
+        })
+
+        const tables = clonedDoc.querySelectorAll('table')
+        tables.forEach((t) => {
+          t.style.borderCollapse = 'collapse'
+        })
+      },
     })
 
     const imageData = canvas.toDataURL('image/jpeg', 0.95)
-
-    /**
-     * |--------------------------------------------------------------------------
-     * | Create A4 Landscape PDF
-     * |--------------------------------------------------------------------------
-     */
 
     const pdf = new jsPDF({
       orientation: 'landscape',
@@ -893,76 +594,43 @@ const downloadPdf = async () => {
     })
 
     const pageWidth = pdf.internal.pageSize.getWidth()
-
     const pageHeight = pdf.internal.pageSize.getHeight()
 
-    /**
-     * |--------------------------------------------------------------------------
-     * | Calculate PDF Image Size
-     * |--------------------------------------------------------------------------
-     */
+    const margin = 4
+    const availableWidth = pageWidth - margin * 2
+    const availableHeight = pageHeight - margin * 2
 
-    const margin = 5
+    const imgWidth = availableWidth
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
 
-    const imageWidth = pageWidth - margin * 2
+    let finalHeight = imgHeight
+    let finalWidth = imgWidth
 
-    const imageHeight = (canvas.height * imageWidth) / canvas.width
-
-    /**
-     * |--------------------------------------------------------------------------
-     * | Keep Result Centered
-     * |--------------------------------------------------------------------------
-     */
-
-    let positionY = (pageHeight - imageHeight) / 2
-
-    if (positionY < margin) {
-      positionY = margin
+    if (finalHeight > availableHeight) {
+      finalHeight = availableHeight
+      finalWidth = (canvas.width * finalHeight) / canvas.height
     }
 
-    /**
-     * |--------------------------------------------------------------------------
-     * | Add Result Image
-     * |--------------------------------------------------------------------------
-     */
+    const posX = (pageWidth - finalWidth) / 2
+    const posY = (pageHeight - finalHeight) / 2
 
-    pdf.addImage(imageData, 'JPEG', margin, positionY, imageWidth, imageHeight)
-
-    /**
-     * |--------------------------------------------------------------------------
-     * | PDF File Name
-     * |--------------------------------------------------------------------------
-     */
+    pdf.addImage(imageData, 'JPEG', posX, posY, finalWidth, finalHeight)
 
     const safeStudentId = String(
       student.value.studentId || student.value.student_id || selectedStudentId.value || 'student',
     ).replace(/[^a-zA-Z0-9-_]/g, '-')
 
     const safeYear = String(selectedYear.value || 'year').replace(/[^a-zA-Z0-9-_]/g, '-')
-
-    const fileName = `Final-Result-${safeStudentId}-${safeYear}.pdf`
-
-    /**
-     * |--------------------------------------------------------------------------
-     * | Download
-     * |--------------------------------------------------------------------------
-     */
+    const fileName = `Result-${safeStudentId}-${safeYear}.pdf`
 
     pdf.save(fileName)
   } catch (error) {
     console.error('PDF generation error:', error)
-
     alert('Unable to generate PDF. Please try again.')
   } finally {
     downloading.value = false
   }
 }
-
-/**
- * |--------------------------------------------------------------------------
- * | Mounted
- * |--------------------------------------------------------------------------
- */
 
 onMounted(async () => {
   await Promise.all([loadInstituteInfo(), loadFinalResult()])
@@ -971,35 +639,31 @@ onMounted(async () => {
 
 <style scoped>
 .result-landscape-page {
-  background-color: #f1f5f9;
+  background-color: #fcfcfc;
   min-height: 100vh;
-  font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
 .result-card {
   background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
-  overflow: hidden;
-}
-
-.text-navy {
-  color: #0f172a;
+  border-radius: 0px;
+  border-color: #d1d5db !important;
 }
 
 .tiny {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 }
 
 .student-info-bar {
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0 !important;
+  background-color: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 4px;
 }
 
 .student-photo-sm {
-  width: 75px;
-  height: 90px;
-  border-radius: 6px;
+  width: 70px;
+  height: 85px;
+  border-radius: 2px;
   flex-shrink: 0;
 }
 
@@ -1010,55 +674,15 @@ onMounted(async () => {
 }
 
 .custom-result-table {
-  font-size: 0.88rem;
-  border-color: #e2e8f0 !important;
-}
-
-.table-header-custom {
-  background-color: #0f172a !important;
-  color: #ffffff;
-}
-
-.table-header-sub {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  border-color: #d1d5db !important;
 }
 
 .custom-result-table th,
 .custom-result-table td {
-  padding: 10px 8px;
+  padding: 8px 6px;
   vertical-align: middle;
-}
-
-.table-row-hover:hover {
-  background-color: #f8fafc !important;
-}
-
-.grade-badge {
-  font-weight: 600;
-  font-size: 0.8rem;
-}
-
-.gpa-cell {
-  background-color: #f8fafc !important;
-  border-left: 2px solid #cbd5e1 !important;
-}
-
-.bg-gpa-head {
-  background-color: #1d4ed8 !important;
-}
-
-.gpa-box {
-  min-width: 80px;
-}
-
-.gpa-value {
-  line-height: 1;
-}
-
-.table-footer-row {
-  background-color: #f1f5f9 !important;
+  border-color: #d1d5db !important;
 }
 
 .signature-space {
@@ -1066,26 +690,12 @@ onMounted(async () => {
 }
 
 .tracking-wide {
-  letter-spacing: 0.08em;
-}
-
-.uppercase {
-  text-transform: uppercase;
-}
-
-.font-monospace-custom {
-  font-family: 'Segoe UI', Tahoma, sans-serif;
+  letter-spacing: 0.05em;
 }
 
 .school-header {
-  min-height: 125px;
+  min-height: 110px;
 }
-
-/**
- * |--------------------------------------------------------------------------
- * | Action Buttons
- * |--------------------------------------------------------------------------
- */
 
 .action-buttons-wrapper {
   position: relative;
@@ -1093,15 +703,11 @@ onMounted(async () => {
 }
 
 .action-btn {
-  min-width: 120px;
-  font-weight: 600;
+  min-width: 110px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: 4px;
 }
-
-/**
- * |--------------------------------------------------------------------------
- * | Print
- * |--------------------------------------------------------------------------
- */
 
 @media print {
   .action-buttons-wrapper {
@@ -1120,8 +726,7 @@ onMounted(async () => {
   }
 
   .result-card {
-    box-shadow: none !important;
-    border-radius: 0 !important;
+    border: 1px solid #000000 !important;
   }
 
   .card-header,
@@ -1140,50 +745,13 @@ onMounted(async () => {
 
   .custom-result-table th,
   .custom-result-table td {
-    padding: 6px 5px;
+    padding: 5px 4px;
+    border-color: #000000 !important;
   }
 
   @page {
     size: landscape;
-    margin: 8mm;
-  }
-}
-
-/**
- * |--------------------------------------------------------------------------
- * | Responsive
- * |--------------------------------------------------------------------------
- */
-
-@media (max-width: 992px) {
-  .result-landscape-page {
-    padding: 10px 0 !important;
-  }
-
-  .container-fluid {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-  }
-
-  .school-header .col-2,
-  .school-header .col-8 {
-    width: 100%;
-    text-align: center !important;
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-    margin-bottom: 8px;
-  }
-
-  .school-header .col-2:first-child {
-    order: 2;
-  }
-
-  .school-header .col-8 {
-    order: 1;
-  }
-
-  .school-header .col-2:last-child {
-    order: 3;
+    margin: 6mm;
   }
 }
 </style>

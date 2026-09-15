@@ -18,9 +18,9 @@ export default defineConfig({
       },
 
       manifest: {
-        name: 'Coaching Management System',
-        short_name: 'CMS',
-        description: 'Coaching Management System',
+        name: 'Icon Academy',
+        short_name: 'ICON',
+        description: 'iCON aCADEMY Management System',
 
         theme_color: '#2563eb',
         background_color: '#ffffff',
