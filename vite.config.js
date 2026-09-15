@@ -20,7 +20,7 @@ export default defineConfig({
       manifest: {
         name: 'Icon Academy',
         short_name: 'ICON',
-        description: 'iCON aCADEMY Management System',
+        description: 'iCON ACADEMY Management System',
 
         theme_color: '#2563eb',
         background_color: '#ffffff',
