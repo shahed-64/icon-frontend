@@ -1,5 +1,6 @@
 <template>
   <RouterView />
+
   <dashPageView />
 
   <div class="content">
@@ -15,6 +16,7 @@
           <div class="summary-icon">
             <i class="bi bi-mortarboard-fill"></i>
           </div>
+
           <div>
             <h4>{{ totalStudents }}</h4>
             <span>Total Students</span>
@@ -39,12 +41,14 @@
       <div class="staff-toolbar">
         <div class="search-box">
           <i class="bi bi-search"></i>
+
           <input v-model="search" type="text" placeholder="Search student..." />
         </div>
 
         <!-- CLASS FILTER -->
         <select v-model="selectedClass" class="class-filter">
           <option value="">All Classes</option>
+
           <option v-for="cls in classes" :key="cls.id" :value="String(cls.id)">
             {{ cls.class_name }}
           </option>
@@ -65,11 +69,13 @@
               <th width="180">Action</th>
             </tr>
           </thead>
+
           <tbody>
             <!-- LOADING -->
             <tr v-if="loading">
               <td colspan="7" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status"></div>
+
                 <div class="mt-2 text-muted">Loading students...</div>
               </td>
             </tr>
@@ -79,29 +85,36 @@
               <td>
                 {{ (currentPage - 1) * perPage + index + 1 }}
               </td>
+
               <td>
                 <img :src="getImageUrl(item)" class="staff-avatar" alt="Student Photo" />
               </td>
+
               <td>
                 <div class="staff-name">
                   <strong>{{ item.full_name }}</strong>
                   <small>{{ item.student_id }}</small>
                 </div>
               </td>
+
               <td>
                 <span class="skill-badge">
                   {{ item.class_info ? item.class_info.class_name : 'N/A' }}
                 </span>
               </td>
+
               <td>
                 <span v-if="item.class_group" class="group-badge">
                   {{ item.class_group.group_name }}
                 </span>
-                <span v-else class="text-muted">N/A</span>
+
+                <span v-else class="text-muted"> N/A </span>
               </td>
+
               <td>
                 {{ item.email || 'N/A' }}
               </td>
+
               <td>
                 <div class="action-buttons">
                   <button
@@ -113,6 +126,7 @@
                   >
                     <i class="bi bi-eye"></i>
                   </button>
+
                   <button
                     class="action-btn edit"
                     @click="openEdit(item)"
@@ -122,6 +136,7 @@
                   >
                     <i class="bi bi-pencil"></i>
                   </button>
+
                   <button class="action-btn delete" @click="deleteStudent(item.id)" title="Delete">
                     <i class="bi bi-trash"></i>
                   </button>
@@ -134,7 +149,9 @@
               <td colspan="7" class="text-center py-5">
                 <div class="empty-state">
                   <i class="bi bi-person-x"></i>
+
                   <h5>No Student Found</h5>
+
                   <p>Try changing search or filter</p>
                 </div>
               </td>
@@ -146,14 +163,21 @@
       <!-- PAGINATION -->
       <div v-if="filteredTotal > 0" class="pagination-box">
         <div>
-          Showing <b>{{ showingFrom }}</b> to <b>{{ showingTo }}</b> of <b>{{ filteredTotal }}</b>
+          Showing
+          <b>{{ showingFrom }}</b>
+          to
+          <b>{{ showingTo }}</b>
+          of
+          <b>{{ filteredTotal }}</b>
         </div>
 
         <div class="page-buttons">
           <button class="page-btn" @click="prevPage" :disabled="currentPage === 1 || loading">
             <i class="bi bi-chevron-left"></i>
           </button>
+
           <span> {{ currentPage }} / {{ totalPages }} </span>
+
           <button
             class="page-btn"
             @click="nextPage"
@@ -170,7 +194,11 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content student-modal">
           <div class="modal-header">
-            <h5><i class="bi bi-person-plus-fill me-2"></i> Add Student</h5>
+            <h5>
+              <i class="bi bi-person-plus-fill me-2"></i>
+              Add Student
+            </h5>
+
             <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
@@ -181,6 +209,7 @@
                 class="image-preview mb-2"
                 alt="Add Preview"
               />
+
               <input
                 type="file"
                 ref="addFileInput"
@@ -191,7 +220,11 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Full Name <span class="text-danger">*</span></label>
+              <label class="form-label">
+                Full Name
+                <span class="text-danger">*</span>
+              </label>
+
               <input
                 v-model="form.full_name"
                 type="text"
@@ -201,7 +234,11 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Father's Name <span class="text-danger">*</span></label>
+              <label class="form-label">
+                Father's Name
+                <span class="text-danger">*</span>
+              </label>
+
               <input
                 v-model="form.fathers_name"
                 type="text"
@@ -211,7 +248,11 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Mother's Name <span class="text-danger">*</span></label>
+              <label class="form-label">
+                Mother's Name
+                <span class="text-danger">*</span>
+              </label>
+
               <input
                 v-model="form.mothers_name"
                 type="text"
@@ -221,7 +262,11 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Phone <span class="text-danger">*</span></label>
+              <label class="form-label">
+                Phone
+                <span class="text-danger">*</span>
+              </label>
+
               <input
                 v-model="form.phone"
                 type="text"
@@ -231,7 +276,8 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Email</label>
+              <label class="form-label"> Email </label>
+
               <input
                 v-model="form.email"
                 type="email"
@@ -241,9 +287,14 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Class Group <span class="text-danger">*</span></label>
+              <label class="form-label">
+                Class Group
+                <span class="text-danger">*</span>
+              </label>
+
               <select v-model="form.class_group_id" class="form-select">
                 <option value="" disabled>Select Group</option>
+
                 <option v-for="group in classGroups" :key="group.id" :value="group.id">
                   {{ group.group_name }}
                 </option>
@@ -251,9 +302,14 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Class <span class="text-danger">*</span></label>
+              <label class="form-label">
+                Class
+                <span class="text-danger">*</span>
+              </label>
+
               <select v-model="form.class_id" class="form-select">
                 <option value="" disabled>Select Class</option>
+
                 <option v-for="cls in classes" :key="cls.id" :value="cls.id">
                   {{ cls.class_name }}
                 </option>
@@ -261,9 +317,11 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Section</label>
+              <label class="form-label"> Section </label>
+
               <select v-model="form.section_id" class="form-select">
                 <option value="">Select Section</option>
+
                 <option v-for="sec in sections" :key="sec.id" :value="sec.id">
                   {{ sec.section_name }}
                 </option>
@@ -271,17 +329,21 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Assign Shift</label>
+              <label class="form-label"> Assign Shift </label>
+
               <select v-model="form.shift_id" class="form-select">
                 <option value="" disabled>Select Shift</option>
+
                 <option v-for="shift in shifts" :key="shift.id" :value="shift.id">
-                  {{ shift.name }} ({{ shift.start_time }} - {{ shift.end_time }})
+                  {{ shift.name }}
+                  ({{ shift.start_time }} - {{ shift.end_time }})
                 </option>
               </select>
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Monthly Fee</label>
+              <label class="form-label"> Monthly Fee </label>
+
               <input
                 v-model="form.monthly_fee"
                 type="number"
@@ -294,9 +356,14 @@
 
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
             <button class="btn btn-primary" :disabled="loading" @click="student_create">
-              <span v-if="loading">Saving...</span>
-              <span v-else><i class="bi bi-person-plus-fill me-1"></i> Save Student</span>
+              <span v-if="loading"> Saving... </span>
+
+              <span v-else>
+                <i class="bi bi-person-plus-fill me-1"></i>
+                Save Student
+              </span>
             </button>
           </div>
         </div>
@@ -308,7 +375,11 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content student-modal">
           <div class="modal-header bg-primary text-white">
-            <h5><i class="bi bi-person-vcard-fill me-2"></i> Student Details</h5>
+            <h5>
+              <i class="bi bi-person-vcard-fill me-2"></i>
+              Student Details
+            </h5>
+
             <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
 
@@ -318,23 +389,67 @@
               class="student-modal-avatar mb-3"
               alt="Student Avatar"
             />
-            <h4>{{ selectedStudent.full_name }}</h4>
-            <p class="text-muted">{{ selectedStudent.student_id }}</p>
+
+            <h4>
+              {{ selectedStudent.full_name }}
+            </h4>
+
+            <p class="text-muted">
+              {{ selectedStudent.student_id }}
+            </p>
+
             <hr />
+
             <div class="text-start px-3">
-              <p><strong>Father's Name:</strong> {{ selectedStudent.fathers_name || 'N/A' }}</p>
-              <p><strong>Mother's Name:</strong> {{ selectedStudent.mothers_name || 'N/A' }}</p>
-              <p><strong>Email:</strong> {{ selectedStudent.email || 'N/A' }}</p>
-              <p><strong>Phone:</strong> {{ selectedStudent.phone || 'N/A' }}</p>
-              <p><strong>Class:</strong> {{ selectedStudent.class_info?.class_name || 'N/A' }}</p>
-              <p><strong>Group:</strong> {{ selectedStudent.class_group?.group_name || 'N/A' }}</p>
-              <p><strong>Section:</strong> {{ selectedStudent.section?.section_name || 'N/A' }}</p>
-              <p><strong>Shift:</strong> {{ selectedStudent.shift?.name || 'N/A' }}</p>
+              <p>
+                <strong>Father's Name:</strong>
+                {{ selectedStudent.fathers_name || 'N/A' }}
+              </p>
+
+              <p>
+                <strong>Mother's Name:</strong>
+                {{ selectedStudent.mothers_name || 'N/A' }}
+              </p>
+
+              <p>
+                <strong>Email:</strong>
+                {{ selectedStudent.email || 'N/A' }}
+              </p>
+
+              <p>
+                <strong>Phone:</strong>
+                {{ selectedStudent.phone || 'N/A' }}
+              </p>
+
+              <p>
+                <strong>Class:</strong>
+                {{ selectedStudent.class_info?.class_name || 'N/A' }}
+              </p>
+
+              <p>
+                <strong>Group:</strong>
+                {{ selectedStudent.class_group?.group_name || 'N/A' }}
+              </p>
+
+              <p>
+                <strong>Section:</strong>
+                {{ selectedStudent.section?.section_name || 'N/A' }}
+              </p>
+
+              <p>
+                <strong>Shift:</strong>
+                {{ selectedStudent.shift?.name || 'N/A' }}
+              </p>
+
               <p>
                 <strong>Monthly Fee:</strong>
                 {{ selectedStudent.monthly_fee ? '৳ ' + selectedStudent.monthly_fee : 'N/A' }}
               </p>
-              <p><strong>Admission Date:</strong> {{ selectedStudent.admission_date || 'N/A' }}</p>
+
+              <p>
+                <strong>Admission Date:</strong>
+                {{ selectedStudent.admission_date || 'N/A' }}
+              </p>
             </div>
           </div>
         </div>
@@ -346,7 +461,11 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content student-modal">
           <div class="modal-header">
-            <h5><i class="bi bi-pencil-square me-2"></i> Edit Student</h5>
+            <h5>
+              <i class="bi bi-pencil-square me-2"></i>
+              Edit Student
+            </h5>
+
             <button class="btn-close" data-bs-dismiss="modal"></button>
           </div>
 
@@ -357,6 +476,7 @@
                 class="image-preview mb-2"
                 alt="Edit Preview"
               />
+
               <input
                 type="file"
                 ref="editFileInput"
@@ -367,24 +487,29 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Full Name</label>
+              <label class="form-label"> Full Name </label>
+
               <input v-model="selectedStudent.full_name" class="form-control" placeholder="Name" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Phone</label>
+              <label class="form-label"> Phone </label>
+
               <input v-model="selectedStudent.phone" class="form-control" placeholder="Phone" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Email</label>
+              <label class="form-label"> Email </label>
+
               <input v-model="selectedStudent.email" class="form-control" placeholder="Email" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Class Group</label>
+              <label class="form-label"> Class Group </label>
+
               <select v-model="selectedStudent.class_group_id" class="form-select">
                 <option value="" disabled>Select Group</option>
+
                 <option v-for="group in classGroups" :key="group.id" :value="group.id">
                   {{ group.group_name }}
                 </option>
@@ -392,9 +517,11 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Class</label>
+              <label class="form-label"> Class </label>
+
               <select v-model="selectedStudent.class_id" class="form-select">
                 <option value="" disabled>Select Class</option>
+
                 <option v-for="cls in classes" :key="cls.id" :value="cls.id">
                   {{ cls.class_name }}
                 </option>
@@ -402,9 +529,11 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Section</label>
+              <label class="form-label"> Section </label>
+
               <select v-model="selectedStudent.section_id" class="form-select">
                 <option value="">Select Section</option>
+
                 <option v-for="sec in sections" :key="sec.id" :value="sec.id">
                   {{ sec.section_name }}
                 </option>
@@ -412,9 +541,11 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Shift</label>
+              <label class="form-label"> Shift </label>
+
               <select v-model="selectedStudent.shift_id" class="form-select">
                 <option value="">Select Shift</option>
+
                 <option v-for="shift in shifts" :key="shift.id" :value="shift.id">
                   {{ shift.name }}
                 </option>
@@ -422,7 +553,8 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Monthly Fee</label>
+              <label class="form-label"> Monthly Fee </label>
+
               <input
                 v-model="selectedStudent.monthly_fee"
                 type="number"
@@ -434,6 +566,7 @@
 
           <div class="modal-footer">
             <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
             <button class="btn btn-primary" :disabled="loading" @click="updateStudent">
               {{ loading ? 'Updating...' : 'Update' }}
             </button>
@@ -446,7 +579,8 @@
 
 <script setup>
 import dashPageView from './dashPageView.vue'
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
+
 import api from '@/services/api'
 import * as bootstrap from 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -466,14 +600,17 @@ const loading = ref(false)
 
 const currentPage = ref(1)
 const perPage = ref(10)
+
 const totalStudents = ref(0)
 const filteredTotal = ref(0)
 const totalPages = ref(1)
 
 const addImageFile = ref(null)
 const editImageFile = ref(null)
+
 const addPreview = ref(null)
 const editPreview = ref(null)
+
 const addFileInput = ref(null)
 const editFileInput = ref(null)
 
@@ -513,9 +650,11 @@ const selectedStudent = ref({
   image: null,
 })
 
-// Computed Properties for Pagination Info
+/* ================= PAGINATION INFO ================= */
+
 const showingFrom = computed(() => {
   if (filteredTotal.value === 0) return 0
+
   return (currentPage.value - 1) * perPage.value + 1
 })
 
@@ -523,112 +662,224 @@ const showingTo = computed(() => {
   return Math.min(currentPage.value * perPage.value, filteredTotal.value)
 })
 
-// Handle File Change for Images
+/* ================= IMAGE ================= */
+
 const handleFileChange = (event, type) => {
   const file = event.target.files[0]
+
   if (!file) return
 
   if (type === 'add') {
-    if (addPreview.value) URL.revokeObjectURL(addPreview.value)
+    if (addPreview.value) {
+      URL.revokeObjectURL(addPreview.value)
+    }
+
     addImageFile.value = file
     addPreview.value = URL.createObjectURL(file)
   } else {
-    if (editPreview.value) URL.revokeObjectURL(editPreview.value)
+    if (editPreview.value) {
+      URL.revokeObjectURL(editPreview.value)
+    }
+
     editImageFile.value = file
     editPreview.value = URL.createObjectURL(file)
   }
 }
 
-// Reset Add Form
+/* ================= RESET ADD FORM ================= */
+
 const resetForm = () => {
   Object.keys(form).forEach((key) => (form[key] = ''))
+
   addImageFile.value = null
+
   if (addPreview.value) {
     URL.revokeObjectURL(addPreview.value)
     addPreview.value = null
   }
-  if (addFileInput.value) addFileInput.value.value = ''
+
+  if (addFileInput.value) {
+    addFileInput.value.value = ''
+  }
 }
 
-// Close Modal Utility
-const closeModal = (modalId) => {
+/* ================= CLOSE MODAL ================= */
+/* FIX: Bootstrap backdrop/blur cleanup */
+
+const closeModal = async (modalId) => {
   const modalEl = document.getElementById(modalId)
-  const modalInstance = bootstrap.Modal.getInstance(modalEl)
-  if (modalInstance) modalInstance.hide()
+
+  if (!modalEl) return
+
+  const modalInstance =
+    bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl)
+
+  modalInstance.hide()
+
+  /*
+   * Wait for Bootstrap modal transition to finish.
+   * Then force cleanup of any leftover backdrop/body state.
+   */
+  await new Promise((resolve) => {
+    setTimeout(resolve, 400)
+  })
+
+  document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+    backdrop.remove()
+  })
+
+  document.body.classList.remove('modal-open')
+
+  document.body.style.removeProperty('overflow')
+
+  document.body.style.removeProperty('padding-right')
+
+  modalEl.classList.remove('show')
+
+  modalEl.style.removeProperty('display')
+
+  modalEl.removeAttribute('aria-modal')
+  modalEl.removeAttribute('role')
+
+  await nextTick()
 }
 
-// Get Students (Server-side Pagination & Filter)
+/* ================= GET STUDENTS ================= */
+
 const getStudent = async (page = 1) => {
   try {
-    const params = { page, per_page: perPage.value }
+    const params = {
+      page,
+      per_page: perPage.value,
+    }
 
-    if (search.value.trim()) params.search = search.value.trim()
-    if (selectedClass.value) params.class_id = selectedClass.value
+    if (search.value.trim()) {
+      params.search = search.value.trim()
+    }
 
-    const res = await api.get('/students', { params })
+    if (selectedClass.value) {
+      params.class_id = selectedClass.value
+    }
+
+    const res = await api.get('/students', {
+      params,
+    })
+
     const response = res.data
 
     students.value = response.students || response.data || []
+
     const pagination = response.pagination || {}
 
     currentPage.value = Number(pagination.current_page || response.current_page || page)
+
     totalPages.value = Number(pagination.last_page || response.last_page || 1)
+
     filteredTotal.value = Number(pagination.total || response.filtered_total || response.total || 0)
+
     totalStudents.value = Number(response.total_students || filteredTotal.value)
 
     if (students.value.length === 0 && currentPage.value > 1 && filteredTotal.value > 0) {
       currentPage.value = Math.max(1, currentPage.value - 1)
+
       await getStudent(currentPage.value)
     }
   } catch (error) {
     console.error('Error fetching students:', error.response?.data || error)
+
     students.value = []
   }
 }
 
-// Create Student
+/* ================= CREATE STUDENT ================= */
+
 const student_create = async () => {
   try {
     loading.value = true
+
     const formData = new FormData()
+
     Object.keys(form).forEach((key) => {
-      if (form[key] !== '') formData.append(key, form[key])
+      if (form[key] !== '') {
+        formData.append(key, form[key])
+      }
     })
-    if (addImageFile.value) formData.append('image', addImageFile.value)
+
+    if (addImageFile.value) {
+      formData.append('image', addImageFile.value)
+    }
 
     const res = await api.post('/students', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     })
 
     alert(res.data.message || 'Student Created Successfully')
-    closeModal('addModal')
+
+    /*
+     * IMPORTANT:
+     * Close and fully cleanup Bootstrap modal
+     * before refreshing the student list.
+     */
+    await closeModal('addModal')
+
     resetForm()
+
     currentPage.value = 1
+
     await getStudent(1)
   } catch (error) {
     alert(error.response?.data?.message || 'Failed to create student')
   } finally {
     loading.value = false
+
+    /*
+     * Extra safety cleanup.
+     * This prevents page blur if Bootstrap leaves
+     * a backdrop behind after modal close.
+     */
+    document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
+      backdrop.remove()
+    })
+
+    document.body.classList.remove('modal-open')
+
+    document.body.style.removeProperty('overflow')
+
+    document.body.style.removeProperty('padding-right')
   }
 }
 
-// Open View Modal
+/* ================= OPEN VIEW ================= */
+
 const openView = (student) => {
-  selectedStudent.value = { ...student }
+  selectedStudent.value = {
+    ...student,
+  }
 }
 
-// Open Edit Modal
+/* ================= OPEN EDIT ================= */
+
 const openEdit = (student) => {
-  selectedStudent.value = { ...student }
+  selectedStudent.value = {
+    ...student,
+  }
+
   editImageFile.value = null
   editPreview.value = null
-  if (editFileInput.value) editFileInput.value.value = ''
+
+  if (editFileInput.value) {
+    editFileInput.value.value = ''
+  }
 }
 
-// Update Student
+/* ================= UPDATE STUDENT ================= */
+
 const updateStudent = async () => {
   try {
     loading.value = true
+
     const formData = new FormData()
 
     Object.keys(selectedStudent.value).forEach((key) => {
@@ -646,11 +897,15 @@ const updateStudent = async () => {
     formData.append('_method', 'PUT')
 
     const res = await api.post(`/students/${selectedStudent.value.id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     })
 
     alert(res.data.message || 'Student Updated Successfully')
+
     closeModal('editModal')
+
     await getStudent(currentPage.value)
   } catch (error) {
     alert(error.response?.data?.message || 'Failed to update student')
@@ -659,12 +914,18 @@ const updateStudent = async () => {
   }
 }
 
-// Delete Student
+/* ================= DELETE STUDENT ================= */
+
 const deleteStudent = async (id) => {
-  if (!confirm('Are you sure you want to delete this student?')) return
+  if (!confirm('Are you sure you want to delete this student?')) {
+    return
+  }
+
   try {
     loading.value = true
+
     await api.delete(`/students/${id}`)
+
     await getStudent(currentPage.value)
   } catch (error) {
     alert('Failed to delete student')
@@ -673,10 +934,12 @@ const deleteStudent = async (id) => {
   }
 }
 
-// Pagination Controls
+/* ================= PAGINATION ================= */
+
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++
+
     getStudent(currentPage.value)
   }
 }
@@ -684,63 +947,79 @@ const nextPage = () => {
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
+
     getStudent(currentPage.value)
   }
 }
 
-// Watcher with Debounce for Search and Class Filter
+/* ================= SEARCH ================= */
+
 let searchTimer = null
+
 watch(search, () => {
   clearTimeout(searchTimer)
+
   searchTimer = setTimeout(() => {
     currentPage.value = 1
+
     getStudent(1)
   }, 400)
 })
 
 watch(selectedClass, () => {
   currentPage.value = 1
+
   getStudent(1)
 })
 
-// Lifecycle Hook: Optimized Parallel Loading with Session Caching
+/* ================= ON MOUNTED ================= */
+
 onMounted(async () => {
   loading.value = true
+
   try {
-    // Check if dropdowns are already cached in session storage
     const cachedSections = sessionStorage.getItem('cache_sections')
+
     const cachedClasses = sessionStorage.getItem('cache_classes')
+
     const cachedGroups = sessionStorage.getItem('cache_groups')
+
     const cachedShifts = sessionStorage.getItem('cache_shifts')
 
     if (cachedSections && cachedClasses && cachedGroups && cachedShifts) {
       sections.value = JSON.parse(cachedSections)
+
       classes.value = JSON.parse(cachedClasses)
+
       classGroups.value = JSON.parse(cachedGroups)
+
       shifts.value = JSON.parse(cachedShifts)
 
-      // Only fetch students since dropdowns are loaded from cache
       await getStudent(1)
     } else {
-      // Fetch everything in parallel if cache is empty
       const [secRes, clsRes, grpRes, shfRes] = await Promise.all([
         api.get('/sections'),
         api.get('/classes'),
         api.get('/class_group'),
         api.get('/shifts'),
-        getStudent(1), // Student list also fetched in parallel
+        getStudent(1),
       ])
 
       sections.value = secRes.data.sections || secRes.data.data || secRes.data || []
+
       classes.value = clsRes.data.classes || clsRes.data.data || clsRes.data || []
+
       classGroups.value =
         grpRes.data.classGroups || grpRes.data.groups || grpRes.data.data || grpRes.data || []
+
       shifts.value = shfRes.data.data || shfRes.data.shifts || shfRes.data || []
 
-      // Save to sessionStorage
       sessionStorage.setItem('cache_sections', JSON.stringify(sections.value))
+
       sessionStorage.setItem('cache_classes', JSON.stringify(classes.value))
+
       sessionStorage.setItem('cache_groups', JSON.stringify(classGroups.value))
+
       sessionStorage.setItem('cache_shifts', JSON.stringify(shifts.value))
     }
   } catch (error) {
@@ -750,6 +1029,7 @@ onMounted(async () => {
   }
 })
 </script>
+
 <style scoped>
 /* =====================================================
    IMAGE
@@ -757,15 +1037,10 @@ onMounted(async () => {
 
 .image-preview {
   width: 90px;
-
   height: 90px;
-
   object-fit: cover;
-
   border-radius: 50%;
-
   border: 3px solid #2563eb;
-
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -775,11 +1050,8 @@ onMounted(async () => {
 
 .content {
   margin-left: 250px;
-
   padding: 25px;
-
   background: #f8fafc;
-
   min-height: 100vh;
 }
 
@@ -795,9 +1067,7 @@ onMounted(async () => {
   border-radius: 20px;
 
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
 
   color: white;
@@ -809,21 +1079,17 @@ onMounted(async () => {
 
 .staff-header h2 {
   font-weight: 700;
-
   margin-bottom: 6px;
 }
 
 .staff-header p {
   margin: 0;
-
   color: #dbeafe;
 }
 
 .staff-header-right {
   display: flex;
-
   align-items: center;
-
   gap: 20px;
 }
 
@@ -833,7 +1099,6 @@ onMounted(async () => {
 
 .staff-summary {
   background: white;
-
   color: #111827;
 
   padding: 12px 18px;
@@ -841,27 +1106,21 @@ onMounted(async () => {
   border-radius: 15px;
 
   display: flex;
-
   align-items: center;
-
   gap: 15px;
 }
 
 .summary-icon {
   width: 45px;
-
   height: 45px;
 
   border-radius: 12px;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
   background: #dbeafe;
-
   color: #2563eb;
 
   font-size: 22px;
@@ -869,19 +1128,16 @@ onMounted(async () => {
 
 .staff-summary h4 {
   margin: 0;
-
   font-weight: 700;
 }
 
 .staff-summary span {
   font-size: 13px;
-
   color: #6b7280;
 }
 
 .add-btn {
   color: #2563eb;
-
   font-weight: 600;
 
   border-radius: 12px;
@@ -919,7 +1175,6 @@ onMounted(async () => {
 
 .search-box {
   position: relative;
-
   width: 350px;
 }
 
@@ -927,7 +1182,6 @@ onMounted(async () => {
   position: absolute;
 
   left: 15px;
-
   top: 50%;
 
   transform: translateY(-50%);
@@ -1011,7 +1265,6 @@ onMounted(async () => {
 
 .staff-avatar {
   width: 45px;
-
   height: 45px;
 
   border-radius: 50%;
@@ -1027,13 +1280,11 @@ onMounted(async () => {
 
 .staff-name {
   display: flex;
-
   flex-direction: column;
 }
 
 .staff-name small {
   color: #6b7280;
-
   font-size: 12px;
 }
 
@@ -1079,13 +1330,11 @@ onMounted(async () => {
 
 .action-buttons {
   display: flex;
-
   gap: 8px;
 }
 
 .action-btn {
   width: 38px;
-
   height: 38px;
 
   border: none;
@@ -1093,9 +1342,7 @@ onMounted(async () => {
   border-radius: 10px;
 
   display: flex;
-
   align-items: center;
-
   justify-content: center;
 
   font-size: 16px;
@@ -1109,19 +1356,16 @@ onMounted(async () => {
 
 .action-btn.view {
   background: #dbeafe;
-
   color: #2563eb;
 }
 
 .action-btn.edit {
   background: #fef3c7;
-
   color: #d97706;
 }
 
 .action-btn.delete {
   background: #fee2e2;
-
   color: #dc2626;
 }
 
@@ -1175,7 +1419,6 @@ onMounted(async () => {
   color: white;
 
   width: 38px;
-
   height: 38px;
 
   border-radius: 10px;
@@ -1220,7 +1463,6 @@ onMounted(async () => {
 
 .student-modal-avatar {
   width: 100px;
-
   height: 100px;
 
   border-radius: 50%;

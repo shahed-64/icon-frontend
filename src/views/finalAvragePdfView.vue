@@ -48,11 +48,18 @@
       </div>
 
       <!-- Result Card -->
-      <div v-else-if="resultData" class="card result-card border">
+      <div v-else-if="resultData" class="card result-card border position-relative overflow-hidden">
+        <!-- ================= WATERMARK ================= -->
+        <div class="watermark-container">
+          <img src="/icon.jpg" alt="Watermark" class="watermark-img" />
+        </div>
+
         <!-- ===================================================== -->
         <!-- SCHOOL HEADER -->
         <!-- ===================================================== -->
-        <div class="card-header school-header text-center py-3 bg-white border-bottom">
+        <div
+          class="card-header school-header text-center py-3 bg-white border-bottom position-relative z-1"
+        >
           <div class="row align-items-center">
             <div class="col-2 text-start ps-4"></div>
 
@@ -90,7 +97,7 @@
         <!-- ===================================================== -->
         <!-- CARD BODY -->
         <!-- ===================================================== -->
-        <div class="card-body p-4 bg-white">
+        <div class="card-body p-4 bg-white position-relative z-1">
           <!-- =================================================== -->
           <!-- STUDENT INFO BAR -->
           <!-- =================================================== -->
@@ -239,7 +246,7 @@
               <!-- FOOTER / SUMMARY -->
               <tfoot>
                 <tr class="table-light fw-bold">
-                  <td :colspan="2 + exams.length" class="text-end pe-3 text-dark py-2.5">
+                  <td :colspan="2 + exams.length" class="text-end ps-3 text-dark py-2.5">
                     Total Weighted Score:
                   </td>
 
@@ -306,7 +313,7 @@
         <!-- CARD FOOTER -->
         <!-- ===================================================== -->
         <div
-          class="card-footer bg-white text-muted d-flex justify-content-between align-items-center py-2 px-4 tiny border-top"
+          class="card-footer bg-white text-muted d-flex justify-content-between align-items-center py-2 px-4 tiny border-top position-relative z-1"
         >
           <span> System: {{ softwareDeveloper }} </span>
 
@@ -650,6 +657,27 @@ onMounted(async () => {
   border-color: #d1d5db !important;
 }
 
+/* Watermark styling */
+.watermark-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.watermark-img {
+  width: 350px;
+  height: 350px;
+  object-fit: contain;
+  opacity: 0.08;
+}
+
 .tiny {
   font-size: 0.72rem;
 }
@@ -683,6 +711,7 @@ onMounted(async () => {
   padding: 8px 6px;
   vertical-align: middle;
   border-color: #d1d5db !important;
+  background-color: transparent !important;
 }
 
 .signature-space {
@@ -732,7 +761,11 @@ onMounted(async () => {
   .card-header,
   .card-body,
   .card-footer {
-    background: #ffffff !important;
+    background: transparent !important;
+  }
+
+  .watermark-img {
+    opacity: 0.12 !important;
   }
 
   .table-responsive {
