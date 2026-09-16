@@ -58,7 +58,7 @@
         <!-- SCHOOL HEADER -->
         <!-- ===================================================== -->
         <div
-          class="card-header school-header text-center py-3 bg-white border-bottom position-relative z-1"
+          class="card-header school-header text-center py-3 bg-transparent border-bottom position-relative z-1"
         >
           <div class="row align-items-center">
             <div class="col-2 text-start ps-4"></div>
@@ -97,11 +97,11 @@
         <!-- ===================================================== -->
         <!-- CARD BODY -->
         <!-- ===================================================== -->
-        <div class="card-body p-4 bg-white position-relative z-1">
+        <div class="card-body p-4 bg-transparent position-relative z-1">
           <!-- =================================================== -->
           <!-- STUDENT INFO BAR -->
           <!-- =================================================== -->
-          <div class="student-info-bar p-3 mb-4 border bg-light-subtle">
+          <div class="student-info-bar p-3 mb-4 border bg-white shadow-sm">
             <div class="row align-items-center g-3">
               <!-- Student Photo -->
               <div class="col-auto">
@@ -182,7 +182,7 @@
           <!-- =================================================== -->
           <div v-if="processedSubjects.length" class="table-responsive mb-4">
             <table
-              class="table table-bordered custom-result-table align-middle text-center mb-0 bg-white"
+              class="table table-bordered custom-result-table align-middle text-center mb-0 bg-white shadow-sm"
             >
               <!-- HEADER -->
               <thead>
@@ -313,7 +313,7 @@
         <!-- CARD FOOTER -->
         <!-- ===================================================== -->
         <div
-          class="card-footer bg-white text-muted d-flex justify-content-between align-items-center py-2 px-4 tiny border-top position-relative z-1"
+          class="card-footer bg-transparent text-muted d-flex justify-content-between align-items-center py-2 px-4 tiny border-top position-relative z-1"
         >
           <span> System: {{ softwareDeveloper }} </span>
 
@@ -651,10 +651,18 @@ onMounted(async () => {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
+/*
+  এখানে তোমার নতুন ডিজাইনটি ব্যাকগ্রাউন্ড ইমেজ হিসেবে যুক্ত করা হয়েছে।
+  ফ্রেমটি যাতে কার্ডের চারপাশে পারফেক্টলি ফিট হয় এবং ভেতরের লেখাগুলো ক্লিয়ার থাকে তার ব্যবস্থা করা হয়েছে।
+*/
 .result-card {
-  background: #ffffff;
+  background-image: url('/bg-frame.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
   border-radius: 0px;
-  border-color: #d1d5db !important;
+  border: none !important;
+  padding: 25px 35px;
 }
 
 /* Watermark styling */
@@ -675,7 +683,7 @@ onMounted(async () => {
   width: 350px;
   height: 350px;
   object-fit: contain;
-  opacity: 0.08;
+  opacity: 0.05;
 }
 
 .tiny {
@@ -683,7 +691,7 @@ onMounted(async () => {
 }
 
 .student-info-bar {
-  background-color: #f9fafb !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
   border: 1px solid #e5e7eb !important;
   border-radius: 4px;
 }
@@ -711,7 +719,7 @@ onMounted(async () => {
   padding: 8px 6px;
   vertical-align: middle;
   border-color: #d1d5db !important;
-  background-color: transparent !important;
+  background-color: rgba(255, 255, 255, 0.85) !important;
 }
 
 .signature-space {
@@ -755,17 +763,14 @@ onMounted(async () => {
   }
 
   .result-card {
-    border: 1px solid #000000 !important;
-  }
-
-  .card-header,
-  .card-body,
-  .card-footer {
-    background: transparent !important;
+    border: none !important;
+    background-size: 100% 100% !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .watermark-img {
-    opacity: 0.12 !important;
+    opacity: 0.08 !important;
   }
 
   .table-responsive {
@@ -784,7 +789,7 @@ onMounted(async () => {
 
   @page {
     size: landscape;
-    margin: 6mm;
+    margin: 4mm;
   }
 }
 </style>
