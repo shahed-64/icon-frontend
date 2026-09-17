@@ -41,7 +41,6 @@
         <table class="info-table mb-4 position-relative z-1">
           <tr>
             <!-- LEFT SIDE -->
-
             <td style="width: 55%; vertical-align: top">
               <table class="table table-sm table-borderless mb-0">
                 <tr>
@@ -67,11 +66,17 @@
 
                   <td>: {{ resultData.class_name || 'N/A' }}</td>
                 </tr>
+
+                <!-- VERSION -->
+                <tr>
+                  <td class="fw-bold">Version</td>
+
+                  <td>: {{ resultData.version || 'N/A' }}</td>
+                </tr>
               </table>
             </td>
 
             <!-- RIGHT SIDE -->
-
             <td style="width: 45%; vertical-align: top">
               <table class="table table-sm table-borderless mb-0">
                 <tr>
@@ -81,7 +86,6 @@
                 </tr>
 
                 <!-- GROUP / SECTION -->
-
                 <tr>
                   <td class="fw-bold">
                     {{ isJuniorClass(resultData.class_name) ? 'Section' : 'Group' }}
@@ -153,25 +157,21 @@
                 </td>
 
                 <!-- Marks -->
-
                 <td>
                   {{ subject.marks }}
                 </td>
 
                 <!-- Grade -->
-
                 <td>
                   {{ calculateGrade(subject.marks, subject.full_mark).grade }}
                 </td>
 
                 <!-- Point -->
-
                 <td>
                   {{ calculateGrade(subject.marks, subject.full_mark).point }}
                 </td>
 
                 <!-- GPA Without Additional -->
-
                 <td
                   v-if="index === 0"
                   :rowspan="mainSubjects.length"
@@ -235,7 +235,6 @@
 
         <div class="row position-relative z-1 mb-5">
           <!-- Grading Table -->
-
           <div class="col-7">
             <table class="table table-bordered grade-table text-center mb-0">
               <tr class="table-secondary">
@@ -247,7 +246,6 @@
               </tr>
 
               <!-- Dynamic Grading System -->
-
               <tr v-for="grading in sortedGradingSystems" :key="grading.id">
                 <td>
                   {{ getGradeRange(grading) }}
@@ -263,7 +261,6 @@
               </tr>
 
               <!-- No Grading System -->
-
               <tr v-if="sortedGradingSystems.length === 0">
                 <td colspan="3" class="text-muted py-3">No grading system found.</td>
               </tr>
@@ -271,7 +268,6 @@
           </div>
 
           <!-- Publication Date -->
-
           <div class="col-5 d-flex flex-column justify-content-center">
             <div class="p-3 border bg-light rounded text-center">
               <p class="mb-1 text-muted small">Date of Publication of Results</p>
@@ -814,7 +810,6 @@ onMounted(() => {
   }
 
   /* Keep logo watermark in print */
-
   .logo-watermark {
     display: flex !important;
     position: absolute;

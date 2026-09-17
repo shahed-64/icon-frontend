@@ -1786,10 +1786,27 @@ onMounted(() => {
 
 .action-buttons {
   display: inline-flex;
-
   align-items: center;
-
+  justify-content: flex-end;
   gap: 6px;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.action-btn {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease;
+  position: relative;
 }
 
 .action-btn {
@@ -2442,5 +2459,12 @@ onMounted(() => {
     align-items: flex-start;
     flex-direction: column;
   }
+}
+.card-box i {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  font-size: 25px;
+  opacity: 0.3;
 }
 </style>

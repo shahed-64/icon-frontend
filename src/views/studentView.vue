@@ -63,6 +63,7 @@
               <th>#</th>
               <th>Photo</th>
               <th>Name</th>
+              <th>Version</th>
               <th>Class</th>
               <th>Group</th>
               <th>Email</th>
@@ -73,7 +74,7 @@
           <tbody>
             <!-- LOADING -->
             <tr v-if="loading">
-              <td colspan="7" class="text-center py-5">
+              <td colspan="8" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status"></div>
 
                 <div class="mt-2 text-muted">Loading students...</div>
@@ -95,6 +96,13 @@
                   <strong>{{ item.full_name }}</strong>
                   <small>{{ item.student_id }}</small>
                 </div>
+              </td>
+
+              <!-- VERSION -->
+              <td>
+                <span class="version-badge">
+                  {{ item.version || 'N/A' }}
+                </span>
               </td>
 
               <td>
@@ -146,7 +154,7 @@
 
             <!-- EMPTY STATE -->
             <tr v-if="!loading && students.length === 0">
-              <td colspan="7" class="text-center py-5">
+              <td colspan="8" class="text-center py-5">
                 <div class="empty-state">
                   <i class="bi bi-person-x"></i>
 
@@ -219,6 +227,7 @@
               />
             </div>
 
+            <!-- FULL NAME -->
             <div class="mb-3">
               <label class="form-label">
                 Full Name
@@ -233,6 +242,23 @@
               />
             </div>
 
+            <!-- VERSION -->
+            <div class="mb-3">
+              <label class="form-label">
+                Version
+                <span class="text-danger">*</span>
+              </label>
+
+              <select v-model="form.version" class="form-select">
+                <option value="" disabled>Select Version</option>
+
+                <option value="Bangla Version">Bangla Version</option>
+
+                <option value="English Version">English Version</option>
+              </select>
+            </div>
+
+            <!-- FATHER -->
             <div class="mb-3">
               <label class="form-label">
                 Father's Name
@@ -247,6 +273,7 @@
               />
             </div>
 
+            <!-- MOTHER -->
             <div class="mb-3">
               <label class="form-label">
                 Mother's Name
@@ -261,6 +288,7 @@
               />
             </div>
 
+            <!-- PHONE -->
             <div class="mb-3">
               <label class="form-label">
                 Phone
@@ -275,6 +303,7 @@
               />
             </div>
 
+            <!-- EMAIL -->
             <div class="mb-3">
               <label class="form-label"> Email </label>
 
@@ -286,6 +315,7 @@
               />
             </div>
 
+            <!-- CLASS GROUP -->
             <div class="mb-3">
               <label class="form-label">
                 Class Group
@@ -301,6 +331,7 @@
               </select>
             </div>
 
+            <!-- CLASS -->
             <div class="mb-3">
               <label class="form-label">
                 Class
@@ -316,6 +347,7 @@
               </select>
             </div>
 
+            <!-- SECTION -->
             <div class="mb-3">
               <label class="form-label"> Section </label>
 
@@ -328,6 +360,7 @@
               </select>
             </div>
 
+            <!-- SHIFT -->
             <div class="mb-3">
               <label class="form-label"> Assign Shift </label>
 
@@ -341,6 +374,7 @@
               </select>
             </div>
 
+            <!-- MONTHLY FEE -->
             <div class="mb-3">
               <label class="form-label"> Monthly Fee </label>
 
@@ -401,6 +435,11 @@
             <hr />
 
             <div class="text-start px-3">
+              <p>
+                <strong>Version:</strong>
+                {{ selectedStudent.version || 'N/A' }}
+              </p>
+
               <p>
                 <strong>Father's Name:</strong>
                 {{ selectedStudent.fathers_name || 'N/A' }}
@@ -486,24 +525,44 @@
               />
             </div>
 
+            <!-- FULL NAME -->
             <div class="mb-3">
               <label class="form-label"> Full Name </label>
 
               <input v-model="selectedStudent.full_name" class="form-control" placeholder="Name" />
             </div>
 
+            <!-- VERSION -->
+            <div class="mb-3">
+              <label class="form-label">
+                Version
+                <span class="text-danger">*</span>
+              </label>
+
+              <select v-model="selectedStudent.version" class="form-select">
+                <option value="" disabled>Select Version</option>
+
+                <option value="Bangla Version">Bangla Version</option>
+
+                <option value="English Version">English Version</option>
+              </select>
+            </div>
+
+            <!-- PHONE -->
             <div class="mb-3">
               <label class="form-label"> Phone </label>
 
               <input v-model="selectedStudent.phone" class="form-control" placeholder="Phone" />
             </div>
 
+            <!-- EMAIL -->
             <div class="mb-3">
               <label class="form-label"> Email </label>
 
               <input v-model="selectedStudent.email" class="form-control" placeholder="Email" />
             </div>
 
+            <!-- CLASS GROUP -->
             <div class="mb-3">
               <label class="form-label"> Class Group </label>
 
@@ -516,6 +575,7 @@
               </select>
             </div>
 
+            <!-- CLASS -->
             <div class="mb-3">
               <label class="form-label"> Class </label>
 
@@ -528,6 +588,7 @@
               </select>
             </div>
 
+            <!-- SECTION -->
             <div class="mb-3">
               <label class="form-label"> Section </label>
 
@@ -540,6 +601,7 @@
               </select>
             </div>
 
+            <!-- SHIFT -->
             <div class="mb-3">
               <label class="form-label"> Shift </label>
 
@@ -552,6 +614,7 @@
               </select>
             </div>
 
+            <!-- MONTHLY FEE -->
             <div class="mb-3">
               <label class="form-label"> Monthly Fee </label>
 
@@ -580,7 +643,6 @@
 <script setup>
 import dashPageView from './dashPageView.vue'
 import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
-
 import api from '@/services/api'
 import * as bootstrap from 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -619,6 +681,7 @@ const editModalRef = ref(null)
 
 const form = reactive({
   full_name: '',
+  version: '',
   fathers_name: '',
   mothers_name: '',
   phone: '',
@@ -635,6 +698,7 @@ const form = reactive({
 const selectedStudent = ref({
   id: null,
   full_name: '',
+  version: '',
   fathers_name: '',
   mothers_name: '',
   student_id: '',
@@ -704,6 +768,7 @@ const resetForm = () => {
 }
 
 /* ================= CLOSE MODAL ================= */
+
 /* FIX: Bootstrap backdrop/blur cleanup */
 
 const closeModal = async (modalId) => {
@@ -716,10 +781,6 @@ const closeModal = async (modalId) => {
 
   modalInstance.hide()
 
-  /*
-   * Wait for Bootstrap modal transition to finish.
-   * Then force cleanup of any leftover backdrop/body state.
-   */
   await new Promise((resolve) => {
     setTimeout(resolve, 400)
   })
@@ -735,7 +796,6 @@ const closeModal = async (modalId) => {
   document.body.style.removeProperty('padding-right')
 
   modalEl.classList.remove('show')
-
   modalEl.style.removeProperty('display')
 
   modalEl.removeAttribute('aria-modal')
@@ -817,11 +877,6 @@ const student_create = async () => {
 
     alert(res.data.message || 'Student Created Successfully')
 
-    /*
-     * IMPORTANT:
-     * Close and fully cleanup Bootstrap modal
-     * before refreshing the student list.
-     */
     await closeModal('addModal')
 
     resetForm()
@@ -834,11 +889,6 @@ const student_create = async () => {
   } finally {
     loading.value = false
 
-    /*
-     * Extra safety cleanup.
-     * This prevents page blur if Bootstrap leaves
-     * a backdrop behind after modal close.
-     */
     document.querySelectorAll('.modal-backdrop').forEach((backdrop) => {
       backdrop.remove()
     })
@@ -961,14 +1011,12 @@ watch(search, () => {
 
   searchTimer = setTimeout(() => {
     currentPage.value = 1
-
     getStudent(1)
   }, 400)
 })
 
 watch(selectedClass, () => {
   currentPage.value = 1
-
   getStudent(1)
 })
 
@@ -1061,19 +1109,13 @@ onMounted(async () => {
 
 .staff-header {
   background: linear-gradient(135deg, #2563eb, #4f46e5);
-
   padding: 28px 32px;
-
   border-radius: 20px;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   color: white;
-
   margin-bottom: 25px;
-
   box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
 }
 
@@ -1100,11 +1142,8 @@ onMounted(async () => {
 .staff-summary {
   background: white;
   color: #111827;
-
   padding: 12px 18px;
-
   border-radius: 15px;
-
   display: flex;
   align-items: center;
   gap: 15px;
@@ -1113,16 +1152,12 @@ onMounted(async () => {
 .summary-icon {
   width: 45px;
   height: 45px;
-
   border-radius: 12px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   background: #dbeafe;
   color: #2563eb;
-
   font-size: 22px;
 }
 
@@ -1139,9 +1174,7 @@ onMounted(async () => {
 .add-btn {
   color: #2563eb;
   font-weight: 600;
-
   border-radius: 12px;
-
   padding: 12px 20px;
 }
 
@@ -1151,11 +1184,8 @@ onMounted(async () => {
 
 .staff-table-card {
   background: white;
-
   border-radius: 20px;
-
   padding: 25px;
-
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
 }
 
@@ -1165,11 +1195,8 @@ onMounted(async () => {
 
 .staff-toolbar {
   display: flex;
-
   justify-content: space-between;
-
   gap: 15px;
-
   margin-bottom: 20px;
 }
 
@@ -1180,40 +1207,29 @@ onMounted(async () => {
 
 .search-box i {
   position: absolute;
-
   left: 15px;
   top: 50%;
-
   transform: translateY(-50%);
-
   color: #9ca3af;
 }
 
 .search-box input {
   width: 100%;
-
   padding: 12px 15px 12px 45px;
-
   border-radius: 12px;
-
   border: 1px solid #e5e7eb;
-
   outline: none;
 }
 
 .search-box input:focus {
   border-color: #2563eb;
-
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .class-filter {
   width: 200px;
-
   border-radius: 12px;
-
   border: 1px solid #e5e7eb;
-
   padding: 10px;
 }
 
@@ -1223,39 +1239,30 @@ onMounted(async () => {
 
 .staff-table {
   border-collapse: separate;
-
   border-spacing: 0 10px;
 }
 
 .staff-table thead th {
   background: #f1f5f9;
-
   border: none;
-
   padding: 15px;
-
   color: #374151;
-
   font-size: 14px;
 }
 
 .staff-table tbody tr {
   background: white;
-
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
-
   transition: 0.3s;
 }
 
 .staff-table tbody tr:hover {
   transform: translateY(-3px);
-
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .staff-table td {
   padding: 15px;
-
   border: none;
 }
 
@@ -1266,11 +1273,8 @@ onMounted(async () => {
 .staff-avatar {
   width: 45px;
   height: 45px;
-
   border-radius: 50%;
-
   object-fit: cover;
-
   border: 3px solid #dbeafe;
 }
 
@@ -1289,20 +1293,29 @@ onMounted(async () => {
 }
 
 /* =====================================================
+   VERSION BADGE
+===================================================== */
+
+.version-badge {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* =====================================================
    CLASS BADGE
 ===================================================== */
 
 .skill-badge {
   background: #eff6ff;
-
   color: #2563eb;
-
   padding: 6px 12px;
-
   border-radius: 20px;
-
   font-size: 13px;
-
   font-weight: 600;
 }
 
@@ -1312,15 +1325,10 @@ onMounted(async () => {
 
 .group-badge {
   background: #ecfdf5;
-
   color: #059669;
-
   padding: 6px 12px;
-
   border-radius: 20px;
-
   font-size: 13px;
-
   font-weight: 600;
 }
 
@@ -1336,17 +1344,12 @@ onMounted(async () => {
 .action-btn {
   width: 38px;
   height: 38px;
-
   border: none;
-
   border-radius: 10px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 16px;
-
   transition: 0.3s;
 }
 
@@ -1375,15 +1378,12 @@ onMounted(async () => {
 
 .empty-state {
   text-align: center;
-
   padding: 50px;
-
   color: #6b7280;
 }
 
 .empty-state i {
   font-size: 45px;
-
   color: #9ca3af;
 }
 
@@ -1393,40 +1393,29 @@ onMounted(async () => {
 
 .pagination-box {
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   margin-top: 20px;
-
   color: #6b7280;
 }
 
 .page-buttons {
   display: flex;
-
   align-items: center;
-
   gap: 10px;
 }
 
 .page-btn {
   border: none;
-
   background: #2563eb;
-
   color: white;
-
   width: 38px;
   height: 38px;
-
   border-radius: 10px;
 }
 
 .page-btn:disabled {
   opacity: 0.5;
-
   cursor: not-allowed;
 }
 
@@ -1436,9 +1425,7 @@ onMounted(async () => {
 
 .student-modal {
   border: none;
-
   border-radius: 20px;
-
   overflow: hidden;
 }
 
@@ -1457,18 +1444,14 @@ onMounted(async () => {
 .modal .form-control,
 .modal .form-select {
   border-radius: 12px;
-
   padding: 12px;
 }
 
 .student-modal-avatar {
   width: 100px;
   height: 100px;
-
   border-radius: 50%;
-
   border: 5px solid #dbeafe;
-
   object-fit: cover;
 }
 
@@ -1479,21 +1462,17 @@ onMounted(async () => {
 @media (max-width: 768px) {
   .content {
     margin-left: 0;
-
     padding: 15px;
   }
 
   .staff-header {
     flex-direction: column;
-
     align-items: flex-start;
-
     gap: 20px;
   }
 
   .staff-header-right {
     width: 100%;
-
     justify-content: space-between;
   }
 
@@ -1516,7 +1495,6 @@ onMounted(async () => {
 
   .pagination-box {
     flex-direction: column;
-
     gap: 15px;
   }
 }

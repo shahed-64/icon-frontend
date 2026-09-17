@@ -11,10 +11,12 @@
             <div class="institute-logo-wrapper" v-if="getLogoUrl(institute?.logo)">
               <img :src="getLogoUrl(institute?.logo)" alt="Institute Logo" class="institute-logo" />
             </div>
+
             <div class="institute-info">
               <h1>
                 {{ institute?.institute_name || 'Coaching MS' }}
               </h1>
+
               <div class="receipt-subtitle">
                 <span>— Money Receipt —</span>
               </div>
@@ -26,6 +28,7 @@
               <strong>Receipt No:</strong>
               <span class="badge-receipt-id">#{{ payment.id }}</span>
             </div>
+
             <div>
               <strong>Date:</strong>
               {{ formatDate(payment.payment_date) }}
@@ -40,22 +43,42 @@
           <!-- Student Information Card -->
           <div class="info-card">
             <div class="card-header-title student-header">STUDENT INFO</div>
+
             <div class="card-body">
               <div class="info-row">
                 <span class="label">Name</span>
-                <span class="val">{{ payment.student?.full_name || 'N/A' }}</span>
+                <span class="val">
+                  {{ payment.student?.full_name || 'N/A' }}
+                </span>
               </div>
+
               <div class="info-row">
                 <span class="label">Class</span>
-                <span class="val">{{ payment.student?.class_info?.class_name || 'N/A' }}</span>
+                <span class="val">
+                  {{ payment.student?.class_info?.class_name || 'N/A' }}
+                </span>
               </div>
+
+              <!-- Version -->
+              <div class="info-row">
+                <span class="label">Version</span>
+                <span class="val">
+                  {{ payment.student?.version || 'N/A' }}
+                </span>
+              </div>
+
               <div class="info-row">
                 <span class="label">Section</span>
-                <span class="val">{{ payment.student?.section?.section_name || 'N/A' }}</span>
+                <span class="val">
+                  {{ payment.student?.section?.section_name || 'N/A' }}
+                </span>
               </div>
+
               <div class="info-row">
                 <span class="label">Phone</span>
-                <span class="val">{{ payment.student?.phone || 'N/A' }}</span>
+                <span class="val">
+                  {{ payment.student?.phone || 'N/A' }}
+                </span>
               </div>
             </div>
           </div>
@@ -63,17 +86,25 @@
           <!-- Payment Information Card -->
           <div class="info-card">
             <div class="card-header-title payment-header-tag">PAYMENT INFO</div>
+
             <div class="card-body">
               <div class="info-row">
                 <span class="label">Method</span>
-                <span class="val">{{ payment.payment_method || 'N/A' }}</span>
+                <span class="val">
+                  {{ payment.payment_method || 'N/A' }}
+                </span>
               </div>
+
               <div class="info-row">
                 <span class="label">Paid Month</span>
-                <span class="val">{{ payment.month || 'N/A' }}</span>
+                <span class="val">
+                  {{ payment.month || 'N/A' }}
+                </span>
               </div>
+
               <div class="info-row">
                 <span class="label">Status</span>
+
                 <span class="val">
                   <span
                     class="status-badge"
@@ -98,16 +129,17 @@
           </thead>
 
           <tbody>
-            <!-- 1. Monthly Fee (Database student table or model থেকে আসা আসল ফি) -->
+            <!-- 1. Monthly Fee -->
             <tr>
               <td class="col-index">1</td>
               <td>Monthly Fee</td>
               <td class="amount-column">
-                BDT {{ formatAmount(payment.student?.monthly_fee || payment.monthly_fee || 0) }}
+                BDT
+                {{ formatAmount(payment.student?.monthly_fee || payment.monthly_fee || 0) }}
               </td>
             </tr>
 
-            <!-- 2. Paid Amount (সে এন্ট্রি বা পেমেন্টের বিপরীতে কত টাকা দিল) -->
+            <!-- 2. Paid Amount -->
             <tr>
               <td class="col-index">2</td>
               <td>Paid Amount</td>
@@ -133,7 +165,8 @@
         <!-- Total Paid Banner Box -->
         <div class="total-paid-box">
           <span class="total-title">TOTAL PAID</span>
-          <span class="total-amount">BDT {{ formatAmount(totalPaid) }}</span>
+
+          <span class="total-amount"> BDT {{ formatAmount(totalPaid) }} </span>
         </div>
 
         <!-- Footer -->
@@ -340,10 +373,19 @@ ${instituteName}
 Payment Receipt
 
 Receipt ID: ${payment.value.id}
+
 Student: ${payment.value.student?.full_name || 'N/A'}
+
+Class: ${payment.value.student?.class_info?.class_name || 'N/A'}
+
+Version: ${payment.value.student?.version || 'N/A'}
+
+Section: ${payment.value.student?.section?.section_name || 'N/A'}
+
 Month: ${payment.value.month || 'N/A'}
 
 Total Paid: ৳${formatAmount(totalPaid.value)}
+
 Payment Status: ${payment.value.status || 'N/A'}
 
 ${pdfUrl ? `Receipt PDF: ${pdfUrl}` : ''}

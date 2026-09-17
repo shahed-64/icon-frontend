@@ -79,6 +79,7 @@
 
             <div class="col-2 text-end pe-4">
               <span class="text-muted tiny d-block"> Publication Date: </span>
+
               <strong class="small text-dark font-monospace">
                 {{ publicationDate }}
               </strong>
@@ -114,6 +115,7 @@
                     class="student-photo-image"
                     alt="Student Photo"
                   />
+
                   <div v-else class="text-center text-muted">
                     <i class="bi bi-person fs-4 text-secondary"></i>
                     <small class="tiny d-block">Photo</small>
@@ -151,6 +153,15 @@
                       {{ student.class || '-' }}
                     </span>
                   </div>
+
+                  <!-- ================= VERSION ================= -->
+                  <div>
+                    <span class="text-muted">Version:</span>
+                    <span class="ms-1">
+                      {{ student.version || '-' }}
+                    </span>
+                  </div>
+                  <!-- ================================================= -->
 
                   <div>
                     <span class="text-muted">Group:</span>
@@ -190,7 +201,9 @@
                   <th class="align-middle text-start ps-3 py-2 text-dark" style="width: 25%">
                     Subject Name
                   </th>
+
                   <th class="align-middle py-2 text-dark" style="width: 8%">Full Marks</th>
+
                   <th
                     v-for="exam in exams"
                     :key="exam.id"
@@ -198,12 +211,16 @@
                     style="width: 12%"
                   >
                     {{ exam.name }}<br />
-                    <span class="tiny text-muted fw-normal"
-                      >({{ formatPercentage(exam.percentage) }})</span
-                    >
+
+                    <span class="tiny text-muted fw-normal">
+                      ({{ formatPercentage(exam.percentage) }})
+                    </span>
                   </th>
+
                   <th class="align-middle py-2 text-dark" style="width: 10%">Obtained Total</th>
+
                   <th class="align-middle py-2 text-dark" style="width: 10%">Letter Grade</th>
+
                   <th class="align-middle py-2 text-dark" style="width: 10%">Grade Point</th>
                 </tr>
               </thead>
@@ -251,10 +268,13 @@
                   </td>
 
                   <td colspan="3" class="text-start ps-3 text-dark fs-6 py-2.5">
-                    <span class="font-monospace">{{ totalObtainedMarks }}</span>
+                    <span class="font-monospace">
+                      {{ totalObtainedMarks }}
+                    </span>
+
                     <span class="text-muted fw-normal small ms-2">
-                      (GPA: <strong class="text-dark font-monospace">{{ overallGPA }}</strong
-                      >)
+                      (GPA:
+                      <strong class="text-dark font-monospace"> {{ overallGPA }} </strong>)
                     </span>
                   </td>
                 </tr>
@@ -275,6 +295,7 @@
             <div class="col-4">
               <div class="signature-area px-3">
                 <div class="signature-space mb-2"></div>
+
                 <div class="border-top border-secondary w-75 mx-auto pt-2">
                   <p class="fw-semibold mb-0 tiny text-dark text-uppercase tracking-wide">
                     Class Teacher's Signature
@@ -286,11 +307,13 @@
             <div class="col-4">
               <div class="signature-area px-3">
                 <div class="signature-space mb-2"></div>
+
                 <div class="border-top border-secondary w-75 mx-auto pt-2">
                   <p class="fw-semibold mb-0 tiny text-dark text-uppercase tracking-wide">
                     Assistant Head Teacher
                   </p>
-                  <small class="text-muted tiny">Shift In-Charge</small>
+
+                  <small class="text-muted tiny"> Shift In-Charge </small>
                 </div>
               </div>
             </div>
@@ -298,11 +321,13 @@
             <div class="col-4">
               <div class="signature-area px-3">
                 <div class="signature-space mb-2"></div>
+
                 <div class="border-top border-secondary w-75 mx-auto pt-2">
                   <p class="fw-semibold mb-0 tiny text-dark text-uppercase tracking-wide">
                     Principal / Headmaster
                   </p>
-                  <small class="text-muted tiny">Authorized Signature</small>
+
+                  <small class="text-muted tiny"> Authorized Signature </small>
                 </div>
               </div>
             </div>
@@ -356,6 +381,7 @@ const selectedStudentId = computed(() => {
 const instituteName = ref('Institute Name')
 const instituteAddress = ref('')
 const instituteContact = ref('')
+
 const softwareDeveloper = ref('ADDIE Soft Ltd.')
 const preparedBy = ref('IT Section')
 
@@ -434,6 +460,7 @@ const loadFinalResult = async () => {
     }
 
     resultData.value = response.data
+
     student.value = response.data.student || {}
 
     if (!student.value.studentId && student.value.student_id) {
@@ -444,6 +471,7 @@ const loadFinalResult = async () => {
     subjects.value = response.data.subjects || []
   } catch (error) {
     console.error('Final result loading error:', error)
+
     errorMessage.value =
       error.response?.data?.message || error.message || 'Failed to load final result.'
   } finally {
@@ -454,12 +482,16 @@ const loadFinalResult = async () => {
 const processedSubjects = computed(() => {
   return subjects.value.map((subject) => {
     const obtainedTotal = Number(subject.obtained_total ?? 0)
+
     const gradeInfo = calculateGradeAndPoint(obtainedTotal)
 
     return {
       ...subject,
+
       obtainedTotal: obtainedTotal.toFixed(2),
+
       letterGrade: subject.letter_grade || gradeInfo.grade,
+
       gradePoint:
         subject.grade_point !== undefined
           ? Number(subject.grade_point).toFixed(2)
@@ -482,6 +514,7 @@ const overallGPA = computed(() => {
   }
 
   const totalPoint = validSubjects.reduce((sum, subject) => sum + Number(subject.gradePoint), 0)
+
   const gpa = totalPoint / validSubjects.length
 
   return Math.min(5, gpa).toFixed(2)
@@ -490,6 +523,7 @@ const overallGPA = computed(() => {
 const totalObtainedMarks = computed(() => {
   const total = processedSubjects.value.reduce((sum, subject) => {
     const value = Number(subject.obtainedTotal)
+
     return sum + (Number.isFinite(value) ? value : 0)
   }, 0)
 
@@ -538,12 +572,29 @@ const formatPercentage = (percentage) => {
 const calculateGradeAndPoint = (marks) => {
   const percentage = Number(marks)
 
-  if (percentage >= 80) return { grade: 'A+', point: 5.0 }
-  if (percentage >= 70) return { grade: 'A', point: 4.0 }
-  if (percentage >= 60) return { grade: 'A-', point: 3.5 }
-  if (percentage >= 50) return { grade: 'B', point: 3.0 }
-  if (percentage >= 40) return { grade: 'C', point: 2.0 }
-  if (percentage >= 33) return { grade: 'D', point: 1.0 }
+  if (percentage >= 80) {
+    return { grade: 'A+', point: 5.0 }
+  }
+
+  if (percentage >= 70) {
+    return { grade: 'A', point: 4.0 }
+  }
+
+  if (percentage >= 60) {
+    return { grade: 'A-', point: 3.5 }
+  }
+
+  if (percentage >= 50) {
+    return { grade: 'B', point: 3.0 }
+  }
+
+  if (percentage >= 40) {
+    return { grade: 'C', point: 2.0 }
+  }
+
+  if (percentage >= 33) {
+    return { grade: 'D', point: 1.0 }
+  }
 
   return { grade: 'F', point: 0.0 }
 }
@@ -573,8 +624,10 @@ const downloadPdf = async () => {
       backgroundColor: '#ffffff',
       logging: false,
       windowWidth: element.scrollWidth,
+
       onclone: (clonedDoc) => {
         const headers = clonedDoc.querySelectorAll('thead th')
+
         headers.forEach((th) => {
           th.style.cssText = `
             background-color: #f8f9fa !important;
@@ -586,6 +639,7 @@ const downloadPdf = async () => {
         })
 
         const tables = clonedDoc.querySelectorAll('table')
+
         tables.forEach((t) => {
           t.style.borderCollapse = 'collapse'
         })
@@ -601,13 +655,17 @@ const downloadPdf = async () => {
     })
 
     const pageWidth = pdf.internal.pageSize.getWidth()
+
     const pageHeight = pdf.internal.pageSize.getHeight()
 
     const margin = 4
+
     const availableWidth = pageWidth - margin * 2
+
     const availableHeight = pageHeight - margin * 2
 
     const imgWidth = availableWidth
+
     const imgHeight = (canvas.height * imgWidth) / canvas.width
 
     let finalHeight = imgHeight
@@ -615,10 +673,12 @@ const downloadPdf = async () => {
 
     if (finalHeight > availableHeight) {
       finalHeight = availableHeight
+
       finalWidth = (canvas.width * finalHeight) / canvas.height
     }
 
     const posX = (pageWidth - finalWidth) / 2
+
     const posY = (pageHeight - finalHeight) / 2
 
     pdf.addImage(imageData, 'JPEG', posX, posY, finalWidth, finalHeight)
@@ -628,11 +688,13 @@ const downloadPdf = async () => {
     ).replace(/[^a-zA-Z0-9-_]/g, '-')
 
     const safeYear = String(selectedYear.value || 'year').replace(/[^a-zA-Z0-9-_]/g, '-')
+
     const fileName = `Result-${safeStudentId}-${safeYear}.pdf`
 
     pdf.save(fileName)
   } catch (error) {
     console.error('PDF generation error:', error)
+
     alert('Unable to generate PDF. Please try again.')
   } finally {
     downloading.value = false
@@ -651,10 +713,6 @@ onMounted(async () => {
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
-/*
-  এখানে তোমার নতুন ডিজাইনটি ব্যাকগ্রাউন্ড ইমেজ হিসেবে যুক্ত করা হয়েছে।
-  ফ্রেমটি যাতে কার্ডের চারপাশে পারফেক্টলি ফিট হয় এবং ভেতরের লেখাগুলো ক্লিয়ার থাকে তার ব্যবস্থা করা হয়েছে।
-*/
 .result-card {
   background-image: url('/bg-frame.png');
   background-size: 100% 100%;
@@ -665,7 +723,6 @@ onMounted(async () => {
   padding: 25px 35px;
 }
 
-/* Watermark styling */
 .watermark-container {
   position: absolute;
   top: 0;
