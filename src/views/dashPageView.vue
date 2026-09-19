@@ -317,53 +317,22 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../services/api'
 
-/* =========================================================
-   ROUTER
-========================================================= */
-
 const router = useRouter()
 
-/* =========================================================
-   SIDEBAR
-========================================================= */
-
 const isSidebarOpen = ref(false)
-
-/* =========================================================
-   USER ROLE
-========================================================= */
-
 const role = localStorage.getItem('role')
-
-/* =========================================================
-   BACKUP
-========================================================= */
-
 const loading = ref(false)
 const message = ref('')
 const isError = ref(false)
-
-/* =========================================================
-   INSTITUTE
-========================================================= */
-
 const institute = ref(null)
 
-/* =========================================================
-   GET LOGO URL
-========================================================= */
-
 const getLogoUrl = (logo) => {
-  if (!logo) {
-    return ''
-  }
+  if (!logo) return ''
 
-  // Already a complete URL
   if (logo.startsWith('http://') || logo.startsWith('https://') || logo.startsWith('data:image')) {
     return logo
   }
 
-  // Laravel storage path
   if (logo.startsWith('/storage/')) {
     return logo
   }
@@ -372,33 +341,22 @@ const getLogoUrl = (logo) => {
     return `/${logo}`
   }
 
-  // If backend returns only filename/path
   return `/storage/${logo}`
 }
 
-/* =========================================================
-   FETCH INSTITUTE INFORMATION
-========================================================= */
 const fetchInstitute = async () => {
   try {
     console.time('DASHBOARD-NATIVE-FETCH')
 
-    const token = localStorage.getItem('token')
-
-    const response = await fetch('http://127.0.0.1:8000/api/institute-info', {
-      headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    const data = await response.json()
+    // Shared API instance ব্যবহার করা হচ্ছে
+    // VITE_API_URL অনুযায়ী live backend এ request যাবে
+    const response = await api.get('/institute-info')
 
     console.timeEnd('DASHBOARD-NATIVE-FETCH')
 
     console.log('DASHBOARD FETCH STATUS:', response.status)
 
-    institute.value = data.data
+    institute.value = response.data.data
 
     console.log('Institute Information:', institute.value)
   } catch (error) {
@@ -406,29 +364,9 @@ const fetchInstitute = async () => {
   }
 }
 
-/* =========================================================
-   SIDEBAR TOGGLE
-========================================================= */
-
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
-
-const closeSidebar = () => {
-  isSidebarOpen.value = false
-}
-
-/* =========================================================
-   DATABASE BACKUP
-========================================================= */
-
-const takeBackup = async () => {
-  if (loading.value) {
-    return
-  }
-
+const runBackup = async () => {
   loading.value = true
-  message.value = 'Backup is running, please wait...'
+  message.value = ''
   isError.value = false
 
   try {
@@ -444,23 +382,16 @@ const takeBackup = async () => {
       },
     )
 
-    message.value = response.data.message || 'Backup completed successfully!'
-
-    isError.value = false
+    message.value = response.data.message || 'Backup completed successfully.'
   } catch (error) {
-    console.log('Full Error:', error.response || error)
+    console.error('Backup failed:', error)
 
     isError.value = true
-
-    message.value = error.response?.data?.message || 'Something went wrong during backup!'
+    message.value = error.response?.data?.message || 'Backup failed. Please try again.'
   } finally {
     loading.value = false
   }
 }
-
-/* =========================================================
-   LOGOUT
-========================================================= */
 
 const logout = () => {
   localStorage.removeItem('token')
@@ -469,15 +400,14 @@ const logout = () => {
   router.push('/login')
 }
 
-/* =========================================================
-   LIFECYCLE
-========================================================= */
+const closeSidebarOnMobile = () => {
+  isSidebarOpen.value = false
+}
 
 onMounted(() => {
   fetchInstitute()
 })
 </script>
-
 <style scoped>
 /* =========================================================
    DESKTOP SIDEBAR
