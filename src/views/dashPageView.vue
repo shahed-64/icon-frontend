@@ -344,23 +344,43 @@ const getLogoUrl = (logo) => {
   return `/storage/${logo}`
 }
 
+/*
+|--------------------------------------------------------------------------
+| Fetch Institute Information
+|--------------------------------------------------------------------------
+| Live API endpoint directly used here because the institute-info endpoint
+| is publicly accessible and confirmed working on production.
+|--------------------------------------------------------------------------
+*/
 const fetchInstitute = async () => {
   try {
-    console.time('DASHBOARD-NATIVE-FETCH')
+    console.time('INSTITUTE-FETCH')
 
-    // Shared API instance ব্যবহার করা হচ্ছে
-    // VITE_API_URL অনুযায়ী live backend এ request যাবে
-    const response = await api.get('/institute-info')
+    const response = await fetch('https://icon.shahedislam.xyz/public/api/institute-info', {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    })
 
-    console.timeEnd('DASHBOARD-NATIVE-FETCH')
+    if (!response.ok) {
+      throw new Error(`Institute API failed with status: ${response.status}`)
+    }
 
-    console.log('DASHBOARD FETCH STATUS:', response.status)
+    const data = await response.json()
 
-    institute.value = response.data.data
+    console.timeEnd('INSTITUTE-FETCH')
 
-    console.log('Institute Information:', institute.value)
+    console.log('INSTITUTE API STATUS:', response.status)
+    console.log('INSTITUTE API DATA:', data)
+
+    institute.value = data.data || null
+
+    console.log('INSTITUTE VALUE:', institute.value)
   } catch (error) {
     console.error('Failed to fetch institute information:', error)
+
+    institute.value = null
   }
 }
 
@@ -387,6 +407,7 @@ const runBackup = async () => {
     console.error('Backup failed:', error)
 
     isError.value = true
+
     message.value = error.response?.data?.message || 'Backup failed. Please try again.'
   } finally {
     loading.value = false
@@ -400,8 +421,12 @@ const logout = () => {
   router.push('/login')
 }
 
-const closeSidebarOnMobile = () => {
+const closeSidebar = () => {
   isSidebarOpen.value = false
+}
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
 }
 
 onMounted(() => {
