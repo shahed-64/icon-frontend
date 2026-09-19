@@ -354,8 +354,6 @@ const getLogoUrl = (logo) => {
 */
 const fetchInstitute = async () => {
   try {
-    console.time('INSTITUTE-FETCH')
-
     const response = await fetch('https://icon.shahedislam.xyz/public/api/institute-info', {
       method: 'GET',
       headers: {
@@ -364,26 +362,19 @@ const fetchInstitute = async () => {
     })
 
     if (!response.ok) {
-      throw new Error(`Institute API failed with status: ${response.status}`)
+      throw new Error(`HTTP ${response.status}`)
     }
 
-    const data = await response.json()
+    const result = await response.json()
 
-    console.timeEnd('INSTITUTE-FETCH')
+    console.log('LIVE INSTITUTE INFO:', result)
 
-    console.log('INSTITUTE API STATUS:', response.status)
-    console.log('INSTITUTE API DATA:', data)
-
-    institute.value = data.data || null
-
-    console.log('INSTITUTE VALUE:', institute.value)
+    institute.value = result.data || null
   } catch (error) {
-    console.error('Failed to fetch institute information:', error)
-
+    console.error('Institute info failed:', error)
     institute.value = null
   }
 }
-
 const runBackup = async () => {
   loading.value = true
   message.value = ''
