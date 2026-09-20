@@ -450,13 +450,18 @@ const getDashboardData = async () => {
     /* =====================================================
        BACKEND CALCULATED COLLECTIONS
     ===================================================== */
-
     todayCollection.value = Number(data.today_collection || 0)
-
-    thisMonthCollection.value = Number(data.this_month_collection || 0)
-
     thisMonthDue.value = Number(data.this_month_due || 0)
 
+    // Temporary frontend fix:
+    // Backend this_month_collection currently misses monthly paid amount.
+    // monthly_payments contains the full month's paid amount, independent of pagination.
+    const currentMonth = new Date().getMonth() + 1
+
+    const currentMonthPaid =
+      (data.monthly_payments || []).find((item) => Number(item.month) === currentMonth)?.total || 0
+
+    thisMonthCollection.value = Number(data.this_month_collection || 0) + Number(currentMonthPaid)
     /* =====================================================
        OTHER DASHBOARD DATA
     ===================================================== */
