@@ -8,6 +8,7 @@
   <div class="d-flex bg-light min-vh-100">
     <div class="dashboard-content">
       <!-- ================= HEADER ================= -->
+
       <div
         class="dashboard-header bg-white rounded-4 p-4 mb-4 shadow-sm d-flex justify-content-between align-items-center"
       >
@@ -42,6 +43,7 @@
       </div>
 
       <!-- ================= TOP STATISTICS ================= -->
+
       <div class="row g-4">
         <!-- Paid -->
         <div class="col-xl-3 col-md-6">
@@ -105,6 +107,7 @@
       </div>
 
       <!-- ================= CHART + QUICK OVERVIEW ================= -->
+
       <div class="row g-4 mt-4">
         <!-- Chart -->
         <div class="col-lg-8">
@@ -113,6 +116,7 @@
               <div>
                 <h5>
                   <i class="bi bi-bar-chart-line-fill text-primary"></i>
+
                   Monthly Payment Chart
                 </h5>
 
@@ -134,57 +138,66 @@
             <h5 class="mb-4">Quick Overview</h5>
 
             <!-- This Month Collection -->
+
             <div class="quick-item">
               <i class="bi bi-currency-dollar text-success"></i>
 
               <div>
                 <h4>৳ {{ Number(thisMonthCollection).toLocaleString() }}</h4>
 
-                <small>This Month Collection</small>
+                <small> This Month Collection </small>
               </div>
             </div>
 
             <!-- Other Collection -->
+
             <div class="quick-item">
               <i class="bi bi-bag-check text-primary"></i>
 
               <div>
                 <h4>৳ {{ Number(totalOtherPayment).toLocaleString() }}</h4>
 
-                <small>Other Collection</small>
+                <small> Other Collection </small>
               </div>
             </div>
 
             <!-- This Month Due -->
+
             <div class="quick-item">
               <i class="bi bi-calendar-x text-danger"></i>
 
               <div>
                 <h4>৳ {{ Number(thisMonthDue).toLocaleString() }}</h4>
 
-                <small>This Month Due</small>
+                <small> This Month Due </small>
               </div>
             </div>
 
             <!-- Total Students -->
+
             <div class="quick-item">
               <i class="bi bi-person-x text-warning"></i>
 
               <div>
-                <h4>{{ totalStudents }}</h4>
+                <h4>
+                  {{ totalStudents }}
+                </h4>
 
-                <small>Total Students</small>
+                <small> Total Students </small>
               </div>
             </div>
 
             <!-- Unpaid Students -->
+
             <div class="quick-item">
               <i class="bi bi-person-x text-warning"></i>
 
               <div>
-                <h4>{{ runningMonthUnpaidStudents }}</h4>
+                <h4>
+                  {{ runningMonthUnpaidStudents }}
+                </h4>
 
-                <small>Unpaid Students</small>
+                <small> Unpaid Students </small>
               </div>
             </div>
           </div>
@@ -192,19 +205,24 @@
       </div>
 
       <!-- ================= STUDENT STATISTICS ================= -->
+
       <div class="row g-4 mt-4">
         <!-- Due Students -->
+
         <div class="col-md-3">
           <div class="dashboard-box small-stat">
             <i class="bi bi-exclamation-triangle text-danger"></i>
 
-            <h3>{{ dueStudents }}</h3>
+            <h3>
+              {{ dueStudents }}
+            </h3>
 
             <p>Due Students</p>
           </div>
         </div>
 
         <!-- Today's Collection -->
+
         <div class="col-md-3">
           <div class="dashboard-box small-stat">
             <i class="bi bi-cash-coin text-success"></i>
@@ -216,6 +234,7 @@
         </div>
 
         <!-- Today's Expense -->
+
         <div class="col-md-3">
           <div class="dashboard-box small-stat">
             <i class="bi bi-mortarboard text-primary"></i>
@@ -227,6 +246,7 @@
         </div>
 
         <!-- Admission + Exam -->
+
         <div class="col-md-3">
           <div class="dashboard-box small-stat">
             <i class="bi bi-receipt text-warning"></i>
@@ -239,11 +259,13 @@
       </div>
 
       <!-- ================= RECENT PAYMENTS ================= -->
+
       <div class="dashboard-box payment-box mt-4">
         <div class="box-header">
           <div>
             <h5>
               <i class="bi bi-clock-history text-success"></i>
+
               Recent Payments
             </h5>
 
@@ -258,22 +280,30 @@
             <thead>
               <tr>
                 <th>#</th>
+
                 <th>Student</th>
+
                 <th>Amount</th>
+
                 <th>Status</th>
+
                 <th>Date</th>
               </tr>
             </thead>
 
             <tbody>
               <!-- Empty -->
+
               <tr v-if="recentPayments.length === 0">
                 <td colspan="5" class="text-center text-muted py-4">No recent payments found.</td>
               </tr>
 
               <!-- Payments -->
+
               <tr v-for="(payment, index) in recentPayments.slice(0, 5)" :key="payment.id || index">
-                <td>{{ index + 1 }}</td>
+                <td>
+                  {{ index + 1 }}
+                </td>
 
                 <td>
                   {{ payment.student?.full_name || 'N/A' }}
@@ -304,8 +334,11 @@
 
 <script setup>
 import AccountMenuView from './AccountMenuView.vue'
+
 import MonthlyPaymentChart from '@/components/MonthlyPaymentChart.vue'
+
 import { ref, computed, onMounted } from 'vue'
+
 import api from '@/services/api'
 
 /* =========================================================
@@ -319,20 +352,35 @@ const defaultAvatar = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
 ========================================================= */
 
 const totalPaidAmount = ref(0)
+
 const totalDueAmount = ref(0)
+
 const totalStudents = ref(0)
+
 const dueStudents = ref(0)
+
 const recentPayments = ref([])
+
 const monthlyPayments = ref([])
+
 const thisMonthDue = ref(0)
+
 const payments = ref([])
+
 const totalExpense = ref(0)
+
 const totalOtherPayment = ref(0)
+
 const runningMonthUnpaidStudents = ref(0)
+
 const rawOtherPayments = ref([])
+
 const thisMonthCollection = ref(0)
+
 const todayCollection = ref(0)
+
 const todayExpense = ref(0)
+
 const admissionExamCollection = ref(0)
 
 /* =========================================================
@@ -393,6 +441,7 @@ const getImageUrl = (path) => {
 
 const onImageError = (e) => {
   e.target.onerror = null
+
   e.target.src = defaultAvatar
 }
 
@@ -457,13 +506,20 @@ const getDashboardData = async () => {
     /* =====================================================
        THIS MONTH COLLECTION
 
-       Frontend calculation:
-       Current month's monthly paid amount
+       Monthly Paid
+       +
+       Admission Fee
+       +
+       Exam Fee
+
+       Other Payment is added later inside
+       getTotalOtherPayment()
     ===================================================== */
 
     const currentDate = new Date()
 
     const currentYear = currentDate.getFullYear()
+
     const currentMonth = currentDate.getMonth()
 
     thisMonthCollection.value = payments.value.reduce((total, payment) => {
@@ -630,9 +686,52 @@ const getTotalOtherPayment = async () => {
 
     rawOtherPayments.value = response.data.data || []
 
+    /* =====================================================
+       TOTAL OTHER PAYMENT
+
+       This remains exactly as before.
+       Used by "Other Collection".
+    ===================================================== */
+
     totalOtherPayment.value = rawOtherPayments.value.reduce((total, payment) => {
       return total + Number(payment.total_amount || 0)
     }, 0)
+
+    /* =====================================================
+       THIS MONTH OTHER PAYMENT
+
+       Add only current month's Other Payments
+       to This Month Collection.
+    ===================================================== */
+
+    const currentDate = new Date()
+
+    const currentYear = currentDate.getFullYear()
+
+    const currentMonth = currentDate.getMonth()
+
+    const thisMonthOtherPayment = rawOtherPayments.value.reduce((total, payment) => {
+      const paymentDateValue = payment.payment_date || payment.date || payment.created_at
+
+      const paymentDate = paymentDateValue ? new Date(paymentDateValue) : null
+
+      if (
+        paymentDate &&
+        paymentDate.getFullYear() === currentYear &&
+        paymentDate.getMonth() === currentMonth
+      ) {
+        return total + Number(payment.total_amount || 0)
+      }
+
+      return total
+    }, 0)
+
+    /* =====================================================
+       ADD THIS MONTH OTHER PAYMENT
+       TO THIS MONTH COLLECTION
+    ===================================================== */
+
+    thisMonthCollection.value += thisMonthOtherPayment
   } catch (error) {
     console.error('Other Payment Error:', error)
   }
@@ -644,8 +743,11 @@ const getTotalOtherPayment = async () => {
 
 onMounted(() => {
   getDashboardData()
+
   getDashboardimages()
+
   getTotalExpense()
+
   getTotalOtherPayment()
 })
 </script>
@@ -653,9 +755,13 @@ onMounted(() => {
 <style scoped>
 .dashboard-content {
   margin-left: 250px;
+
   width: calc(100% - 250px);
+
   padding: 30px;
+
   background: #f8fafc;
+
   min-height: 100vh;
 }
 
@@ -669,29 +775,45 @@ onMounted(() => {
 
 .dashboard-card {
   background: white;
+
   border-radius: 22px;
+
   padding: 25px;
+
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
+
   border: none;
+
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+
   transition: 0.35s ease;
+
   position: relative;
+
   overflow: hidden;
 }
 
 .dashboard-card::before {
   content: '';
+
   position: absolute;
+
   width: 100%;
+
   height: 5px;
+
   top: 0;
+
   left: 0;
 }
 
 .dashboard-card:hover {
   transform: translateY(-8px);
+
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
 }
 
@@ -713,75 +835,101 @@ onMounted(() => {
 
 .card-content span {
   color: #64748b;
+
   font-size: 14px;
+
   font-weight: 500;
 }
 
 .card-content h2 {
   margin-top: 12px;
+
   font-size: 28px;
+
   font-weight: 700;
 }
 
 .stat-icon {
   width: 65px;
+
   height: 65px;
+
   border-radius: 18px;
+
   display: flex;
+
   align-items: center;
+
   justify-content: center;
+
   font-size: 28px;
 }
 
 .stat-icon.success {
   background: #dcfce7;
+
   color: #16a34a;
 }
 
 .stat-icon.danger {
   background: #fee2e2;
+
   color: #dc2626;
 }
 
 .stat-icon.warning {
   background: #fef3c7;
+
   color: #d97706;
 }
 
 .stat-icon.primary {
   background: #dbeafe;
+
   color: #2563eb;
 }
 
 .dashboard-box {
   background: white;
+
   border-radius: 22px;
+
   padding: 25px;
+
   border: none;
+
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+
   transition: 0.35s ease;
 }
 
 .dashboard-box:hover {
   transform: translateY(-6px);
+
   box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
 }
 
 .box-header {
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
+
   margin-bottom: 20px;
 }
 
 .box-header h5 {
   font-weight: 700;
+
   color: #111827;
 }
 
 .box-header p {
   margin: 5px 0 0;
+
   color: #64748b;
+
   font-size: 14px;
 }
 
@@ -795,17 +943,25 @@ onMounted(() => {
 
 .quick-item {
   display: flex;
+
   align-items: center;
+
   gap: 18px;
+
   padding: 15px;
+
   background: #f8fafc;
+
   border-radius: 16px;
+
   margin-bottom: 15px;
+
   transition: 0.3s;
 }
 
 .quick-item:hover {
   background: #eff6ff;
+
   transform: translateX(5px);
 }
 
@@ -815,6 +971,7 @@ onMounted(() => {
 
 .quick-item h4 {
   margin: 0;
+
   font-weight: 700;
 }
 
@@ -832,11 +989,13 @@ onMounted(() => {
 
 .small-stat h3 {
   margin-top: 15px;
+
   font-weight: 700;
 }
 
 .small-stat p {
   color: #64748b;
+
   margin: 0;
 }
 
@@ -850,15 +1009,21 @@ onMounted(() => {
 
 .payment-table thead th {
   background: #f8fafc;
+
   color: #64748b;
+
   font-size: 13px;
+
   border: none;
+
   padding: 15px;
 }
 
 .payment-table tbody td {
   padding: 16px;
+
   vertical-align: middle;
+
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -868,12 +1033,15 @@ onMounted(() => {
 
 .payment-table tbody tr:hover {
   background: #f8fafc;
+
   transform: scale(1.01);
 }
 
 .badge {
   padding: 7px 14px;
+
   border-radius: 20px;
+
   font-size: 12px;
 }
 
@@ -883,28 +1051,38 @@ onMounted(() => {
 
 .profile-img {
   width: 50px;
+
   height: 50px;
+
   border-radius: 50%;
+
   border: 3px solid #2563eb;
+
   object-fit: cover;
 }
 
 .profile-avatar img {
   height: 60px;
+
   width: 60px;
+
   border-radius: 50%;
 }
 
 @media (max-width: 991px) {
   .dashboard-content {
     margin-left: 0;
+
     width: 100%;
+
     padding: 20px;
   }
 
   .dashboard-header {
     flex-direction: column;
+
     align-items: flex-start;
+
     gap: 15px;
   }
 }
@@ -916,6 +1094,7 @@ onMounted(() => {
 
   .stat-icon {
     width: 55px;
+
     height: 55px;
   }
 }
