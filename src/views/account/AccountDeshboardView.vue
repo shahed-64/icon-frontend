@@ -140,7 +140,7 @@
               <div>
                 <h4>৳ {{ Number(thisMonthCollection).toLocaleString() }}</h4>
 
-                <small> This Month Collection </small>
+                <small>This Month Collection</small>
               </div>
             </div>
 
@@ -151,7 +151,7 @@
               <div>
                 <h4>৳ {{ Number(totalOtherPayment).toLocaleString() }}</h4>
 
-                <small> Other Collection </small>
+                <small>Other Collection</small>
               </div>
             </div>
 
@@ -162,7 +162,7 @@
               <div>
                 <h4>৳ {{ Number(thisMonthDue).toLocaleString() }}</h4>
 
-                <small> This Month Due </small>
+                <small>This Month Due</small>
               </div>
             </div>
 
@@ -171,11 +171,9 @@
               <i class="bi bi-person-x text-warning"></i>
 
               <div>
-                <h4>
-                  {{ totalStudents }}
-                </h4>
+                <h4>{{ totalStudents }}</h4>
 
-                <small> Total Students </small>
+                <small>Total Students</small>
               </div>
             </div>
 
@@ -184,11 +182,9 @@
               <i class="bi bi-person-x text-warning"></i>
 
               <div>
-                <h4>
-                  {{ runningMonthUnpaidStudents }}
-                </h4>
+                <h4>{{ runningMonthUnpaidStudents }}</h4>
 
-                <small> Unpaid Students </small>
+                <small>Unpaid Students</small>
               </div>
             </div>
           </div>
@@ -202,9 +198,7 @@
           <div class="dashboard-box small-stat">
             <i class="bi bi-exclamation-triangle text-danger"></i>
 
-            <h3>
-              {{ dueStudents }}
-            </h3>
+            <h3>{{ dueStudents }}</h3>
 
             <p>Due Students</p>
           </div>
@@ -279,9 +273,7 @@
 
               <!-- Payments -->
               <tr v-for="(payment, index) in recentPayments.slice(0, 5)" :key="payment.id || index">
-                <td>
-                  {{ index + 1 }}
-                </td>
+                <td>{{ index + 1 }}</td>
 
                 <td>
                   {{ payment.student?.full_name || 'N/A' }}
@@ -312,11 +304,8 @@
 
 <script setup>
 import AccountMenuView from './AccountMenuView.vue'
-
 import MonthlyPaymentChart from '@/components/MonthlyPaymentChart.vue'
-
 import { ref, computed, onMounted } from 'vue'
-
 import api from '@/services/api'
 
 /* =========================================================
@@ -330,35 +319,20 @@ const defaultAvatar = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
 ========================================================= */
 
 const totalPaidAmount = ref(0)
-
 const totalDueAmount = ref(0)
-
 const totalStudents = ref(0)
-
 const dueStudents = ref(0)
-
 const recentPayments = ref([])
-
 const monthlyPayments = ref([])
-
 const thisMonthDue = ref(0)
-
 const payments = ref([])
-
 const totalExpense = ref(0)
-
 const totalOtherPayment = ref(0)
-
 const runningMonthUnpaidStudents = ref(0)
-
 const rawOtherPayments = ref([])
-
 const thisMonthCollection = ref(0)
-
 const todayCollection = ref(0)
-
 const todayExpense = ref(0)
-
 const admissionExamCollection = ref(0)
 
 /* =========================================================
@@ -419,7 +393,6 @@ const getImageUrl = (path) => {
 
 const onImageError = (e) => {
   e.target.onerror = null
-
   e.target.src = defaultAvatar
 }
 
@@ -451,11 +424,50 @@ const getDashboardData = async () => {
        BACKEND CALCULATED COLLECTIONS
     ===================================================== */
 
-    todayCollection.value = Number(data.today_collection || 0)
-
-    thisMonthCollection.value = Number(data.this_month_collection || 0)
-
     thisMonthDue.value = Number(data.this_month_due || 0)
+
+    /* =====================================================
+       PAGINATED PAYMENTS
+    ===================================================== */
+
+    payments.value = data.payments?.data || []
+
+    /* =====================================================
+       TODAY'S COLLECTION
+
+       Backend today_collection
+       +
+       today's admission fee
+       +
+       today's exam fee
+    ===================================================== */
+
+    const today = new Date().toISOString().slice(0, 10)
+
+    const todayAdmissionExam = payments.value.reduce((total, payment) => {
+      if (payment.payment_date?.slice(0, 10) === today) {
+        return total + Number(payment.admission_fee || 0) + Number(payment.exam_fee || 0)
+      }
+
+      return total
+    }, 0)
+
+    todayCollection.value = Number(data.today_collection || 0) + todayAdmissionExam
+
+    /* =====================================================
+       THIS MONTH COLLECTION
+
+       Temporary frontend fix:
+       Backend this_month_collection currently misses
+       monthly paid amount.
+    ===================================================== */
+
+    const currentMonth = new Date().getMonth() + 1
+
+    const currentMonthPaid =
+      (data.monthly_payments || []).find((item) => Number(item.month) === currentMonth)?.total || 0
+
+    thisMonthCollection.value = Number(data.this_month_collection || 0) + Number(currentMonthPaid)
 
     /* =====================================================
        OTHER DASHBOARD DATA
@@ -468,24 +480,7 @@ const getDashboardData = async () => {
     runningMonthUnpaidStudents.value = Number(data.running_month_unpaid_students || 0)
 
     /* =====================================================
-       PAGINATED PAYMENTS
-
-       IMPORTANT:
-       Laravel paginate() returns:
-
-       data.payments.data
-    ===================================================== */
-
-    payments.value = data.payments?.data || []
-
-    /* =====================================================
        ADMISSION + EXAM FEE
-
-       Since backend pagination only gives current page,
-       this value is calculated from available payment data.
-
-       If you want exact lifetime Admission + Exam total,
-       backend should provide a dedicated total.
     ===================================================== */
 
     admissionExamCollection.value = payments.value.reduce((total, payment) => {
@@ -633,11 +628,8 @@ const getTotalOtherPayment = async () => {
 
 onMounted(() => {
   getDashboardData()
-
   getDashboardimages()
-
   getTotalExpense()
-
   getTotalOtherPayment()
 })
 </script>
@@ -645,13 +637,9 @@ onMounted(() => {
 <style scoped>
 .dashboard-content {
   margin-left: 250px;
-
   width: calc(100% - 250px);
-
   padding: 30px;
-
   background: #f8fafc;
-
   min-height: 100vh;
 }
 
@@ -665,45 +653,29 @@ onMounted(() => {
 
 .dashboard-card {
   background: white;
-
   border-radius: 22px;
-
   padding: 25px;
-
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   border: none;
-
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-
   transition: 0.35s ease;
-
   position: relative;
-
   overflow: hidden;
 }
 
 .dashboard-card::before {
   content: '';
-
   position: absolute;
-
   width: 100%;
-
   height: 5px;
-
   top: 0;
-
   left: 0;
 }
 
 .dashboard-card:hover {
   transform: translateY(-8px);
-
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
 }
 
@@ -725,101 +697,75 @@ onMounted(() => {
 
 .card-content span {
   color: #64748b;
-
   font-size: 14px;
-
   font-weight: 500;
 }
 
 .card-content h2 {
   margin-top: 12px;
-
   font-size: 28px;
-
   font-weight: 700;
 }
 
 .stat-icon {
   width: 65px;
-
   height: 65px;
-
   border-radius: 18px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
   font-size: 28px;
 }
 
 .stat-icon.success {
   background: #dcfce7;
-
   color: #16a34a;
 }
 
 .stat-icon.danger {
   background: #fee2e2;
-
   color: #dc2626;
 }
 
 .stat-icon.warning {
   background: #fef3c7;
-
   color: #d97706;
 }
 
 .stat-icon.primary {
   background: #dbeafe;
-
   color: #2563eb;
 }
 
 .dashboard-box {
   background: white;
-
   border-radius: 22px;
-
   padding: 25px;
-
   border: none;
-
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-
   transition: 0.35s ease;
 }
 
 .dashboard-box:hover {
   transform: translateY(-6px);
-
   box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
 }
 
 .box-header {
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   margin-bottom: 20px;
 }
 
 .box-header h5 {
   font-weight: 700;
-
   color: #111827;
 }
 
 .box-header p {
   margin: 5px 0 0;
-
   color: #64748b;
-
   font-size: 14px;
 }
 
@@ -833,25 +779,17 @@ onMounted(() => {
 
 .quick-item {
   display: flex;
-
   align-items: center;
-
   gap: 18px;
-
   padding: 15px;
-
   background: #f8fafc;
-
   border-radius: 16px;
-
   margin-bottom: 15px;
-
   transition: 0.3s;
 }
 
 .quick-item:hover {
   background: #eff6ff;
-
   transform: translateX(5px);
 }
 
@@ -861,7 +799,6 @@ onMounted(() => {
 
 .quick-item h4 {
   margin: 0;
-
   font-weight: 700;
 }
 
@@ -879,13 +816,11 @@ onMounted(() => {
 
 .small-stat h3 {
   margin-top: 15px;
-
   font-weight: 700;
 }
 
 .small-stat p {
   color: #64748b;
-
   margin: 0;
 }
 
@@ -899,21 +834,15 @@ onMounted(() => {
 
 .payment-table thead th {
   background: #f8fafc;
-
   color: #64748b;
-
   font-size: 13px;
-
   border: none;
-
   padding: 15px;
 }
 
 .payment-table tbody td {
   padding: 16px;
-
   vertical-align: middle;
-
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -923,15 +852,12 @@ onMounted(() => {
 
 .payment-table tbody tr:hover {
   background: #f8fafc;
-
   transform: scale(1.01);
 }
 
 .badge {
   padding: 7px 14px;
-
   border-radius: 20px;
-
   font-size: 12px;
 }
 
@@ -941,38 +867,28 @@ onMounted(() => {
 
 .profile-img {
   width: 50px;
-
   height: 50px;
-
   border-radius: 50%;
-
   border: 3px solid #2563eb;
-
   object-fit: cover;
 }
 
 .profile-avatar img {
   height: 60px;
-
   width: 60px;
-
   border-radius: 50%;
 }
 
 @media (max-width: 991px) {
   .dashboard-content {
     margin-left: 0;
-
     width: 100%;
-
     padding: 20px;
   }
 
   .dashboard-header {
     flex-direction: column;
-
     align-items: flex-start;
-
     gap: 15px;
   }
 }
@@ -984,7 +900,6 @@ onMounted(() => {
 
   .stat-icon {
     width: 55px;
-
     height: 55px;
   }
 }
