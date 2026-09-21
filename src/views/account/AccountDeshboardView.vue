@@ -462,13 +462,7 @@ const getDashboardData = async () => {
        monthly paid amount.
     ===================================================== */
 
-    const currentMonth = new Date().getMonth() + 1
-
-    const currentMonthPaid =
-      (data.monthly_payments || []).find((item) => Number(item.month) === currentMonth)?.total || 0
-
-    thisMonthCollection.value = Number(data.this_month_collection || 0) + Number(currentMonthPaid)
-
+    thisMonthCollection.value = Number(data.this_month_collection || 0)
     /* =====================================================
        OTHER DASHBOARD DATA
     ===================================================== */
