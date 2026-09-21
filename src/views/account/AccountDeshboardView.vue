@@ -457,12 +457,29 @@ const getDashboardData = async () => {
     /* =====================================================
        THIS MONTH COLLECTION
 
-       Temporary frontend fix:
-       Backend this_month_collection currently misses
-       monthly paid amount.
+       Frontend calculation:
+       Current month's monthly paid amount
     ===================================================== */
 
-    thisMonthCollection.value = Number(data.this_month_collection || 0)
+    const currentDate = new Date()
+
+    const currentYear = currentDate.getFullYear()
+    const currentMonth = currentDate.getMonth()
+
+    thisMonthCollection.value = payments.value.reduce((total, payment) => {
+      const paymentDate = payment.payment_date ? new Date(payment.payment_date) : null
+
+      if (
+        paymentDate &&
+        paymentDate.getFullYear() === currentYear &&
+        paymentDate.getMonth() === currentMonth
+      ) {
+        return total + Number(payment.paid_amount || 0)
+      }
+
+      return total
+    }, 0)
+
     /* =====================================================
        OTHER DASHBOARD DATA
     ===================================================== */
