@@ -474,7 +474,12 @@ const getDashboardData = async () => {
         paymentDate.getFullYear() === currentYear &&
         paymentDate.getMonth() === currentMonth
       ) {
-        return total + Number(payment.paid_amount || 0)
+        return (
+          total +
+          Number(payment.paid_amount || 0) +
+          Number(payment.admission_fee || 0) +
+          Number(payment.exam_fee || 0)
+        )
       }
 
       return total
