@@ -14,9 +14,8 @@
         <!-- Left Side -->
         <div>
           <h3 class="fw-bold mb-1 text-dark">Dashboard</h3>
-          <p class="text-muted mb-0 small">
-            Welcome back! Here's today's coaching overview.
-          </p>
+
+          <p class="text-muted mb-0 small">Welcome back! Here's today's coaching overview.</p>
         </div>
 
         <!-- Right Side -->
@@ -50,9 +49,7 @@
             <div class="card-content">
               <span>Paid Amount</span>
 
-              <h2 class="text-success">
-                ৳ {{ Number(totalCollection).toLocaleString() }}
-              </h2>
+              <h2 class="text-success">৳ {{ Number(totalCollection).toLocaleString() }}</h2>
             </div>
 
             <div class="stat-icon success">
@@ -67,9 +64,7 @@
             <div class="card-content">
               <span>Total Expense</span>
 
-              <h2 class="text-danger">
-                ৳ {{ Number(totalExpense).toLocaleString() }}
-              </h2>
+              <h2 class="text-danger">৳ {{ Number(totalExpense).toLocaleString() }}</h2>
             </div>
 
             <div class="stat-icon danger">
@@ -84,9 +79,7 @@
             <div class="card-content">
               <span>Total Due</span>
 
-              <h2 class="text-warning">
-                ৳ {{ Number(totalDueAmount).toLocaleString() }}
-              </h2>
+              <h2 class="text-warning">৳ {{ Number(totalDueAmount).toLocaleString() }}</h2>
             </div>
 
             <div class="stat-icon warning">
@@ -101,9 +94,7 @@
             <div class="card-content">
               <span>Current Cash</span>
 
-              <h2 class="text-primary">
-                ৳ {{ Number(currentCash).toLocaleString() }}
-              </h2>
+              <h2 class="text-primary">৳ {{ Number(currentCash).toLocaleString() }}</h2>
             </div>
 
             <div class="stat-icon primary">
@@ -147,9 +138,7 @@
               <i class="bi bi-currency-dollar text-success"></i>
 
               <div>
-                <h4>
-                  ৳ {{ Number(thisMonthCollection).toLocaleString() }}
-                </h4>
+                <h4>৳ {{ Number(thisMonthCollection).toLocaleString() }}</h4>
 
                 <small> This Month Collection </small>
               </div>
@@ -160,9 +149,7 @@
               <i class="bi bi-bag-check text-primary"></i>
 
               <div>
-                <h4>
-                  ৳ {{ Number(totalOtherPayment).toLocaleString() }}
-                </h4>
+                <h4>৳ {{ Number(totalOtherPayment).toLocaleString() }}</h4>
 
                 <small> Other Collection </small>
               </div>
@@ -173,9 +160,7 @@
               <i class="bi bi-calendar-x text-danger"></i>
 
               <div>
-                <h4>
-                  ৳ {{ Number(thisMonthDue).toLocaleString() }}
-                </h4>
+                <h4>৳ {{ Number(thisMonthDue).toLocaleString() }}</h4>
 
                 <small> This Month Due </small>
               </div>
@@ -186,7 +171,9 @@
               <i class="bi bi-person-x text-warning"></i>
 
               <div>
-                <h4>{{ totalStudents }}</h4>
+                <h4>
+                  {{ totalStudents }}
+                </h4>
 
                 <small> Total Students </small>
               </div>
@@ -197,7 +184,9 @@
               <i class="bi bi-person-x text-warning"></i>
 
               <div>
-                <h4>{{ runningMonthUnpaidStudents }}</h4>
+                <h4>
+                  {{ runningMonthUnpaidStudents }}
+                </h4>
 
                 <small> Unpaid Students </small>
               </div>
@@ -213,7 +202,9 @@
           <div class="dashboard-box small-stat">
             <i class="bi bi-exclamation-triangle text-danger"></i>
 
-            <h3>{{ dueStudents }}</h3>
+            <h3>
+              {{ dueStudents }}
+            </h3>
 
             <p>Due Students</p>
           </div>
@@ -224,9 +215,7 @@
           <div class="dashboard-box small-stat">
             <i class="bi bi-cash-coin text-success"></i>
 
-            <h3>
-              ৳ {{ Number(todayCollection).toLocaleString() }}
-            </h3>
+            <h3>৳ {{ Number(todayCollection).toLocaleString() }}</h3>
 
             <p>Today's Collection</p>
           </div>
@@ -237,9 +226,7 @@
           <div class="dashboard-box small-stat">
             <i class="bi bi-mortarboard text-primary"></i>
 
-            <h3>
-              ৳ {{ Number(todayExpense).toLocaleString() }}
-            </h3>
+            <h3>৳ {{ Number(todayExpense).toLocaleString() }}</h3>
 
             <p>Today's Expense</p>
           </div>
@@ -250,9 +237,7 @@
           <div class="dashboard-box small-stat">
             <i class="bi bi-receipt text-warning"></i>
 
-            <h3>
-              ৳ {{ Number(admissionExamCollection).toLocaleString() }}
-            </h3>
+            <h3>৳ {{ Number(admissionExamCollection).toLocaleString() }}</h3>
 
             <p>Admission + Exam Fee</p>
           </div>
@@ -271,9 +256,7 @@
             <p>Latest student transactions</p>
           </div>
 
-          <button class="btn btn-primary btn-sm" type="button">
-            View All
-          </button>
+          <button class="btn btn-primary btn-sm" type="button">View All</button>
         </div>
 
         <div class="table-responsive">
@@ -289,34 +272,27 @@
             </thead>
 
             <tbody>
+              <!-- Empty -->
               <tr v-if="recentPayments.length === 0">
-                <td colspan="5" class="text-center text-muted py-4">
-                  No recent payments found.
-                </td>
+                <td colspan="5" class="text-center text-muted py-4">No recent payments found.</td>
               </tr>
 
-              <tr
-                v-for="(payment, index) in recentPayments.slice(0, 5)"
-                :key="payment.id || index"
-              >
-                <td>{{ index + 1 }}</td>
+              <!-- Payments -->
+              <tr v-for="(payment, index) in recentPayments.slice(0, 5)" :key="payment.id || index">
+                <td>
+                  {{ index + 1 }}
+                </td>
 
                 <td>
                   {{ payment.student?.full_name || 'N/A' }}
                 </td>
 
-                <td>
-                  ৳ {{ Number(payment.paid_amount || 0).toLocaleString() }}
-                </td>
+                <td>৳ {{ Number(payment.paid_amount || 0).toLocaleString() }}</td>
 
                 <td>
                   <span
                     class="badge"
-                    :class="
-                      payment.status === 'paid'
-                        ? 'bg-success'
-                        : 'bg-danger'
-                    "
+                    :class="payment.status === 'paid' ? 'bg-success' : 'bg-danger'"
                   >
                     {{ payment.status || 'due' }}
                   </span>
@@ -340,7 +316,15 @@ import MonthlyPaymentChart from '@/components/MonthlyPaymentChart.vue'
 import { ref, computed, onMounted } from 'vue'
 import api from '@/services/api'
 
+/* =========================================================
+   LOCAL SAFE AVATAR
+========================================================= */
+
 const defaultAvatar = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="%23cbd5e1"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.5-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-3.8-1.04-4.83-2.61.03-1.6 3.22-2.48 4.83-2.48s4.8 1.88 4.83 2.48C15.8 18.96 14.03 20 12 20z"/></svg>`
+
+/* =========================================================
+   DASHBOARD STATES
+========================================================= */
 
 const totalPaidAmount = ref(0)
 const totalDueAmount = ref(0)
@@ -359,11 +343,19 @@ const todayCollection = ref(0)
 const todayExpense = ref(0)
 const admissionExamCollection = ref(0)
 
+/* =========================================================
+   CURRENT USER
+========================================================= */
+
 const currentUser = ref({
   name: '',
   role: '',
   image: '',
 })
+
+/* =========================================================
+   TOTAL COLLECTION
+========================================================= */
 
 const totalCollection = computed(() => {
   return (
@@ -373,18 +365,24 @@ const totalCollection = computed(() => {
   )
 })
 
+/* =========================================================
+   CURRENT CASH
+========================================================= */
+
 const currentCash = computed(() => {
   return Number(totalCollection.value) - Number(totalExpense.value)
 })
 
-const getImageUrl = (path) => {
-  if (!path) return defaultAvatar
+/* =========================================================
+   IMAGE URL
+========================================================= */
 
-  if (
-    path.startsWith('http://') ||
-    path.startsWith('https://') ||
-    path.startsWith('data:image')
-  ) {
+const getImageUrl = (path) => {
+  if (!path) {
+    return defaultAvatar
+  }
+
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:image')) {
     return path
   }
 
@@ -397,137 +395,156 @@ const getImageUrl = (path) => {
   return `http://127.0.0.1:8000/storage/${cleanPath}`
 }
 
+/* =========================================================
+   IMAGE ERROR
+========================================================= */
+
 const onImageError = (e) => {
   e.target.onerror = null
   e.target.src = defaultAvatar
 }
 
+/* =========================================================
+   GET DASHBOARD DATA
+========================================================= */
+
 const getDashboardData = async () => {
   try {
     const response = await api.get('/payments')
+
     const data = response.data
 
     console.log('FULL RESPONSE:', data)
 
+    /* =====================================================
+       BASIC DASHBOARD VALUES
+    ===================================================== */
+
     totalPaidAmount.value = Number(data.total_paid_amount || 0)
+
     totalDueAmount.value = Number(data.total_due_amount || 0)
+
     totalStudents.value = Number(data.total_students || 0)
+
     dueStudents.value = Number(data.due_students || 0)
+
+    /* =====================================================
+       BACKEND CALCULATED COLLECTIONS
+    ===================================================== */
 
     thisMonthDue.value = Number(data.this_month_due || 0)
 
+    /* =====================================================
+       PAGINATED PAYMENTS
+    ===================================================== */
+
     payments.value = data.payments?.data || []
 
-    // ==================================================
-    // Today's Collection
-    // DO NOT ADD OTHER PAYMENT HERE
-    // ==================================================
+    /* =====================================================
+       TODAY'S COLLECTION
+
+       Backend today_collection
+       +
+       today's admission fee
+       +
+       today's exam fee
+
+       NOTHING CHANGED HERE
+    ===================================================== */
+
     const today = new Date().toISOString().slice(0, 10)
 
-    const todayAdmissionExam = payments.value.reduce(
-      (total, payment) => {
-        if (payment.payment_date?.slice(0, 10) === today) {
-          return (
-            total +
-            Number(payment.admission_fee || 0) +
-            Number(payment.exam_fee || 0)
-          )
-        }
+    const todayAdmissionExam = payments.value.reduce((total, payment) => {
+      if (payment.payment_date?.slice(0, 10) === today) {
+        return total + Number(payment.admission_fee || 0) + Number(payment.exam_fee || 0)
+      }
 
-        return total
-      },
-      0,
-    )
+      return total
+    }, 0)
 
-    todayCollection.value =
-      Number(data.today_collection || 0) + todayAdmissionExam
+    todayCollection.value = Number(data.today_collection || 0) + todayAdmissionExam
 
-    // ==================================================
-    // This Month Collection
-    // FRONTEND WILL CALCULATE THIS
-    // Backend this_month_collection is NOT used
-    // ==================================================
+    /* =====================================================
+       THIS MONTH COLLECTION
+
+       Monthly Paid
+       +
+       Admission Fee
+       +
+       Exam Fee
+
+       Other Payment is added later by
+       getTotalOtherPayment()
+    ===================================================== */
+
     const currentDate = new Date()
+
     const currentYear = currentDate.getFullYear()
+
     const currentMonth = currentDate.getMonth()
 
-    thisMonthCollection.value = payments.value.reduce(
-      (total, payment) => {
-        const paymentDate = payment.payment_date
-          ? new Date(payment.payment_date)
-          : null
+    thisMonthCollection.value = payments.value.reduce((total, payment) => {
+      const paymentDate = payment.payment_date ? new Date(payment.payment_date) : null
 
-        if (
-          paymentDate &&
-          paymentDate.getFullYear() === currentYear &&
-          paymentDate.getMonth() === currentMonth
-        ) {
-          return (
-            total +
-            Number(payment.paid_amount || 0) +
-            Number(payment.admission_fee || 0) +
-            Number(payment.exam_fee || 0)
-          )
-        }
+      if (
+        paymentDate &&
+        paymentDate.getFullYear() === currentYear &&
+        paymentDate.getMonth() === currentMonth
+      ) {
+        return (
+          total +
+          Number(payment.paid_amount || 0) +
+          Number(payment.admission_fee || 0) +
+          Number(payment.exam_fee || 0)
+        )
+      }
 
-        return total
-      },
-      0,
-    )
+      return total
+    }, 0)
+
+    /* =====================================================
+       OTHER DASHBOARD DATA
+    ===================================================== */
 
     recentPayments.value = data.recent_payments || []
 
     monthlyPayments.value = data.monthly_payments || []
 
-    runningMonthUnpaidStudents.value =
-      Number(data.running_month_unpaid_students || 0)
+    runningMonthUnpaidStudents.value = Number(data.running_month_unpaid_students || 0)
 
-    admissionExamCollection.value = payments.value.reduce(
-      (total, payment) => {
-        return (
-          total +
-          Number(payment.admission_fee || 0) +
-          Number(payment.exam_fee || 0)
-        )
-      },
-      0,
-    )
+    /* =====================================================
+       ADMISSION + EXAM FEE
+    ===================================================== */
 
-    const loggedUser =
-      data.user ||
-      data.manager ||
-      data.logged_in_user ||
-      data.accountant
+    admissionExamCollection.value = payments.value.reduce((total, payment) => {
+      return total + Number(payment.admission_fee || 0) + Number(payment.exam_fee || 0)
+    }, 0)
+
+    /* =====================================================
+       LOGGED-IN USER
+    ===================================================== */
+
+    const loggedUser = data.user || data.manager || data.logged_in_user || data.accountant
 
     if (loggedUser) {
       currentUser.value = {
-        name:
-          loggedUser.name ||
-          loggedUser.full_name ||
-          loggedUser.username ||
-          'Administrator',
+        name: loggedUser.name || loggedUser.full_name || loggedUser.username || 'Administrator',
 
-        role:
-          loggedUser.role ||
-          loggedUser.user_type ||
-          loggedUser.designation ||
-          'System Admin',
+        role: loggedUser.role || loggedUser.user_type || loggedUser.designation || 'System Admin',
 
         image: getImageUrl(
-          loggedUser.image ||
-            loggedUser.profile_photo ||
-            loggedUser.avatar ||
-            loggedUser.photo,
+          loggedUser.image || loggedUser.profile_photo || loggedUser.avatar || loggedUser.photo,
         ),
       }
     }
   } catch (error) {
-    console.error(
-      'Dashboard Data Fetch Error:',
-      error.response?.data || error.message,
-    )
+    console.error('Dashboard Data Fetch Error:', error.response?.data || error.message)
   }
 }
+
+/* =========================================================
+   TOTAL EXPENSE + TODAY'S EXPENSE
+========================================================= */
 
 const getTotalExpense = async () => {
   try {
@@ -535,32 +552,42 @@ const getTotalExpense = async () => {
 
     const expenses = response.data.expenses || []
 
-    totalExpense.value = expenses.reduce(
-      (total, expense) => {
-        return total + Number(expense.paid_amount || 0)
-      },
-      0,
-    )
+    /* =====================================================
+       TOTAL EXPENSE
+    ===================================================== */
+
+    totalExpense.value = expenses.reduce((total, expense) => {
+      return total + Number(expense.paid_amount || 0)
+    }, 0)
+
+    /* =====================================================
+       TODAY'S EXPENSE
+    ===================================================== */
 
     const today = new Date().toISOString().slice(0, 10)
 
-    todayExpense.value = expenses.reduce(
-      (total, expense) => {
-        if (expense.payment_date?.slice(0, 10) === today) {
-          return total + Number(expense.paid_amount || 0)
-        }
+    todayExpense.value = expenses.reduce((total, expense) => {
+      if (expense.payment_date?.slice(0, 10) === today) {
+        return total + Number(expense.paid_amount || 0)
+      }
 
-        return total
-      },
-      0,
-    )
+      return total
+    }, 0)
   } catch (error) {
     console.error('Expense Error:', error)
   }
 }
 
+/* =========================================================
+   STAFF DASHBOARD + USER
+========================================================= */
+
 const getDashboardimages = async () => {
   try {
+    /* =====================================================
+       LOCAL STORAGE USER
+    ===================================================== */
+
     const storedUser =
       localStorage.getItem('user') ||
       localStorage.getItem('userInfo') ||
@@ -570,65 +597,53 @@ const getDashboardimages = async () => {
       const parsedUser = JSON.parse(storedUser)
 
       currentUser.value = {
-        name:
-          parsedUser.name ||
-          parsedUser.full_name ||
-          parsedUser.username ||
-          'Administrator',
+        name: parsedUser.name || parsedUser.full_name || parsedUser.username || 'Administrator',
 
-        role:
-          parsedUser.role ||
-          parsedUser.user_type ||
-          parsedUser.designation ||
-          'System Admin',
+        role: parsedUser.role || parsedUser.user_type || parsedUser.designation || 'System Admin',
 
         image: getImageUrl(
-          parsedUser.image ||
-            parsedUser.profile_photo ||
-            parsedUser.avatar ||
-            parsedUser.photo,
+          parsedUser.image || parsedUser.profile_photo || parsedUser.avatar || parsedUser.photo,
         ),
       }
     }
+
+    /* =====================================================
+       STAFF DASHBOARD API
+    ===================================================== */
 
     const response = await api.get('/staff/dashboard')
 
     const resData = response.data
 
-    totalStudents.value =
-      resData.total_students || totalStudents.value
+    totalStudents.value = resData.total_students || totalStudents.value
+
+    /* =====================================================
+       API USER
+    ===================================================== */
 
     if (resData.user) {
       const u = resData.user
 
       currentUser.value = {
-        name:
-          u.name ||
-          u.full_name ||
-          u.username ||
-          'Administrator',
+        name: u.name || u.full_name || u.username || 'Administrator',
 
-        role:
-          u.role ||
-          u.user_type ||
-          u.designation ||
-          'System Admin',
+        role: u.role || u.user_type || u.designation || 'System Admin',
 
-        image: getImageUrl(
-          u.image ||
-            u.profile_photo ||
-            u.avatar ||
-            u.photo,
-        ),
+        image: getImageUrl(u.image || u.profile_photo || u.avatar || u.photo),
       }
     }
   } catch (error) {
-    console.error(
-      'Error fetching dashboard data:',
-      error.response?.data || error.message,
-    )
+    console.error('Error fetching dashboard data:', error.response?.data || error.message)
   }
 }
+
+/* =========================================================
+   OTHER PAYMENTS
+
+   IMPORTANT:
+   This is the ONLY place where Other Payment
+   is added to This Month Collection.
+========================================================= */
 
 const getTotalOtherPayment = async () => {
   try {
@@ -636,58 +651,66 @@ const getTotalOtherPayment = async () => {
 
     rawOtherPayments.value = response.data.data || []
 
-    // Total Other Collection
-    totalOtherPayment.value = rawOtherPayments.value.reduce(
-      (total, payment) => {
-        return total + Number(payment.total_amount || 0)
-      },
-      0,
-    )
+    /* =====================================================
+       TOTAL OTHER PAYMENT
+
+       Used by "Other Collection".
+
+       This remains total of ALL Other Payments.
+    ===================================================== */
+
+    totalOtherPayment.value = rawOtherPayments.value.reduce((total, payment) => {
+      return total + Number(payment.total_amount || 0)
+    }, 0)
+
+    /* =====================================================
+       THIS MONTH OTHER PAYMENT
+    ===================================================== */
 
     const currentDate = new Date()
+
     const currentYear = currentDate.getFullYear()
+
     const currentMonth = currentDate.getMonth()
 
-    // ==================================================
-    // This Month Other Payment
-    // ==================================================
-    const thisMonthOtherPayment = rawOtherPayments.value.reduce(
-      (total, payment) => {
-        const paymentDateValue =
-          payment.payment_date ||
-          payment.date ||
-          payment.created_at
+    const thisMonthOtherPayment = rawOtherPayments.value.reduce((total, payment) => {
+      const paymentDateValue = payment.payment_date || payment.date || payment.created_at
 
-        const paymentDate = paymentDateValue
-          ? new Date(paymentDateValue)
-          : null
+      const paymentDate = paymentDateValue ? new Date(paymentDateValue) : null
 
-        if (
-          paymentDate &&
-          paymentDate.getFullYear() === currentYear &&
-          paymentDate.getMonth() === currentMonth
-        ) {
-          return total + Number(payment.total_amount || 0)
-        }
+      if (
+        paymentDate &&
+        paymentDate.getFullYear() === currentYear &&
+        paymentDate.getMonth() === currentMonth
+      ) {
+        return total + Number(payment.total_amount || 0)
+      }
 
-        return total
-      },
-      0,
-    )
+      return total
+    }, 0)
 
-    // ==================================================
-    // ONLY This Month Collection gets Other Payment
-    // ==================================================
-    thisMonthCollection.value += thisMonthOtherPayment
+    /* =====================================================
+       ADD CURRENT MONTH OTHER PAYMENT
+       TO THIS MONTH COLLECTION
+    ===================================================== */
+
+    thisMonthCollection.value = Number(thisMonthCollection.value) + Number(thisMonthOtherPayment)
   } catch (error) {
     console.error('Other Payment Error:', error)
   }
 }
 
+/* =========================================================
+   MOUNTED
+========================================================= */
+
 onMounted(() => {
   getDashboardData()
+
   getDashboardimages()
+
   getTotalExpense()
+
   getTotalOtherPayment()
 })
 </script>
@@ -961,3 +984,4 @@ onMounted(() => {
     height: 55px;
   }
 }
+</style>
