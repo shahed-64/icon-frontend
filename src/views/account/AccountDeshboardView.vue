@@ -465,16 +465,13 @@ const getDashboardData = async () => {
     todayCollection.value = Number(data.today_collection || 0) + todayAdmissionExam
 
     /* =====================================================
-       THIS MONTH COLLECTION
+       THIS MONTH STUDENT COLLECTION
 
-       Monthly Paid
-       +
-       Admission Fee
-       +
-       Exam Fee
+       IMPORTANT:
+       We calculate ONLY the student payment part here.
 
-       Other Payment is added later by
-       getTotalOtherPayment()
+       Other Payment will NOT be directly added here.
+       It will be combined later after both API calls finish.
     ===================================================== */
 
     const currentDate = new Date()
@@ -483,7 +480,7 @@ const getDashboardData = async () => {
 
     const currentMonth = currentDate.getMonth()
 
-    thisMonthCollection.value = payments.value.reduce((total, payment) => {
+    const thisMonthStudentCollection = payments.value.reduce((total, payment) => {
       const paymentDate = payment.payment_date ? new Date(payment.payment_date) : null
 
       if (
@@ -501,6 +498,12 @@ const getDashboardData = async () => {
 
       return total
     }, 0)
+
+    /* =====================================================
+       STORE STUDENT COLLECTION TEMPORARILY
+    ===================================================== */
+
+    thisMonthCollection.value = thisMonthStudentCollection
 
     /* =====================================================
        OTHER DASHBOARD DATA
@@ -641,8 +644,12 @@ const getDashboardimages = async () => {
    OTHER PAYMENTS
 
    IMPORTANT:
-   This is the ONLY place where Other Payment
-   is added to This Month Collection.
+   This function now ONLY loads and calculates
+   Other Payment data.
+
+   It does NOT directly modify thisMonthCollection.
+
+   This prevents the race-condition problem.
 ========================================================= */
 
 const getTotalOtherPayment = async () => {
@@ -690,13 +697,18 @@ const getTotalOtherPayment = async () => {
     }, 0)
 
     /* =====================================================
-       ADD CURRENT MONTH OTHER PAYMENT
-       TO THIS MONTH COLLECTION
+       IMPORTANT:
+       DO NOT ADD THIS DIRECTLY TO thisMonthCollection HERE.
+
+       The final This Month Collection is calculated
+       AFTER both API calls finish in onMounted().
     ===================================================== */
 
-    thisMonthCollection.value = Number(thisMonthCollection.value) + Number(thisMonthOtherPayment)
+    return thisMonthOtherPayment
   } catch (error) {
     console.error('Other Payment Error:', error)
+
+    return 0
   }
 }
 
@@ -704,14 +716,44 @@ const getTotalOtherPayment = async () => {
    MOUNTED
 ========================================================= */
 
-onMounted(() => {
-  getDashboardData()
+onMounted(async () => {
+  /*
+   * IMPORTANT FIX
+   *
+   * First load Payments + Other Payments together.
+   * Then calculate This Month Collection only after
+   * both API requests are finished.
+   *
+   * Therefore API response order can no longer
+   * overwrite/remove Other Payment from the total.
+   */
+
+  const [dashboardResult, otherPaymentResult] = await Promise.all([
+    getDashboardData(),
+    getTotalOtherPayment(),
+  ])
+
+  /*
+   * Other Payment function returns the current month's
+   * Other Payment amount.
+   *
+   * Dashboard data calculates the current month's
+   * student payment amount.
+   *
+   * Now combine them once.
+   */
+
+  thisMonthCollection.value =
+    Number(thisMonthCollection.value || 0) + Number(otherPaymentResult || 0)
+
+  /*
+   * These are independent APIs, so they can continue
+   * loading normally without affecting the calculation above.
+   */
 
   getDashboardimages()
 
   getTotalExpense()
-
-  getTotalOtherPayment()
 })
 </script>
 

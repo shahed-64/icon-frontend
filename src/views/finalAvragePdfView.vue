@@ -32,7 +32,7 @@
     </div>
 
     <!-- ================= PDF / PRINT AREA ================= -->
-    <div ref="resultPdf" class="container-fluid px-4" style="max-width: 1400px">
+    <div ref="resultPdf" class="container-fluid width-fix px-4" style="max-width: 1400px">
       <!-- Loading -->
       <div v-if="loading" class="d-flex justify-content-center align-items-center py-5">
         <div class="text-center">
@@ -64,7 +64,7 @@
             <div class="col-2 text-start ps-4"></div>
 
             <div class="col-8">
-              <h3 class="fw-bold text-dark mb-1 tracking-normal font-sans">
+              <h3 class="fw-bold font-size text-dark mb-1 tracking-normal font-sans">
                 {{ instituteName }}
               </h3>
 
@@ -849,5 +849,12 @@ onMounted(async () => {
     size: landscape;
     margin: 4mm;
   }
+}
+
+.width-fix[data-v-a4aa7a5c] {
+  max-width: 100% !important;
+}
+.font-size {
+  font-size: 80px !important;
 }
 </style>
