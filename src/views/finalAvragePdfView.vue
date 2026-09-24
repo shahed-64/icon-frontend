@@ -854,6 +854,9 @@ onMounted(async () => {
 .width-fix[data-v-a4aa7a5c] {
   max-width: 100% !important;
 }
+.width-fix {
+  max-width: 100% !important;
+}
 .font-size {
   font-size: 80px !important;
 }
