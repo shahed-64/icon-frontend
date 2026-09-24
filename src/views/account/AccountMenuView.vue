@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- ================= MOBILE HEADER ================= -->
+
     <div class="mobile-topbar d-md-none">
       <button type="button" class="menu-btn" @click="toggleMenu">
         <i class="fa-solid fa-bars"></i>
@@ -10,13 +11,16 @@
         <h5>
           {{ institute?.institute_name || 'Coaching MS' }}
         </h5>
+
         <small>Management System</small>
       </div>
     </div>
 
     <!-- ================= SIDEBAR ================= -->
+
     <div :class="['sidebar', { open: isOpen }]">
       <!-- ================= INSTITUTE LOGO ================= -->
+
       <div class="sidebar-logo">
         <div class="logo-box">
           <!-- Dynamic Institute Logo -->
@@ -35,13 +39,16 @@
           <h4>
             {{ institute?.institute_name || 'Coaching MS' }}
           </h4>
-          <span> Management System </span>
+
+          <span>Management System</span>
         </div>
       </div>
 
       <!-- ================= MENU ================= -->
+
       <div class="sidebar-menu">
         <!-- ================= DASHBOARD ================= -->
+
         <router-link
           to="/account/dashboard"
           class="menu-item"
@@ -53,6 +60,7 @@
         </router-link>
 
         <!-- ================= STUDENT PAYMENT ================= -->
+
         <router-link
           to="/student/payment"
           class="menu-item"
@@ -64,6 +72,7 @@
         </router-link>
 
         <!-- ================= OTHERS PAYMENT ================= -->
+
         <router-link
           to="/others-payment"
           class="menu-item"
@@ -75,6 +84,7 @@
         </router-link>
 
         <!-- ================= PAYMENT HISTORY ================= -->
+
         <router-link
           to="/payment/history"
           class="menu-item"
@@ -86,6 +96,7 @@
         </router-link>
 
         <!-- ================= SINGLE STUDENT PAYMENT ================= -->
+
         <router-link
           to="/payment/single"
           class="menu-item"
@@ -97,12 +108,14 @@
         </router-link>
 
         <!-- ================= EXPENSE ================= -->
+
         <router-link to="/expense" class="menu-item" active-class="active-menu" @click="closeMenu">
           <i class="fa-solid fa-money-check-dollar"></i>
           <span>Expense</span>
         </router-link>
 
         <!-- ================= MAIN DASHBOARD ================= -->
+
         <router-link
           v-if="role === 'Manager'"
           to="/dashboard"
@@ -116,6 +129,7 @@
       </div>
 
       <!-- ================= FOOTER ================= -->
+
       <div class="logout-section">
         <button type="button" @click="logout" class="logout-btn">
           <i class="fa-solid fa-right-from-bracket"></i>
@@ -125,6 +139,7 @@
     </div>
 
     <!-- ================= OVERLAY ================= -->
+
     <div v-if="isOpen" class="sidebar-overlay d-md-none" @click="closeMenu"></div>
   </div>
 </template>
@@ -163,21 +178,27 @@ const institute = ref(null)
 // ============================================================
 
 const fetchInstitute = async () => {
-  console.log('🔥 NEW FETCH FUNCTION RUNNING')
+  console.log('🔥 FETCH INSTITUTE API RUNNING')
 
   try {
-    console.time('api-fetch-auth')
+    console.time('api-fetch-institute')
 
     const response = await api.get('/institute-info')
 
-    console.timeEnd('api-fetch-auth')
+    console.timeEnd('api-fetch-institute')
 
-    console.log('AUTH FETCH STATUS:', response.status)
-    console.log('AUTH FETCH DATA:', response.data)
+    console.log('INSTITUTE API STATUS:', response.status)
+    console.log('INSTITUTE API DATA:', response.data)
 
     institute.value = response.data.data || null
   } catch (error) {
-    console.error('API auth fetch failed:', error)
+    console.error('Institute API failed:', error)
+
+    if (error.response) {
+      console.error('API STATUS:', error.response.status)
+      console.error('API DATA:', error.response.data)
+    }
+
     institute.value = null
   }
 }
@@ -191,17 +212,81 @@ const getLogoUrl = (logo) => {
     return ''
   }
 
+  // ----------------------------------------------------------
+  // Data URL
+  // ----------------------------------------------------------
+
+  if (logo.startsWith('data:image')) {
+    return logo
+  }
+
+  // ----------------------------------------------------------
+  // Find API base URL
+  // ----------------------------------------------------------
+
+  const apiBaseUrl = api.defaults.baseURL || ''
+
+  // Example:
+  //
+  // VITE_API_URL =
+  // https://icon.shahedislam.xyz/public/api
+  //
+  // We need:
+  //
+  // https://icon.shahedislam.xyz/public
+  //
+  // because storage is outside /api.
+  //
+
+  const storageBaseUrl = apiBaseUrl.replace(/\/api\/?$/, '')
+
+  // ----------------------------------------------------------
   // Already full URL
+  // ----------------------------------------------------------
+
   if (logo.startsWith('http://') || logo.startsWith('https://')) {
-    return logo
+    try {
+      const logoUrl = new URL(logo)
+
+      // If backend accidentally sends local URL
+      // replace it with current API server.
+
+      if (logoUrl.hostname === '127.0.0.1' || logoUrl.hostname === 'localhost') {
+        const cleanPath = logoUrl.pathname.replace(/^\/+/, '')
+
+        return `${storageBaseUrl}/${cleanPath}`
+      }
+
+      // Production/external full URL
+      return logo
+    } catch (error) {
+      console.error('Invalid logo URL:', logo)
+
+      return ''
+    }
   }
 
-  // Laravel storage path
+  // ----------------------------------------------------------
+  // /storage/...
+  // ----------------------------------------------------------
+
   if (logo.startsWith('/storage/')) {
-    return logo
+    return `${storageBaseUrl}${logo}`
   }
 
-  return `/storage/${logo}`
+  // ----------------------------------------------------------
+  // storage/...
+  // ----------------------------------------------------------
+
+  if (logo.startsWith('storage/')) {
+    return `${storageBaseUrl}/${logo}`
+  }
+
+  // ----------------------------------------------------------
+  // institute/...
+  // ----------------------------------------------------------
+
+  return `${storageBaseUrl}/storage/${logo}`
 }
 
 // ============================================================
