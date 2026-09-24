@@ -41,7 +41,6 @@
       <div class="staff-toolbar">
         <div class="search-box">
           <i class="bi bi-search"></i>
-
           <input v-model="search" type="text" placeholder="Search student..." />
         </div>
 
@@ -157,9 +156,7 @@
               <td colspan="8" class="text-center py-5">
                 <div class="empty-state">
                   <i class="bi bi-person-x"></i>
-
                   <h5>No Student Found</h5>
-
                   <p>Try changing search or filter</p>
                 </div>
               </td>
@@ -643,6 +640,7 @@
 <script setup>
 import dashPageView from './dashPageView.vue'
 import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
+
 import api from '@/services/api'
 import * as bootstrap from 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -658,6 +656,7 @@ const shifts = ref([])
 
 const search = ref('')
 const selectedClass = ref('')
+
 const loading = ref(false)
 
 const currentPage = ref(1)
@@ -753,7 +752,9 @@ const handleFileChange = (event, type) => {
 /* ================= RESET ADD FORM ================= */
 
 const resetForm = () => {
-  Object.keys(form).forEach((key) => (form[key] = ''))
+  Object.keys(form).forEach((key) => {
+    form[key] = ''
+  })
 
   addImageFile.value = null
 
@@ -792,7 +793,6 @@ const closeModal = async (modalId) => {
   document.body.classList.remove('modal-open')
 
   document.body.style.removeProperty('overflow')
-
   document.body.style.removeProperty('padding-right')
 
   modalEl.classList.remove('show')
@@ -1011,12 +1011,14 @@ watch(search, () => {
 
   searchTimer = setTimeout(() => {
     currentPage.value = 1
+
     getStudent(1)
   }, 400)
 })
 
 watch(selectedClass, () => {
   currentPage.value = 1
+
   getStudent(1)
 })
 
@@ -1026,50 +1028,52 @@ onMounted(async () => {
   loading.value = true
 
   try {
-    const cachedSections = sessionStorage.getItem('cache_sections')
+    /*
+     * IMPORTANT:
+     * We are intentionally loading fresh
+     * class/section/group/shift data from API.
+     *
+     * The old sessionStorage cache could contain
+     * stale or empty class data, which caused
+     * classes to disappear locally.
+     */
 
-    const cachedClasses = sessionStorage.getItem('cache_classes')
+    const [secRes, clsRes, grpRes, shfRes] = await Promise.all([
+      api.get('/sections'),
+      api.get('/classes'),
+      api.get('/class_group'),
+      api.get('/shifts'),
+    ])
 
-    const cachedGroups = sessionStorage.getItem('cache_groups')
+    sections.value = secRes.data.sections || secRes.data.data || secRes.data || []
 
-    const cachedShifts = sessionStorage.getItem('cache_shifts')
+    classes.value = clsRes.data.classes || clsRes.data.data || clsRes.data || []
 
-    if (cachedSections && cachedClasses && cachedGroups && cachedShifts) {
-      sections.value = JSON.parse(cachedSections)
+    classGroups.value =
+      grpRes.data.classGroups || grpRes.data.groups || grpRes.data.data || grpRes.data || []
 
-      classes.value = JSON.parse(cachedClasses)
+    shifts.value = shfRes.data.data || shfRes.data.shifts || shfRes.data || []
 
-      classGroups.value = JSON.parse(cachedGroups)
+    /*
+     * Save fresh API data to sessionStorage
+     * for other pages/loads if needed.
+     */
 
-      shifts.value = JSON.parse(cachedShifts)
+    sessionStorage.setItem('cache_sections', JSON.stringify(sections.value))
 
-      await getStudent(1)
-    } else {
-      const [secRes, clsRes, grpRes, shfRes] = await Promise.all([
-        api.get('/sections'),
-        api.get('/classes'),
-        api.get('/class_group'),
-        api.get('/shifts'),
-        getStudent(1),
-      ])
+    sessionStorage.setItem('cache_classes', JSON.stringify(classes.value))
 
-      sections.value = secRes.data.sections || secRes.data.data || secRes.data || []
+    sessionStorage.setItem('cache_groups', JSON.stringify(classGroups.value))
 
-      classes.value = clsRes.data.classes || clsRes.data.data || clsRes.data || []
+    sessionStorage.setItem('cache_shifts', JSON.stringify(shifts.value))
 
-      classGroups.value =
-        grpRes.data.classGroups || grpRes.data.groups || grpRes.data.data || grpRes.data || []
+    /*
+     * Load students separately.
+     * This was previously incorrectly included
+     * as a fifth Promise inside Promise.all().
+     */
 
-      shifts.value = shfRes.data.data || shfRes.data.shifts || shfRes.data || []
-
-      sessionStorage.setItem('cache_sections', JSON.stringify(sections.value))
-
-      sessionStorage.setItem('cache_classes', JSON.stringify(classes.value))
-
-      sessionStorage.setItem('cache_groups', JSON.stringify(classGroups.value))
-
-      sessionStorage.setItem('cache_shifts', JSON.stringify(shifts.value))
-    }
+    await getStudent(1)
   } catch (error) {
     console.error('Initialization error:', error)
   } finally {
@@ -1109,13 +1113,19 @@ onMounted(async () => {
 
 .staff-header {
   background: linear-gradient(135deg, #2563eb, #4f46e5);
+
   padding: 28px 32px;
+
   border-radius: 20px;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   color: white;
+
   margin-bottom: 25px;
+
   box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
 }
 
@@ -1142,22 +1152,30 @@ onMounted(async () => {
 .staff-summary {
   background: white;
   color: #111827;
+
   padding: 12px 18px;
+
   border-radius: 15px;
+
   display: flex;
   align-items: center;
+
   gap: 15px;
 }
 
 .summary-icon {
   width: 45px;
   height: 45px;
+
   border-radius: 12px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   background: #dbeafe;
   color: #2563eb;
+
   font-size: 22px;
 }
 
@@ -1174,7 +1192,9 @@ onMounted(async () => {
 .add-btn {
   color: #2563eb;
   font-weight: 600;
+
   border-radius: 12px;
+
   padding: 12px 20px;
 }
 
@@ -1184,8 +1204,11 @@ onMounted(async () => {
 
 .staff-table-card {
   background: white;
+
   border-radius: 20px;
+
   padding: 25px;
+
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
 }
 
@@ -1196,7 +1219,9 @@ onMounted(async () => {
 .staff-toolbar {
   display: flex;
   justify-content: space-between;
+
   gap: 15px;
+
   margin-bottom: 20px;
 }
 
@@ -1207,29 +1232,40 @@ onMounted(async () => {
 
 .search-box i {
   position: absolute;
+
   left: 15px;
   top: 50%;
+
   transform: translateY(-50%);
+
   color: #9ca3af;
 }
 
 .search-box input {
   width: 100%;
+
   padding: 12px 15px 12px 45px;
+
   border-radius: 12px;
+
   border: 1px solid #e5e7eb;
+
   outline: none;
 }
 
 .search-box input:focus {
   border-color: #2563eb;
+
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .class-filter {
   width: 200px;
+
   border-radius: 12px;
+
   border: 1px solid #e5e7eb;
+
   padding: 10px;
 }
 
@@ -1244,20 +1280,27 @@ onMounted(async () => {
 
 .staff-table thead th {
   background: #f1f5f9;
+
   border: none;
+
   padding: 15px;
+
   color: #374151;
+
   font-size: 14px;
 }
 
 .staff-table tbody tr {
   background: white;
+
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+
   transition: 0.3s;
 }
 
 .staff-table tbody tr:hover {
   transform: translateY(-3px);
+
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
@@ -1273,8 +1316,11 @@ onMounted(async () => {
 .staff-avatar {
   width: 45px;
   height: 45px;
+
   border-radius: 50%;
+
   object-fit: cover;
+
   border: 3px solid #dbeafe;
 }
 
@@ -1299,10 +1345,15 @@ onMounted(async () => {
 .version-badge {
   background: #fef3c7;
   color: #92400e;
+
   padding: 6px 12px;
+
   border-radius: 20px;
+
   font-size: 13px;
+
   font-weight: 600;
+
   white-space: nowrap;
 }
 
@@ -1313,9 +1364,13 @@ onMounted(async () => {
 .skill-badge {
   background: #eff6ff;
   color: #2563eb;
+
   padding: 6px 12px;
+
   border-radius: 20px;
+
   font-size: 13px;
+
   font-weight: 600;
 }
 
@@ -1326,9 +1381,13 @@ onMounted(async () => {
 .group-badge {
   background: #ecfdf5;
   color: #059669;
+
   padding: 6px 12px;
+
   border-radius: 20px;
+
   font-size: 13px;
+
   font-weight: 600;
 }
 
@@ -1344,12 +1403,17 @@ onMounted(async () => {
 .action-btn {
   width: 38px;
   height: 38px;
+
   border: none;
+
   border-radius: 10px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 16px;
+
   transition: 0.3s;
 }
 
@@ -1378,7 +1442,9 @@ onMounted(async () => {
 
 .empty-state {
   text-align: center;
+
   padding: 50px;
+
   color: #6b7280;
 }
 
@@ -1393,24 +1459,32 @@ onMounted(async () => {
 
 .pagination-box {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
+
   margin-top: 20px;
+
   color: #6b7280;
 }
 
 .page-buttons {
   display: flex;
   align-items: center;
+
   gap: 10px;
 }
 
 .page-btn {
   border: none;
+
   background: #2563eb;
+
   color: white;
+
   width: 38px;
   height: 38px;
+
   border-radius: 10px;
 }
 
@@ -1425,7 +1499,9 @@ onMounted(async () => {
 
 .student-modal {
   border: none;
+
   border-radius: 20px;
+
   overflow: hidden;
 }
 
@@ -1450,8 +1526,11 @@ onMounted(async () => {
 .student-modal-avatar {
   width: 100px;
   height: 100px;
+
   border-radius: 50%;
+
   border: 5px solid #dbeafe;
+
   object-fit: cover;
 }
 
@@ -1467,12 +1546,15 @@ onMounted(async () => {
 
   .staff-header {
     flex-direction: column;
+
     align-items: flex-start;
+
     gap: 20px;
   }
 
   .staff-header-right {
     width: 100%;
+
     justify-content: space-between;
   }
 
@@ -1495,6 +1577,7 @@ onMounted(async () => {
 
   .pagination-box {
     flex-direction: column;
+
     gap: 15px;
   }
 }

@@ -102,7 +102,7 @@
           <!-- =================================================== -->
           <!-- STUDENT INFO BAR -->
           <!-- =================================================== -->
-          <div class="student-info-bar p-3 mb-4 border bg-white shadow-sm">
+          <div class="student-info-bar p-3 mb-4 border shadow-sm">
             <div class="row align-items-center g-3">
               <!-- Student Photo -->
               <div class="col-auto">
@@ -148,20 +148,17 @@
                   </div>
 
                   <div>
-                    <span class="text-muted">Class:</span>
-                    <span class="ms-1">
-                      {{ student.class || '-' }}
-                    </span>
+                    <span class="text-muted"></span>
+
+                    {{ student.class || '-' }}
                   </div>
 
-                  <!-- ================= VERSION ================= -->
                   <div>
                     <span class="text-muted">Version:</span>
                     <span class="ms-1">
                       {{ student.version || '-' }}
                     </span>
                   </div>
-                  <!-- ================================================= -->
 
                   <div>
                     <span class="text-muted">Group:</span>
@@ -193,7 +190,7 @@
           <!-- =================================================== -->
           <div v-if="processedSubjects.length" class="table-responsive mb-4">
             <table
-              class="table table-bordered custom-result-table align-middle text-center mb-0 bg-white shadow-sm"
+              class="table table-bordered custom-result-table align-middle text-center mb-0 shadow-sm"
             >
               <!-- HEADER -->
               <thead>
@@ -630,7 +627,7 @@ const downloadPdf = async () => {
 
         headers.forEach((th) => {
           th.style.cssText = `
-            background-color: #f8f9fa !important;
+            background-color: rgba(248, 249, 250, 0.9) !important;
             color: #000000 !important;
             border: 1px solid #dee2e6 !important;
             padding: 8px !important;
@@ -714,13 +711,20 @@ onMounted(async () => {
 }
 
 .result-card {
-  background-image: url('/bg-frame.png');
+  background-image: url('/bgi.png');
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
   border-radius: 0px;
   border: none !important;
   padding: 25px 35px;
+  background-color: #ffffff;
+}
+
+/* কন্টেন্টটি সামান্য নিচে নামানোর জন্য margin-top বাড়িয়ে 110px করা হলো */
+.school-header {
+  min-height: 120px;
+  margin-top: 120px; /* <--- এখানে মার্জিন বাড়িয়ে সমন্বয় করা হয়েছে */
 }
 
 .watermark-container {
@@ -748,9 +752,10 @@ onMounted(async () => {
 }
 
 .student-info-bar {
-  background-color: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid #e5e7eb !important;
+  background-color: transparent !important;
+  border: 2px solid #000000 !important;
   border-radius: 4px;
+  margin-top: 20px;
 }
 
 .student-photo-sm {
@@ -768,15 +773,14 @@ onMounted(async () => {
 
 .custom-result-table {
   font-size: 0.85rem;
-  border-color: #d1d5db !important;
+  border-color: #000000 !important;
 }
-
 .custom-result-table th,
 .custom-result-table td {
   padding: 8px 6px;
   vertical-align: middle;
-  border-color: #d1d5db !important;
-  background-color: rgba(255, 255, 255, 0.85) !important;
+  border: 1.5px solid #000000 !important;
+  background-color: transparent !important;
 }
 
 .signature-space {
@@ -785,10 +789,6 @@ onMounted(async () => {
 
 .tracking-wide {
   letter-spacing: 0.05em;
-}
-
-.school-header {
-  min-height: 110px;
 }
 
 .action-buttons-wrapper {
@@ -842,6 +842,7 @@ onMounted(async () => {
   .custom-result-table td {
     padding: 5px 4px;
     border-color: #000000 !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
   }
 
   @page {

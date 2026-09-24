@@ -354,22 +354,11 @@ const getLogoUrl = (logo) => {
 */
 const fetchInstitute = async () => {
   try {
-    const response = await fetch('https://icon.shahedislam.xyz/public/api/institute-info', {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    })
+    const response = await api.get('/institute-info')
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
+    console.log('INSTITUTE INFO:', response.data)
 
-    const result = await response.json()
-
-    console.log('LIVE INSTITUTE INFO:', result)
-
-    institute.value = result.data || null
+    institute.value = response.data.data || null
   } catch (error) {
     console.error('Institute info failed:', error)
     institute.value = null
